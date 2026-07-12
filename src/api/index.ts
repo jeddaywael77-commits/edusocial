@@ -173,3 +173,10 @@ export {
   useAutocomplete,
   useSearchStats,
 } from "./search";
+export {
+  aiApi,
+  useAiConversations,
+  useAiMessages,
+  useAiStats,
+  useSuggestedQuestions,
+} from "./ai";

@@ -29,6 +29,7 @@ import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { SocketModule } from './modules/socket/socket.module';
 import { MediaModule } from './modules/media/media.module';
 import { SearchModule } from './modules/search/search.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { SearchModule } from './modules/search/search.module';
     SocketModule,
     MediaModule,
     SearchModule,
+    AiModule,
   ],
 })
 export class AppModule {}

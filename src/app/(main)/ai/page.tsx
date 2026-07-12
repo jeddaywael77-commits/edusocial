@@ -1,209 +1,290 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
-import {
-  Bot,
-  Send,
-  Sparkles,
-  BookOpen,
-  FileText,
-  Calculator,
-  Code,
-  Mic,
-  RotateCcw,
-  Brain,
-  PenTool,
-} from "lucide-react";
+import * as React from "react";
+import { useAiConversations, useAiMessages, aiApi, useSuggestedQuestions } from "@/api/ai";
 import { Button } from "@/shared/ui/button";
+import { Card } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
-import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
-import { useProfile } from "@/features/auth";
-import { getInitials } from "@/shared/lib/utils";
+import { ScrollArea } from "@/shared/ui/scroll-area";
+import {
+  Send,
+  Plus,
+  MessageSquare,
+  Sparkles,
+  Loader2,
+  Trash2,
+  Bot,
+  User,
+  BookOpen,
+  Calculator,
+  FileText,
+  GraduationCap,
+  Clock,
+} from "lucide-react";
 
-const suggestions = [
-  { icon: BookOpen, label: "Explain Calculus III concepts", color: "text-primary" },
-  { icon: FileText, label: "Summarize my PDF notes", color: "text-accent" },
-  { icon: Calculator, label: "Generate practice problems", color: "text-secondary" },
-  { icon: Code, label: "Help with Python code", color: "text-success" },
-  { icon: PenTool, label: "Check my homework", color: "text-warning" },
-  { icon: Brain, label: "Create flashcards for me", color: "text-destructive" },
-];
-
-interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
+function MarkdownRenderer({ content }: { content: string }) {
+  const html = content
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/`(.*?)`/g, '<code class="bg-muted px-1 rounded text-sm">$1</code>')
+    .replace(/\n/g, "<br/>");
+  return <div dangerouslySetInnerHTML={{ __html: html }} />;
 }
 
-const mockAIResponses: Record<string, string> = {
-  default: "I'd be happy to help you with that! Could you provide more details so I can give you a more specific answer?",
-  calculus: "Calculus III covers multivariable calculus. Key topics include:\n\n1. **Partial Derivatives** - Rates of change with respect to multiple variables\n2. **Multiple Integrals** - Computing volumes and areas in higher dimensions\n3. **Vector Calculus** - Gradient, divergence, curl, and line integrals\n4. **Green's/Stokes'/Divergence Theorems** - Connecting different types of integrals\n\nWould you like me to explain any of these in more detail?",
-  python: "Here's a basic Python example:\n\n```python\ndef fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\n# Generate first 10 numbers\nfor i in range(10):\n    print(fibonacci(i))\n```\n\nWhat specific Python concept would you like help with?",
-  flashcards: "Here are some flashcards for your review:\n\n**Card 1:** What is the derivative of sin(x)?\n\u2192 cos(x)\n\n**Card 2:** What is the integral of 1/x?\n\u2192 ln|x| + C\n\n**Card 3:** What is the chain rule?\n\u2192 d/dx[f(g(x))] = f'(g(x)) \u00b7 g'(x)\n\nWould you like me to generate more flashcards on a specific topic?",
-};
+export default function AiPage() {
+  const [activeConversation, setActiveConversation] = React.useState<string | null>(null);
+  const [input, setInput] = React.useState("");
+  const [isStreaming, setIsStreaming] = React.useState(false);
+  const [streamingContent, setStreamingContent] = React.useState("");
+  const [showSidebar, setShowSidebar] = React.useState(true);
+  const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
-export default function AIPage() {
-  const { data: user } = useProfile();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { data: conversations, refetch: refetchConversations } = useAiConversations();
+  const { data: messages } = useAiMessages(activeConversation || "");
+  const { data: suggested } = useSuggestedQuestions();
 
-  useEffect(() => {
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const handleSend = (text?: string) => {
-    const content = text || inputValue.trim();
-    if (!content) return;
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: "user",
-      content,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const lowerContent = content.toLowerCase();
-      let response = mockAIResponses.default;
-      if (lowerContent.includes("calculus")) response = mockAIResponses.calculus;
-      else if (lowerContent.includes("python") || lowerContent.includes("code")) response = mockAIResponses.python;
-      else if (lowerContent.includes("flashcard")) response = mockAIResponses.flashcards;
-
-      const aiMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1500);
   };
 
+  React.useEffect(() => {
+    scrollToBottom();
+  }, [messages, streamingContent]);
+
+  const handleNewConversation = async () => {
+    const result = await aiApi.createConversation();
+    setActiveConversation(result.data.id);
+    refetchConversations();
+  };
+
+  const handleSend = async (messageText?: string) => {
+    const text = messageText || input.trim();
+    if (!text || !activeConversation || isStreaming) return;
+
+    setInput("");
+    setIsStreaming(true);
+    setStreamingContent("");
+
+    try {
+      const stream = aiApi.streamMessage(activeConversation, {
+        content: text,
+      });
+
+      let fullContent = "";
+      for await (const chunk of stream) {
+        if (chunk.content) {
+          fullContent += chunk.content;
+          setStreamingContent(fullContent);
+        }
+      }
+
+      setStreamingContent("");
+      refetchConversations();
+    } catch (error) {
+      console.error("Streaming error:", error);
+    } finally {
+      setIsStreaming(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const featureCards = [
+    { icon: <BookOpen className="h-5 w-5" />, title: "AI Tutor", desc: "Ask any question", color: "text-blue-400 bg-blue-400/10" },
+    { icon: <Calculator className="h-5 w-5" />, title: "Homework Help", desc: "Get step-by-step help", color: "text-purple-400 bg-purple-400/10" },
+    { icon: <FileText className="h-5 w-5" />, title: "Quiz Generator", desc: "Test your knowledge", color: "text-green-400 bg-green-400/10" },
+    { icon: <GraduationCap className="h-5 w-5" />, title: "Study Planner", desc: "Plan your studies", color: "text-orange-400 bg-orange-400/10" },
+    { icon: <Sparkles className="h-5 w-5" />, title: "Flashcards", desc: "Create study cards", color: "text-pink-400 bg-pink-400/10" },
+    { icon: <Clock className="h-5 w-5" />, title: "Summarizer", desc: "Summarize documents", color: "text-cyan-400 bg-cyan-400/10" },
+  ];
+
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden h-[calc(100vh-5rem)] flex flex-col">
-      <div className="p-4 border-b border-border flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-primary flex items-center justify-center">
-            <Bot className="h-5 w-5 text-white" />
+    <div className="flex h-[calc(100vh-4rem)] bg-background">
+      {/* Sidebar */}
+      {showSidebar && (
+        <div className="w-72 border-r border-border bg-card flex flex-col">
+          <div className="p-3 border-b border-border">
+            <Button onClick={handleNewConversation} className="w-full" size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              New Chat
+            </Button>
           </div>
-          <div>
-            <h2 className="font-bold">AI Tutor</h2>
-            <p className="text-xs text-muted-foreground">Always here to help you learn</p>
-          </div>
-        </div>
-        {messages.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={() => setMessages([])}>
-            <RotateCcw className="h-4 w-4 mr-1" />
-            New Chat
-          </Button>
-        )}
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full max-w-lg mx-auto text-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-secondary/20 to-primary/20 flex items-center justify-center mb-4">
-              <Sparkles className="h-10 w-10 text-secondary" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">
-              Hello, <span className="gradient-text">{user?.name?.split(" ")[0]}</span>!
-            </h2>
-            <p className="text-muted-foreground mb-8">
-              I can help you with homework, explain concepts, create flashcards, and more.
-            </p>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 w-full">
-              {suggestions.map((suggestion, i) => (
-                <motion.button
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  onClick={() => handleSend(suggestion.label)}
-                  className="p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-all text-left group cursor-pointer"
-                >
-                  <suggestion.icon className={`h-4 w-4 mb-2 ${suggestion.color}`} />
-                  <p className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{suggestion.label}</p>
-                </motion.button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4 max-w-3xl mx-auto">
-            {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex gap-3 ${message.role === "user" ? "justify-end" : ""}`}
-              >
-                {message.role === "assistant" && (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary to-primary flex items-center justify-center shrink-0">
-                    <Bot className="h-4 w-4 text-white" />
-                  </div>
-                )}
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
-                    message.role === "user"
-                      ? "bg-primary text-white rounded-br-md"
-                      : "bg-muted rounded-bl-md"
+          <ScrollArea className="flex-1">
+            <div className="p-2 space-y-1">
+              {conversations?.map((conv) => (
+                <button
+                  key={conv.id}
+                  onClick={() => setActiveConversation(conv.id)}
+                  className={`w-full p-2.5 rounded-lg text-left text-sm flex items-center gap-2 transition-colors ${
+                    activeConversation === conv.id
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-muted text-foreground"
                   }`}
                 >
-                  <div className="whitespace-pre-wrap">{message.content}</div>
-                </div>
-                {message.role === "user" && (
-                  <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarFallback className="bg-primary/20 text-primary text-xs">
-                      {getInitials(user?.name || "U")}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </motion.div>
-            ))}
+                  <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{conv.title}</span>
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+      )}
 
-            {isTyping && (
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-secondary to-primary flex items-center justify-center shrink-0">
-                  <Bot className="h-4 w-4 text-white" />
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <div className="h-12 border-b border-border flex items-center px-4 justify-between">
+          <div className="flex items-center gap-2">
+            <Bot className="h-5 w-5 text-primary" />
+            <span className="font-semibold text-sm">AI Assistant</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setShowSidebar(!showSidebar)}
+          >
+            <MessageSquare className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Messages */}
+        <ScrollArea className="flex-1 p-4">
+          {!activeConversation || (messages?.length === 0 && !streamingContent) ? (
+            <div className="max-w-2xl mx-auto py-8">
+              <div className="text-center mb-8">
+                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Sparkles className="h-8 w-8 text-primary" />
                 </div>
-                <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
-                  <div className="flex gap-1">
-                    <div className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <div className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <div className="h-2 w-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: "300ms" }} />
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  EduSocial AI Assistant
+                </h2>
+                <p className="text-muted-foreground">
+                  Your personal AI tutor, homework helper, and study companion
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
+                {featureCards.map((card) => (
+                  <Card
+                    key={card.title}
+                    className="p-4 hover:border-primary/30 cursor-pointer transition-all"
+                    onClick={() => {
+                      handleNewConversation();
+                      setTimeout(() => setInput(`Help me with ${card.title.toLowerCase()}: `), 500);
+                    }}
+                  >
+                    <div className={`h-10 w-10 rounded-lg flex items-center justify-center mb-2 ${card.color}`}>
+                      {card.icon}
+                    </div>
+                    <p className="font-medium text-sm">{card.title}</p>
+                    <p className="text-xs text-muted-foreground">{card.desc}</p>
+                  </Card>
+                ))}
+              </div>
+
+              {suggested && (
+                <div className="space-y-3">
+                  {suggested.map((group) => (
+                    <div key={group.category}>
+                      <p className="text-xs font-medium text-muted-foreground uppercase mb-2">{group.category}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {group.questions.map((q) => (
+                          <button
+                            key={q}
+                            onClick={() => {
+                              handleNewConversation();
+                              setTimeout(() => setInput(q), 500);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-muted text-sm hover:bg-muted/80 transition-colors"
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto space-y-4">
+              {messages?.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex gap-3 ${msg.role === "user" ? "justify-end" : ""}`}
+                >
+                  {msg.role !== "user" && (
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Bot className="h-4 w-4 text-primary" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[80%] p-3 rounded-xl text-sm ${
+                      msg.role === "user"
+                        ? "bg-primary text-white"
+                        : "bg-card border border-border"
+                    }`}
+                  >
+                    <MarkdownRenderer content={msg.content} />
+                  </div>
+                  {msg.role === "user" && (
+                    <div className="h-8 w-8 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
+                      <User className="h-4 w-4 text-secondary" />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {streamingContent && (
+                <div className="flex gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Bot className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="max-w-[80%] p-3 rounded-xl text-sm bg-card border border-border">
+                    <MarkdownRenderer content={streamingContent} />
+                    <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1" />
                   </div>
                 </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-      </div>
+              )}
 
-      <div className="p-4 border-t border-border">
-        <div className="flex items-center gap-2 max-w-3xl mx-auto">
-          <Button variant="ghost" size="icon-sm">
-            <Mic className="h-4 w-4" />
-          </Button>
-          <Input
-            placeholder="Ask me anything about your studies..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            className="flex-1"
-          />
-          <Button size="icon-sm" onClick={() => handleSend()} disabled={!inputValue.trim() || isTyping}>
-            <Send className="h-4 w-4" />
-          </Button>
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </ScrollArea>
+
+        {/* Input */}
+        <div className="p-4 border-t border-border">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask anything..."
+                disabled={isStreaming}
+                className="flex-1"
+              />
+              <Button
+                onClick={() => handleSend()}
+                disabled={!input.trim() || isStreaming}
+                size="icon"
+              >
+                {isStreaming ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              AI responses may not always be accurate. Always verify important information.
+            </p>
+          </div>
         </div>
       </div>
     </div>
