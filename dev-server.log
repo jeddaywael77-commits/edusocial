@@ -1,0 +1,22 @@
+
+> edusocial@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://172.23.0.1:3000
+✓ Ready in 524ms
+
+ GET / 200 in 2.6s (next.js: 2.4s, application-code: 229ms)
+ GET / 200 in 58ms (next.js: 8ms, application-code: 50ms)
+ GET /register 200 in 470ms (next.js: 442ms, application-code: 28ms)
+ GET /login 200 in 491ms (next.js: 453ms, application-code: 38ms)
+ GET /register 200 in 31ms (next.js: 7ms, application-code: 24ms)
+ GET /login 200 in 23ms (next.js: 4ms, application-code: 18ms)
+ GET /register 200 in 25ms (next.js: 6ms, application-code: 20ms)
+ GET /register 200 in 89ms (next.js: 5ms, application-code: 84ms)
+ GET /login 200 in 25ms (next.js: 7ms, application-code: 18ms)
+ GET /login 200 in 52ms (next.js: 4ms, application-code: 48ms)
+ GET /register 200 in 28ms (next.js: 5ms, application-code: 23ms)
+ GET /login 200 in 27ms (next.js: 5ms, application-code: 22ms)
+ GET /register 200 in 27ms (next.js: 6ms, application-code: 21ms)

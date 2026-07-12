@@ -1,0 +1,51 @@
+import { NotificationsService } from './notifications.service';
+export declare class NotificationsController {
+    private readonly notificationsService;
+    constructor(notificationsService: NotificationsService);
+    findAll(userId: string): Promise<{
+        message: string;
+        link: string | null;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        id: string;
+        createdAt: Date;
+        userId: string;
+        senderId: string | null;
+        isRead: boolean;
+    }[]>;
+    findUnread(userId: string): Promise<{
+        message: string;
+        link: string | null;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        id: string;
+        createdAt: Date;
+        userId: string;
+        senderId: string | null;
+        isRead: boolean;
+    }[]>;
+    getUnreadCount(userId: string): Promise<number>;
+    markAsRead(id: string, userId: string): Promise<{
+        message: string;
+        link: string | null;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        id: string;
+        createdAt: Date;
+        userId: string;
+        senderId: string | null;
+        isRead: boolean;
+    }>;
+    markAllAsRead(userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
+    delete(id: string, userId: string): Promise<{
+        message: string;
+        link: string | null;
+        type: import("@prisma/client").$Enums.NotificationType;
+        title: string;
+        id: string;
+        createdAt: Date;
+        userId: string;
+        senderId: string | null;
+        isRead: boolean;
+    }>;
+}
