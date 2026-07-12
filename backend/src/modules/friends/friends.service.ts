@@ -20,7 +20,11 @@ export class FriendsService {
       },
     });
 
-    this.socketGateway.broadcastToUser(receiverId, SocketEvents.FRIEND_REQUEST_SENT, request);
+    this.socketGateway.broadcastToUser(
+      receiverId,
+      SocketEvents.FRIEND_REQUEST_SENT,
+      request,
+    );
 
     return request;
   }
@@ -28,15 +32,21 @@ export class FriendsService {
   async getRequests(userId: string) {
     return this.prisma.friendRequest.findMany({
       where: { receiverId: userId, status: 'PENDING' },
-      include: { sender: { select: { id: true, name: true, avatar: true, role: true } } },
+      include: {
+        sender: { select: { id: true, name: true, avatar: true, role: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
 
   async acceptRequest(requestId: string, userId: string) {
-    const request = await this.prisma.friendRequest.findUnique({ where: { id: requestId } });
-    if (!request || request.receiverId !== userId) throw new Error('Not authorized');
-    if (request.status !== 'PENDING') throw new Error('Request already handled');
+    const request = await this.prisma.friendRequest.findUnique({
+      where: { id: requestId },
+    });
+    if (!request || request.receiverId !== userId)
+      throw new Error('Not authorized');
+    if (request.status !== 'PENDING')
+      throw new Error('Request already handled');
 
     await this.prisma.friendRequest.update({
       where: { id: requestId },
@@ -47,21 +57,32 @@ export class FriendsService {
       data: { userId: request.senderId, friendId: request.receiverId },
     });
 
-    this.socketGateway.broadcastToUser(request.senderId, SocketEvents.FRIEND_REQUEST_ACCEPTED, { requestId, userId });
+    this.socketGateway.broadcastToUser(
+      request.senderId,
+      SocketEvents.FRIEND_REQUEST_ACCEPTED,
+      { requestId, userId },
+    );
 
     return { success: true };
   }
 
   async declineRequest(requestId: string, userId: string) {
-    const request = await this.prisma.friendRequest.findUnique({ where: { id: requestId } });
-    if (!request || request.receiverId !== userId) throw new Error('Not authorized');
+    const request = await this.prisma.friendRequest.findUnique({
+      where: { id: requestId },
+    });
+    if (!request || request.receiverId !== userId)
+      throw new Error('Not authorized');
 
     const updated = await this.prisma.friendRequest.update({
       where: { id: requestId },
       data: { status: 'DECLINED' },
     });
 
-    this.socketGateway.broadcastToUser(request.senderId, SocketEvents.FRIEND_REQUEST_DECLINED, { requestId });
+    this.socketGateway.broadcastToUser(
+      request.senderId,
+      SocketEvents.FRIEND_REQUEST_DECLINED,
+      { requestId },
+    );
 
     return updated;
   }
@@ -70,8 +91,24 @@ export class FriendsService {
     const friendships = await this.prisma.friendship.findMany({
       where: { OR: [{ userId }, { friendId: userId }] },
       include: {
-        user: { select: { id: true, name: true, avatar: true, isOnline: true, role: true } },
-        friend: { select: { id: true, name: true, avatar: true, isOnline: true, role: true } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+            isOnline: true,
+            role: true,
+          },
+        },
+        friend: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+            isOnline: true,
+            role: true,
+          },
+        },
       },
     });
     return friendships.map((f) => (f.userId === userId ? f.friend : f.user));
@@ -87,7 +124,9 @@ export class FriendsService {
       },
     });
 
-    this.socketGateway.broadcastToUser(friendId, SocketEvents.FRIEND_REMOVED, { userId });
+    this.socketGateway.broadcastToUser(friendId, SocketEvents.FRIEND_REMOVED, {
+      userId,
+    });
 
     return result;
   }

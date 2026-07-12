@@ -17,15 +17,21 @@ export class LocalStorageProvider implements IStorageProvider {
   private readonly baseUrl: string;
 
   constructor(private configService: ConfigService) {
-    this.uploadDir = this.configService.get<string>('app.uploadDir') || './uploads';
-    this.baseUrl = this.configService.get<string>('app.storageBaseUrl') || `http://localhost:${this.configService.get<number>('app.port') || 3001}/uploads`;
+    this.uploadDir =
+      this.configService.get<string>('app.uploadDir') || './uploads';
+    this.baseUrl =
+      this.configService.get<string>('app.storageBaseUrl') ||
+      `http://localhost:${this.configService.get<number>('app.port') || 3001}/uploads`;
   }
 
   private async ensureDir(dirPath: string) {
     await fs.mkdir(dirPath, { recursive: true });
   }
 
-  async upload(buffer: Buffer, options: StorageUploadOptions): Promise<StorageUploadResult> {
+  async upload(
+    buffer: Buffer,
+    options: StorageUploadOptions,
+  ): Promise<StorageUploadResult> {
     const filePath = path.join(this.uploadDir, options.key);
     const dir = path.dirname(filePath);
     await this.ensureDir(dir);
@@ -39,7 +45,10 @@ export class LocalStorageProvider implements IStorageProvider {
     };
   }
 
-  async uploadStream(stream: NodeJS.ReadableStream, options: StorageUploadOptions): Promise<StorageUploadResult> {
+  async uploadStream(
+    stream: NodeJS.ReadableStream,
+    options: StorageUploadOptions,
+  ): Promise<StorageUploadResult> {
     const filePath = path.join(this.uploadDir, options.key);
     const dir = path.dirname(filePath);
     await this.ensureDir(dir);
@@ -78,7 +87,12 @@ export class LocalStorageProvider implements IStorageProvider {
     return `${this.baseUrl}/${key}`;
   }
 
-  async copy(srcBucket: string, srcKey: string, destBucket: string, destKey: string): Promise<void> {
+  async copy(
+    srcBucket: string,
+    srcKey: string,
+    destBucket: string,
+    destKey: string,
+  ): Promise<void> {
     const srcPath = path.join(this.uploadDir, srcKey);
     const destPath = path.join(this.uploadDir, destKey);
     await this.ensureDir(path.dirname(destPath));

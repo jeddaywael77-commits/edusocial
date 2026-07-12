@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { FriendsService } from './friends.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -32,27 +42,39 @@ export class FriendsController {
   @Post('request')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Send a friend request' })
-  async sendRequest(@CurrentUser('sub') userId: string, @Body() dto: SendRequestDto) {
+  async sendRequest(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: SendRequestDto,
+  ) {
     return this.friendsService.sendRequest(userId, dto.receiverId);
   }
 
   @Post('request/:id/accept')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Accept a friend request' })
-  async acceptRequest(@Param('id') id: string, @CurrentUser('sub') userId: string) {
+  async acceptRequest(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+  ) {
     return this.friendsService.acceptRequest(id, userId);
   }
 
   @Post('request/:id/decline')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Decline a friend request' })
-  async declineRequest(@Param('id') id: string, @CurrentUser('sub') userId: string) {
+  async declineRequest(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+  ) {
     return this.friendsService.declineRequest(id, userId);
   }
 
   @Delete(':friendId')
   @ApiOperation({ summary: 'Remove a friend' })
-  async removeFriend(@CurrentUser('sub') userId: string, @Param('friendId') friendId: string) {
+  async removeFriend(
+    @CurrentUser('sub') userId: string,
+    @Param('friendId') friendId: string,
+  ) {
     return this.friendsService.removeFriend(userId, friendId);
   }
 }

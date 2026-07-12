@@ -48,9 +48,17 @@ export class PostsService {
     this.logger.log(`Post created: ${post.id} by ${authorId}`);
 
     if (post.groupId) {
-      this.socketGateway.broadcastToRoom(`group:${post.groupId}`, SocketEvents.FEED_NEW_POST, post);
+      this.socketGateway.broadcastToRoom(
+        `group:${post.groupId}`,
+        SocketEvents.FEED_NEW_POST,
+        post,
+      );
     } else if (post.courseId) {
-      this.socketGateway.broadcastToRoom(`course:${post.courseId}`, SocketEvents.FEED_NEW_POST, post);
+      this.socketGateway.broadcastToRoom(
+        `course:${post.courseId}`,
+        SocketEvents.FEED_NEW_POST,
+        post,
+      );
     } else {
       this.socketGateway.broadcastToAll(SocketEvents.FEED_NEW_POST, post);
     }
@@ -78,19 +86,14 @@ export class PostsService {
       }),
     };
 
-    const cursor = query.cursor
-      ? { id: query.cursor }
-      : undefined;
+    const cursor = query.cursor ? { id: query.cursor } : undefined;
 
     const [posts, count] = await Promise.all([
       this.prisma.post.findMany({
         where,
         take: limit + 1,
         ...(cursor && { cursor, skip: 1 }),
-        orderBy: [
-          { isPinned: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
         include: this.postInclude(userId),
       }),
       this.prisma.post.count({ where }),
@@ -121,10 +124,7 @@ export class PostsService {
         visibility: PostVisibility.PUBLIC,
         createdAt: { gte: threeDaysAgo },
       },
-      orderBy: [
-        { shareCount: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ shareCount: 'desc' }, { createdAt: 'desc' }],
       take: limit,
       include: this.postInclude(userId),
     });
@@ -227,7 +227,7 @@ export class PostsService {
       throw new ConflictException('You already shared this post');
     }
 
-    const [, updated] = await this.prisma.$transaction([
+    await this.prisma.$transaction([
       this.prisma.postShare.create({
         data: {
           userId,
@@ -314,7 +314,10 @@ export class PostsService {
       OR: [
         { visibility: PostVisibility.PUBLIC },
         { authorId: userId },
-        { authorId: { in: uniqueFriendIds }, visibility: PostVisibility.FRIENDS },
+        {
+          authorId: { in: uniqueFriendIds },
+          visibility: PostVisibility.FRIENDS,
+        },
       ],
     };
 
@@ -324,10 +327,7 @@ export class PostsService {
       where,
       take: safeLimit + 1,
       ...(dbCursor && { cursor: dbCursor, skip: 1 }),
-      orderBy: [
-        { isPinned: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
       include: this.postInclude(userId),
     });
 

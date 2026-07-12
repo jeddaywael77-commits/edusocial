@@ -11,7 +11,16 @@ export class NotificationsService {
     private socketGateway: SocketGateway,
   ) {}
 
-  async create(userId: string, data: { type: string; title: string; message: string; link?: string; senderId?: string }) {
+  async create(
+    userId: string,
+    data: {
+      type: string;
+      title: string;
+      message: string;
+      link?: string;
+      senderId?: string;
+    },
+  ) {
     const notification = await this.prisma.notification.create({
       data: {
         type: data.type as any,
@@ -26,10 +35,18 @@ export class NotificationsService {
       },
     });
 
-    this.socketGateway.broadcastToUser(userId, SocketEvents.NOTIFICATION_NEW, notification);
+    this.socketGateway.broadcastToUser(
+      userId,
+      SocketEvents.NOTIFICATION_NEW,
+      notification,
+    );
 
     const unreadCount = await this.getUnreadCount(userId);
-    this.socketGateway.broadcastToUser(userId, SocketEvents.NOTIFICATION_UNREAD_COUNT, { count: unreadCount });
+    this.socketGateway.broadcastToUser(
+      userId,
+      SocketEvents.NOTIFICATION_UNREAD_COUNT,
+      { count: unreadCount },
+    );
 
     return notification;
   }
@@ -54,12 +71,22 @@ export class NotificationsService {
   }
 
   async markAsRead(id: string, userId: string) {
-    const notification = await this.prisma.notification.findUnique({ where: { id } });
-    if (!notification || notification.userId !== userId) throw new Error('Not authorized');
-    const updated = await this.prisma.notification.update({ where: { id }, data: { isRead: true } });
+    const notification = await this.prisma.notification.findUnique({
+      where: { id },
+    });
+    if (!notification || notification.userId !== userId)
+      throw new Error('Not authorized');
+    const updated = await this.prisma.notification.update({
+      where: { id },
+      data: { isRead: true },
+    });
 
     const unreadCount = await this.getUnreadCount(userId);
-    this.socketGateway.broadcastToUser(userId, SocketEvents.NOTIFICATION_UNREAD_COUNT, { count: unreadCount });
+    this.socketGateway.broadcastToUser(
+      userId,
+      SocketEvents.NOTIFICATION_UNREAD_COUNT,
+      { count: unreadCount },
+    );
 
     return updated;
   }
@@ -70,14 +97,21 @@ export class NotificationsService {
       data: { isRead: true },
     });
 
-    this.socketGateway.broadcastToUser(userId, SocketEvents.NOTIFICATION_UNREAD_COUNT, { count: 0 });
+    this.socketGateway.broadcastToUser(
+      userId,
+      SocketEvents.NOTIFICATION_UNREAD_COUNT,
+      { count: 0 },
+    );
 
     return result;
   }
 
   async delete(id: string, userId: string) {
-    const notification = await this.prisma.notification.findUnique({ where: { id } });
-    if (!notification || notification.userId !== userId) throw new Error('Not authorized');
+    const notification = await this.prisma.notification.findUnique({
+      where: { id },
+    });
+    if (!notification || notification.userId !== userId)
+      throw new Error('Not authorized');
     return this.prisma.notification.delete({ where: { id } });
   }
 }

@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ExamsService } from './exams.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -11,14 +22,23 @@ class CreateExamDto {
   @ApiProperty() @IsString() courseId: string;
   @ApiProperty() @IsNumber() timeLimit: number;
   @ApiProperty() @IsString() dueDate: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
   @ApiProperty({ required: false }) @IsOptional() questions?: any;
 }
 
 class UpdateExamDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() title?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsNumber() timeLimit?: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  timeLimit?: number;
   @ApiProperty({ required: false }) @IsOptional() @IsString() dueDate?: string;
   @ApiProperty({ required: false }) @IsOptional() questions?: any;
 }
@@ -59,7 +79,11 @@ export class ExamsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update an exam' })
-  async update(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() dto: UpdateExamDto) {
+  async update(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+    @Body() dto: UpdateExamDto,
+  ) {
     return this.examsService.update(id, userId, dto);
   }
 

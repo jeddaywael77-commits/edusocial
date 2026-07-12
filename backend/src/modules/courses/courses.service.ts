@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
@@ -6,7 +11,16 @@ export class CoursesService {
   private readonly logger = new Logger(CoursesService.name);
   constructor(private prisma: PrismaService) {}
 
-  async create(teacherId: string, data: { title: string; description?: string; category: string; level?: string; thumbnail?: string }) {
+  async create(
+    teacherId: string,
+    data: {
+      title: string;
+      description?: string;
+      category: string;
+      level?: string;
+      thumbnail?: string;
+    },
+  ) {
     return this.prisma.course.create({
       data: {
         title: data.title,
@@ -27,7 +41,9 @@ export class CoursesService {
       this.prisma.course.findMany({
         include: {
           teacher: { select: { id: true, name: true, avatar: true } },
-          _count: { select: { lessons: true, assignments: true, enrollments: true } },
+          _count: {
+            select: { lessons: true, assignments: true, enrollments: true },
+          },
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -35,7 +51,10 @@ export class CoursesService {
       }),
       this.prisma.course.count(),
     ]);
-    return { data: courses, meta: { total, page, limit: take, totalPages: Math.ceil(total / take) } };
+    return {
+      data: courses,
+      meta: { total, page, limit: take, totalPages: Math.ceil(total / take) },
+    };
   }
 
   async findById(id: string) {
@@ -50,15 +69,26 @@ export class CoursesService {
     });
   }
 
-  async update(id: string, userId: string, data: { title?: string; description?: string; thumbnail?: string; isPublished?: boolean }) {
+  async update(
+    id: string,
+    userId: string,
+    data: {
+      title?: string;
+      description?: string;
+      thumbnail?: string;
+      isPublished?: boolean;
+    },
+  ) {
     const course = await this.prisma.course.findUnique({ where: { id } });
-    if (!course || course.teacherId !== userId) throw new ForbiddenException('Not authorized');
+    if (!course || course.teacherId !== userId)
+      throw new ForbiddenException('Not authorized');
     return this.prisma.course.update({ where: { id }, data });
   }
 
   async delete(id: string, userId: string) {
     const course = await this.prisma.course.findUnique({ where: { id } });
-    if (!course || course.teacherId !== userId) throw new ForbiddenException('Not authorized');
+    if (!course || course.teacherId !== userId)
+      throw new ForbiddenException('Not authorized');
     return this.prisma.course.delete({ where: { id } });
   }
 
@@ -81,6 +111,9 @@ export class CoursesService {
       }),
       this.prisma.enrollment.count({ where: { courseId } }),
     ]);
-    return { data: enrollments, meta: { total, page, limit: take, totalPages: Math.ceil(total / take) } };
+    return {
+      data: enrollments,
+      meta: { total, page, limit: take, totalPages: Math.ceil(total / take) },
+    };
   }
 }

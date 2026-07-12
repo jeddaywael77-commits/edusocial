@@ -26,13 +26,18 @@ export class AiToolsService {
     this.tools.set('search_documents', {
       name: 'search_documents',
       description: 'Search through uploaded documents for relevant content',
-      execute: async (params: { query: string; limit?: number }, userId: string) => {
+      execute: async (
+        params: { query: string; limit?: number },
+        userId: string,
+      ) => {
         const results = await this.embeddingService.searchSimilar(
           params.query,
           `user_${userId}`,
           { limit: params.limit || 5 },
         );
-        return results.map((r) => `[${r.payload.source}]: ${r.payload.content}`).join('\n\n');
+        return results
+          .map((r) => `[${r.payload.source}]: ${r.payload.content}`)
+          .join('\n\n');
       },
     });
 
@@ -45,7 +50,12 @@ export class AiToolsService {
           orderBy: { order: 'asc' },
           select: { title: true, content: true, order: true },
         });
-        return lessons.map((l) => `Lesson ${l.order}: ${l.title}\n${l.content || 'No content'}`).join('\n\n');
+        return lessons
+          .map(
+            (l) =>
+              `Lesson ${l.order}: ${l.title}\n${l.content || 'No content'}`,
+          )
+          .join('\n\n');
       },
     });
 
@@ -56,9 +66,19 @@ export class AiToolsService {
         const assignments = await this.prisma.assignment.findMany({
           where: { courseId: params.courseId },
           orderBy: { dueDate: 'asc' },
-          select: { title: true, description: true, dueDate: true, maxScore: true },
+          select: {
+            title: true,
+            description: true,
+            dueDate: true,
+            maxScore: true,
+          },
         });
-        return assignments.map((a) => `${a.title} (Due: ${a.dueDate.toISOString().split('T')[0]}, Max: ${a.maxScore})\n${a.description || 'No description'}`).join('\n\n');
+        return assignments
+          .map(
+            (a) =>
+              `${a.title} (Due: ${a.dueDate.toISOString().split('T')[0]}, Max: ${a.maxScore})\n${a.description || 'No description'}`,
+          )
+          .join('\n\n');
       },
     });
 
@@ -68,7 +88,15 @@ export class AiToolsService {
       execute: async (params: any, userId: string) => {
         const user = await this.prisma.user.findUnique({
           where: { id: userId },
-          select: { name: true, email: true, bio: true, school: true, role: true, level: true, xp: true },
+          select: {
+            name: true,
+            email: true,
+            bio: true,
+            school: true,
+            role: true,
+            level: true,
+            xp: true,
+          },
         });
         if (!user) return 'User not found';
         return `Name: ${user.name}\nRole: ${user.role}\nSchool: ${user.school || 'Not set'}\nBio: ${user.bio || 'Not set'}\nLevel: ${user.level}\nXP: ${user.xp}`;
@@ -85,9 +113,22 @@ export class AiToolsService {
         const events = await this.prisma.calendarEvent.findMany({
           where: { userId, date: { gte: new Date(), lte: until } },
           orderBy: { date: 'asc' },
-          select: { title: true, date: true, startTime: true, type: true, description: true },
+          select: {
+            title: true,
+            date: true,
+            startTime: true,
+            type: true,
+            description: true,
+          },
         });
-        return events.map((e) => `${e.date.toISOString().split('T')[0]} ${e.title} (${e.type})\n${e.description || ''}`).join('\n\n') || 'No upcoming events';
+        return (
+          events
+            .map(
+              (e) =>
+                `${e.date.toISOString().split('T')[0]} ${e.title} (${e.type})\n${e.description || ''}`,
+            )
+            .join('\n\n') || 'No upcoming events'
+        );
       },
     });
 
@@ -100,7 +141,11 @@ export class AiToolsService {
           'knowledge_base',
           { limit: params.limit || 5 },
         );
-        return results.map((r) => `[${r.payload.source}]: ${r.payload.content}`).join('\n\n') || 'No relevant documents found';
+        return (
+          results
+            .map((r) => `[${r.payload.source}]: ${r.payload.content}`)
+            .join('\n\n') || 'No relevant documents found'
+        );
       },
     });
   }
@@ -109,7 +154,11 @@ export class AiToolsService {
     return this.tools.get(name);
   }
 
-  getToolDefinitions(): { name: string; description: string; parameters: any }[] {
+  getToolDefinitions(): {
+    name: string;
+    description: string;
+    parameters: any;
+  }[] {
     return [
       {
         name: 'search_documents',
@@ -156,7 +205,11 @@ export class AiToolsService {
         parameters: {
           type: 'object',
           properties: {
-            days: { type: 'number', description: 'Number of days ahead', default: 7 },
+            days: {
+              type: 'number',
+              description: 'Number of days ahead',
+              default: 7,
+            },
           },
         },
       },
@@ -175,7 +228,11 @@ export class AiToolsService {
     ];
   }
 
-  async executeTool(name: string, params: any, userId: string): Promise<string> {
+  async executeTool(
+    name: string,
+    params: any,
+    userId: string,
+  ): Promise<string> {
     const tool = this.tools.get(name);
     if (!tool) return `Tool "${name}" not found`;
     try {

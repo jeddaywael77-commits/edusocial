@@ -25,7 +25,10 @@ export default registerAs('ai', () => ({
   // Embeddings
   embeddingProvider: process.env.AI_EMBEDDING_PROVIDER || 'openai',
   embeddingModel: process.env.AI_EMBEDDING_MODEL || 'text-embedding-3-small',
-  embeddingDimensions: parseInt(process.env.AI_EMBEDDING_DIMENSIONS || '1536', 10),
+  embeddingDimensions: parseInt(
+    process.env.AI_EMBEDDING_DIMENSIONS || '1536',
+    10,
+  ),
 
   // Qdrant
   qdrantUrl: process.env.QDRANT_URL || 'http://localhost:6333',
@@ -35,7 +38,10 @@ export default registerAs('ai', () => ({
   // RAG
   ragChunkSize: parseInt(process.env.AI_RAG_CHUNK_SIZE || '1000', 10),
   ragChunkOverlap: parseInt(process.env.AI_RAG_CHUNK_OVERLAP || '200', 10),
-  ragMaxContextLength: parseInt(process.env.AI_RAG_MAX_CONTEXT_LENGTH || '8000', 10),
+  ragMaxContextLength: parseInt(
+    process.env.AI_RAG_MAX_CONTEXT_LENGTH || '8000',
+    10,
+  ),
   ragTopK: parseInt(process.env.AI_RAG_TOP_K || '10', 10),
   ragRerankTopK: parseInt(process.env.AI_RAG_RERANK_TOP_K || '5', 10),
 
@@ -47,7 +53,10 @@ export default registerAs('ai', () => ({
 
   // Rate limiting
   rateLimitRequests: parseInt(process.env.AI_RATE_LIMIT_REQUESTS || '30', 10),
-  rateLimitTokensPerMinute: parseInt(process.env.AI_RATE_LIMIT_TPM || '100000', 10),
+  rateLimitTokensPerMinute: parseInt(
+    process.env.AI_RATE_LIMIT_TPM || '100000',
+    10,
+  ),
 
   // Cost tracking (per 1M tokens)
   costInputPer1M: parseFloat(process.env.AI_COST_INPUT_PER_1M || '0.15'),

@@ -13,11 +13,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const socket_gateway_1 = require("../socket/socket.gateway");
+const socket_events_1 = require("../socket/socket.events");
 let CommentsService = CommentsService_1 = class CommentsService {
     prisma;
+    socketGateway;
     logger = new common_1.Logger(CommentsService_1.name);
-    constructor(prisma) {
+    constructor(prisma, socketGateway) {
         this.prisma = prisma;
+        this.socketGateway = socketGateway;
     }
     async create(postId, authorId, dto) {
         const post = await this.prisma.post.findUnique({ where: { id: postId } });
@@ -52,6 +56,12 @@ let CommentsService = CommentsService_1 = class CommentsService {
             include: this.commentInclude(authorId),
         });
         this.logger.log(`Comment created: ${comment.id} on post ${postId}`);
+        if (post.authorId !== authorId) {
+            this.socketGateway.broadcastToUser(post.authorId, socket_events_1.SocketEvents.FEED_NEW_COMMENT, {
+                comment,
+                postId,
+            });
+        }
         return comment;
     }
     async findByPostId(postId, userId, cursor, limit = 20) {
@@ -171,6 +181,7 @@ let CommentsService = CommentsService_1 = class CommentsService {
 exports.CommentsService = CommentsService;
 exports.CommentsService = CommentsService = CommentsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        socket_gateway_1.SocketGateway])
 ], CommentsService);
 //# sourceMappingURL=comments.service.js.map

@@ -17,104 +17,104 @@ export declare class AssignmentsController {
     constructor(assignmentsService: AssignmentsService);
     create(userId: string, dto: CreateAssignmentDto): Promise<{
         course: {
-            title: string;
             id: string;
+            title: string;
         } | null;
         author: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        courseId: string | null;
-        authorId: string;
+        description: string | null;
+        title: string;
         dueDate: Date;
         maxScore: number;
+        courseId: string | null;
+        authorId: string;
     }>;
     findAll(): Promise<({
         course: {
-            title: string;
             id: string;
+            title: string;
         } | null;
+        author: {
+            id: string;
+            name: string;
+            avatar: string | null;
+        };
         _count: {
             submissions: number;
         };
-        author: {
-            name: string;
-            id: string;
-            avatar: string | null;
-        };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        courseId: string | null;
-        authorId: string;
+        description: string | null;
+        title: string;
         dueDate: Date;
         maxScore: number;
+        courseId: string | null;
+        authorId: string;
     })[]>;
     findById(id: string): Promise<({
-        course: {
-            title: string;
-            id: string;
-        } | null;
         submissions: ({
             student: {
-                name: string;
                 id: string;
+                name: string;
                 avatar: string | null;
             };
         } & {
             id: string;
             content: string | null;
-            status: import("@prisma/client").$Enums.SubmissionStatus;
             fileUrl: string | null;
             score: number | null;
             feedback: string | null;
-            assignmentId: string;
-            studentId: string;
+            status: import("@prisma/client").$Enums.SubmissionStatus;
             submittedAt: Date;
             gradedAt: Date | null;
+            assignmentId: string;
+            studentId: string;
         })[];
-        author: {
-            name: string;
+        course: {
             id: string;
+            title: string;
+        } | null;
+        author: {
+            id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        courseId: string | null;
-        authorId: string;
+        description: string | null;
+        title: string;
         dueDate: Date;
         maxScore: number;
+        courseId: string | null;
+        authorId: string;
     }) | null>;
     update(id: string, userId: string, dto: UpdateAssignmentDto): Promise<{
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        courseId: string | null;
-        authorId: string;
+        description: string | null;
+        title: string;
         dueDate: Date;
         maxScore: number;
+        courseId: string | null;
+        authorId: string;
     }>;
     delete(id: string, userId: string): Promise<{
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        courseId: string | null;
-        authorId: string;
+        description: string | null;
+        title: string;
         dueDate: Date;
         maxScore: number;
+        courseId: string | null;
+        authorId: string;
     }>;
 }
 export {};

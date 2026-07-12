@@ -1,0 +1,6 @@
+{
+  "ext": "ts",
+  "require": ["ts-node/register"],
+  "timeout": 30000,
+  "testTimeout": 30000
+}

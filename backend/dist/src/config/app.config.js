@@ -7,6 +7,8 @@ exports.default = (0, config_1.registerAs)('app', () => ({
     apiPrefix: process.env.API_PREFIX || 'api/v1',
     corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     uploadDir: process.env.UPLOAD_DIR || './uploads',
-    maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '10485760', 10),
+    maxFileSize: parseInt(process.env.MAX_FILE_SIZE || '52428800', 10),
+    storageBaseUrl: process.env.MEDIA_STORAGE_BASE_URL ||
+        `http://localhost:${process.env.PORT || 3001}/uploads`,
 }));
 //# sourceMappingURL=app.config.js.map

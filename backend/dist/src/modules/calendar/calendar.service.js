@@ -66,7 +66,10 @@ let CalendarService = CalendarService_1 = class CalendarService {
             updateData.startTime = new Date(data.startTime);
         if (data.endTime)
             updateData.endTime = new Date(data.endTime);
-        return this.prisma.calendarEvent.update({ where: { id }, data: updateData });
+        return this.prisma.calendarEvent.update({
+            where: { id },
+            data: updateData,
+        });
     }
     async delete(id, userId) {
         const event = await this.prisma.calendarEvent.findUnique({ where: { id } });

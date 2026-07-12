@@ -30,19 +30,25 @@ let DocumentsService = DocumentsService_1 = class DocumentsService {
                 tags: data.tags ?? [],
                 uploadedById,
             },
-            include: { uploadedBy: { select: { id: true, name: true, avatar: true } } },
+            include: {
+                uploadedBy: { select: { id: true, name: true, avatar: true } },
+            },
         });
     }
     async findAll() {
         return this.prisma.document.findMany({
-            include: { uploadedBy: { select: { id: true, name: true, avatar: true } } },
+            include: {
+                uploadedBy: { select: { id: true, name: true, avatar: true } },
+            },
             orderBy: { createdAt: 'desc' },
         });
     }
     async findById(id) {
         return this.prisma.document.findUnique({
             where: { id },
-            include: { uploadedBy: { select: { id: true, name: true, avatar: true } } },
+            include: {
+                uploadedBy: { select: { id: true, name: true, avatar: true } },
+            },
         });
     }
     async findByUserId(userId) {

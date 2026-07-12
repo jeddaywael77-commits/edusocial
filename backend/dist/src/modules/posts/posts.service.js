@@ -14,11 +14,15 @@ exports.PostsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
 const enums_1 = require("../../common/enums");
+const socket_gateway_1 = require("../socket/socket.gateway");
+const socket_events_1 = require("../socket/socket.events");
 let PostsService = PostsService_1 = class PostsService {
     prisma;
+    socketGateway;
     logger = new common_1.Logger(PostsService_1.name);
-    constructor(prisma) {
+    constructor(prisma, socketGateway) {
         this.prisma = prisma;
+        this.socketGateway = socketGateway;
     }
     async create(authorId, dto) {
         const data = {
@@ -41,6 +45,15 @@ let PostsService = PostsService_1 = class PostsService {
             include: this.postInclude(authorId),
         });
         this.logger.log(`Post created: ${post.id} by ${authorId}`);
+        if (post.groupId) {
+            this.socketGateway.broadcastToRoom(`group:${post.groupId}`, socket_events_1.SocketEvents.FEED_NEW_POST, post);
+        }
+        else if (post.courseId) {
+            this.socketGateway.broadcastToRoom(`course:${post.courseId}`, socket_events_1.SocketEvents.FEED_NEW_POST, post);
+        }
+        else {
+            this.socketGateway.broadcastToAll(socket_events_1.SocketEvents.FEED_NEW_POST, post);
+        }
         return post;
     }
     async findAll(userId, query) {
@@ -61,18 +74,13 @@ let PostsService = PostsService_1 = class PostsService {
                 ],
             }),
         };
-        const cursor = query.cursor
-            ? { id: query.cursor }
-            : undefined;
+        const cursor = query.cursor ? { id: query.cursor } : undefined;
         const [posts, count] = await Promise.all([
             this.prisma.post.findMany({
                 where,
                 take: limit + 1,
                 ...(cursor && { cursor, skip: 1 }),
-                orderBy: [
-                    { isPinned: 'desc' },
-                    { createdAt: 'desc' },
-                ],
+                orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
                 include: this.postInclude(userId),
             }),
             this.prisma.post.count({ where }),
@@ -99,10 +107,7 @@ let PostsService = PostsService_1 = class PostsService {
                 visibility: enums_1.PostVisibility.PUBLIC,
                 createdAt: { gte: threeDaysAgo },
             },
-            orderBy: [
-                { shareCount: 'desc' },
-                { createdAt: 'desc' },
-            ],
+            orderBy: [{ shareCount: 'desc' }, { createdAt: 'desc' }],
             take: limit,
             include: this.postInclude(userId),
         });
@@ -187,7 +192,7 @@ let PostsService = PostsService_1 = class PostsService {
         if (existingShare) {
             throw new common_1.ConflictException('You already shared this post');
         }
-        const [, updated] = await this.prisma.$transaction([
+        await this.prisma.$transaction([
             this.prisma.postShare.create({
                 data: {
                     userId,
@@ -262,7 +267,10 @@ let PostsService = PostsService_1 = class PostsService {
             OR: [
                 { visibility: enums_1.PostVisibility.PUBLIC },
                 { authorId: userId },
-                { authorId: { in: uniqueFriendIds }, visibility: enums_1.PostVisibility.FRIENDS },
+                {
+                    authorId: { in: uniqueFriendIds },
+                    visibility: enums_1.PostVisibility.FRIENDS,
+                },
             ],
         };
         const dbCursor = cursor ? { id: cursor } : undefined;
@@ -270,10 +278,7 @@ let PostsService = PostsService_1 = class PostsService {
             where,
             take: safeLimit + 1,
             ...(dbCursor && { cursor: dbCursor, skip: 1 }),
-            orderBy: [
-                { isPinned: 'desc' },
-                { createdAt: 'desc' },
-            ],
+            orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
             include: this.postInclude(userId),
         });
         const hasNext = posts.length > safeLimit;
@@ -317,6 +322,7 @@ let PostsService = PostsService_1 = class PostsService {
 exports.PostsService = PostsService;
 exports.PostsService = PostsService = PostsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        socket_gateway_1.SocketGateway])
 ], PostsService);
 //# sourceMappingURL=posts.service.js.map

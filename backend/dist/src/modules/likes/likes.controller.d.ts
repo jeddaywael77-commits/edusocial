@@ -19,14 +19,14 @@ export declare class LikesController {
         }[];
     }>;
     getPostReactors(postId: string, type?: ReactionType, limit?: number): Promise<{
+        createdAt: Date;
         user: {
-            level: number;
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
+            level: number;
         };
         type: import("@prisma/client").$Enums.ReactionType;
-        createdAt: Date;
     }[]>;
     getCommentReactions(commentId: string): Promise<{
         total: number;

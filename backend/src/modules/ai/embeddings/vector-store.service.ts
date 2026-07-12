@@ -10,7 +10,15 @@ export interface VectorDocument {
   payload: {
     content: string;
     source: string;
-    sourceType: 'pdf' | 'docx' | 'txt' | 'md' | 'pptx' | 'image' | 'lesson' | 'assignment';
+    sourceType:
+      | 'pdf'
+      | 'docx'
+      | 'txt'
+      | 'md'
+      | 'pptx'
+      | 'image'
+      | 'lesson'
+      | 'assignment';
     sourceId?: string;
     chunkIndex: number;
     totalChunks: number;
@@ -31,9 +39,11 @@ export class VectorStoreService {
   private readonly collectionPrefix: string;
 
   constructor(private readonly config: ConfigService) {
-    const qdrantUrl = this.config.get<string>('ai.qdrantUrl') || 'http://localhost:6333';
+    const qdrantUrl =
+      this.config.get<string>('ai.qdrantUrl') || 'http://localhost:6333';
     const qdrantApiKey = this.config.get<string>('ai.qdrantApiKey');
-    this.collectionPrefix = this.config.get<string>('ai.qdrantCollectionPrefix') || 'edusocial_';
+    this.collectionPrefix =
+      this.config.get<string>('ai.qdrantCollectionPrefix') || 'edusocial_';
 
     this.client = new QdrantClient({
       url: qdrantUrl,
@@ -82,7 +92,9 @@ export class VectorStoreService {
           payload: doc.payload,
         })),
       });
-      this.logger.debug(`Upserted ${docs.length} documents into ${collectionName}`);
+      this.logger.debug(
+        `Upserted ${docs.length} documents into ${collectionName}`,
+      );
     }
   }
 
@@ -120,7 +132,10 @@ export class VectorStoreService {
     });
   }
 
-  async deleteByFilter(collection: string, filter: Record<string, any>): Promise<void> {
+  async deleteByFilter(
+    collection: string,
+    filter: Record<string, any>,
+  ): Promise<void> {
     const collectionName = this.getCollectionName(collection);
     await this.client.delete(collectionName, {
       filter: this.buildFilter(filter),
@@ -146,7 +161,11 @@ export class VectorStoreService {
   private buildFilter(filter: Record<string, any>): any {
     const must: any[] = [];
     for (const [key, value] of Object.entries(filter)) {
-      if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      if (
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+      ) {
         must.push({
           key,
           match: { value },

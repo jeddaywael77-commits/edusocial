@@ -14,7 +14,9 @@ export class ProviderFactory {
 
   constructor(private readonly config: ConfigService) {
     this.initializeProviders();
-    this.activeProvider = this.getProvider(this.config.get<string>('ai.provider') || 'openai');
+    this.activeProvider = this.getProvider(
+      this.config.get<string>('ai.provider') || 'openai',
+    );
     this.logger.log(`Active AI provider: ${this.activeProvider.name}`);
   }
 
@@ -26,9 +28,13 @@ export class ProviderFactory {
         'openai',
         new OpenAIProvider({
           apiKey: openaiKey,
-          baseUrl: this.config.get<string>('ai.openaiBaseUrl') || 'https://api.openai.com/v1',
+          baseUrl:
+            this.config.get<string>('ai.openaiBaseUrl') ||
+            'https://api.openai.com/v1',
           model: this.config.get<string>('ai.openaiModel') || 'gpt-4o-mini',
-          embeddingModel: this.config.get<string>('ai.embeddingModel') || 'text-embedding-3-small',
+          embeddingModel:
+            this.config.get<string>('ai.embeddingModel') ||
+            'text-embedding-3-small',
         }),
       );
     }
@@ -40,8 +46,12 @@ export class ProviderFactory {
         'groq',
         new GroqProvider({
           apiKey: groqKey,
-          baseUrl: this.config.get<string>('ai.groqBaseUrl') || 'https://api.groq.com/openai/v1',
-          model: this.config.get<string>('ai.groqModel') || 'llama-3.3-70b-versatile',
+          baseUrl:
+            this.config.get<string>('ai.groqBaseUrl') ||
+            'https://api.groq.com/openai/v1',
+          model:
+            this.config.get<string>('ai.groqModel') ||
+            'llama-3.3-70b-versatile',
         }),
       );
     }
@@ -50,7 +60,9 @@ export class ProviderFactory {
     this.providers.set(
       'ollama',
       new OllamaProvider({
-        baseUrl: this.config.get<string>('ai.ollamaBaseUrl') || 'http://localhost:11434',
+        baseUrl:
+          this.config.get<string>('ai.ollamaBaseUrl') ||
+          'http://localhost:11434',
         model: this.config.get<string>('ai.ollamaModel') || 'llama3.1',
       }),
     );
@@ -62,19 +74,25 @@ export class ProviderFactory {
         'gemini',
         new GeminiProvider({
           apiKey: geminiKey,
-          model: this.config.get<string>('ai.geminiModel') || 'gemini-2.0-flash',
+          model:
+            this.config.get<string>('ai.geminiModel') || 'gemini-2.0-flash',
         }),
       );
     }
 
-    this.logger.log(`Initialized providers: ${[...this.providers.keys()].join(', ')}`);
+    this.logger.log(
+      `Initialized providers: ${[...this.providers.keys()].join(', ')}`,
+    );
   }
 
   getProvider(name?: string): AIProvider {
-    const providerName = name || this.config.get<string>('ai.provider') || 'openai';
+    const providerName =
+      name || this.config.get<string>('ai.provider') || 'openai';
     const provider = this.providers.get(providerName);
     if (!provider) {
-      throw new Error(`AI provider "${providerName}" not available. Available: ${[...this.providers.keys()].join(', ')}`);
+      throw new Error(
+        `AI provider "${providerName}" not available. Available: ${[...this.providers.keys()].join(', ')}`,
+      );
     }
     return provider;
   }

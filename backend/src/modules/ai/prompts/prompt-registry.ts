@@ -29,7 +29,10 @@ export class PromptRegistry {
     return [...this.prompts.values()].filter((p) => p.category === category);
   }
 
-  static render(id: string, variables: Record<string, string>): { system: string; user: string } {
+  static render(
+    id: string,
+    variables: Record<string, string>,
+  ): { system: string; user: string } {
     const template = this.prompts.get(id);
     if (!template) throw new Error(`Prompt template "${id}" not found`);
 
@@ -60,7 +63,8 @@ Course context: {{courseContext}}
 
 Provide a clear, educational explanation. Use examples when helpful. Break down complex concepts into simple parts.`,
     variables: ['topic', 'question', 'courseContext'],
-    systemPrompt: 'You are a patient, knowledgeable tutor. Explain concepts clearly. Adapt to the student\'s level. Encourage learning.',
+    systemPrompt:
+      "You are a patient, knowledgeable tutor. Explain concepts clearly. Adapt to the student's level. Encourage learning.",
     maxTokens: 2048,
     temperature: 0.7,
     createdAt: new Date(),
@@ -79,7 +83,8 @@ Student's attempt: {{studentAttempt}}
 
 Guide the student without giving away the answer directly. Ask clarifying questions. Provide hints.`,
     variables: ['assignment', 'subject', 'studentAttempt'],
-    systemPrompt: 'You are a helpful homework assistant. Guide students to find answers themselves. Never give direct answers to graded work.',
+    systemPrompt:
+      'You are a helpful homework assistant. Guide students to find answers themselves. Never give direct answers to graded work.',
     maxTokens: 2048,
     temperature: 0.5,
     createdAt: new Date(),
@@ -98,7 +103,8 @@ Student level: {{level}}
 
 Provide a summary, key takeaways, and any helpful analogies.`,
     variables: ['lessonTitle', 'content', 'level'],
-    systemPrompt: 'You are an expert educator. Make complex topics accessible and engaging.',
+    systemPrompt:
+      'You are an expert educator. Make complex topics accessible and engaging.',
     maxTokens: 3000,
     temperature: 0.7,
     createdAt: new Date(),
@@ -120,8 +126,16 @@ Question types: {{questionTypes}}
 Material: {{material}}
 
 Generate diverse question types (multiple choice, true/false, short answer). Provide correct answers and explanations.`,
-    variables: ['subject', 'topic', 'difficulty', 'numQuestions', 'questionTypes', 'material'],
-    systemPrompt: 'You are an expert assessment designer. Create fair, educational questions that test understanding.',
+    variables: [
+      'subject',
+      'topic',
+      'difficulty',
+      'numQuestions',
+      'questionTypes',
+      'material',
+    ],
+    systemPrompt:
+      'You are an expert assessment designer. Create fair, educational questions that test understanding.',
     maxTokens: 4096,
     temperature: 0.8,
     createdAt: new Date(),
@@ -140,7 +154,8 @@ Material: {{material}}
 
 Create concise front/back pairs. Front should be a question or concept. Back should be a clear, concise answer.`,
     variables: ['topic', 'numCards', 'material'],
-    systemPrompt: 'You are a study aid expert. Create effective flashcards that aid memory retention.',
+    systemPrompt:
+      'You are a study aid expert. Create effective flashcards that aid memory retention.',
     maxTokens: 3000,
     temperature: 0.7,
     createdAt: new Date(),
@@ -159,7 +174,8 @@ Material: {{material}}
 
 Return as a JSON structure with nodes and connections.`,
     variables: ['topic', 'depth', 'material'],
-    systemPrompt: 'You are a visual learning expert. Create hierarchical mind map structures.',
+    systemPrompt:
+      'You are a visual learning expert. Create hierarchical mind map structures.',
     maxTokens: 3000,
     temperature: 0.7,
     createdAt: new Date(),
@@ -182,7 +198,8 @@ Provide:
 3. Important details
 4. Conclusions`,
     variables: ['title', 'content', 'length'],
-    systemPrompt: 'You are a document analysis expert. Provide accurate, concise summaries.',
+    systemPrompt:
+      'You are a document analysis expert. Provide accurate, concise summaries.',
     maxTokens: 4096,
     temperature: 0.5,
     createdAt: new Date(),
@@ -202,8 +219,15 @@ Exam dates: {{examDates}}
 Current level: {{currentLevel}}
 
 Create a structured study plan with daily/weekly tasks, review sessions, and practice tests.`,
-    variables: ['goals', 'availableTime', 'subjects', 'examDates', 'currentLevel'],
-    systemPrompt: 'You are an academic planning expert. Create realistic, effective study plans.',
+    variables: [
+      'goals',
+      'availableTime',
+      'subjects',
+      'examDates',
+      'currentLevel',
+    ],
+    systemPrompt:
+      'You are an academic planning expert. Create realistic, effective study plans.',
     maxTokens: 4096,
     temperature: 0.7,
     createdAt: new Date(),
@@ -226,7 +250,8 @@ Provide constructive feedback covering:
 3. Specific suggestions
 4. Grade recommendation`,
     variables: ['assignment', 'submission', 'rubric'],
-    systemPrompt: 'You are a supportive teacher providing helpful feedback. Be encouraging but honest.',
+    systemPrompt:
+      'You are a supportive teacher providing helpful feedback. Be encouraging but honest.',
     maxTokens: 3000,
     temperature: 0.6,
     createdAt: new Date(),
@@ -241,7 +266,8 @@ Provide constructive feedback covering:
 
 First message: {{message}}`,
     variables: ['message'],
-    systemPrompt: 'Generate a short, descriptive title. No quotes. Max 50 characters.',
+    systemPrompt:
+      'Generate a short, descriptive title. No quotes. Max 50 characters.',
     maxTokens: 50,
     temperature: 0.3,
     createdAt: new Date(),

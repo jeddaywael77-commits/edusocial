@@ -6,16 +6,16 @@ export declare class AuthController {
     constructor(authService: AuthService);
     register(dto: RegisterDto): Promise<{
         user: {
-            level: number;
-            name: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            email: string;
+            name: string;
             avatar: string | null;
             bio: string | null;
+            role: import("@prisma/client").$Enums.UserRole;
             school: string | null;
             department: string | null;
             xp: number;
+            level: number;
             coins: number;
             createdAt: Date;
         };
@@ -26,10 +26,10 @@ export declare class AuthController {
     }>;
     login(dto: LoginDto): Promise<{
         user: {
-            name: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            email: string;
+            name: string;
+            role: import("@prisma/client").$Enums.UserRole;
             isActive: boolean;
         };
         tokens: {
@@ -37,7 +37,7 @@ export declare class AuthController {
             refreshToken: string;
         };
     }>;
-    refresh(userId: string): Promise<{
+    refresh(userId: string, req: any): Promise<{
         accessToken: string;
         refreshToken: string;
     }>;
@@ -45,17 +45,17 @@ export declare class AuthController {
         message: string;
     }>;
     getProfile(userId: string): Promise<{
-        level: number;
-        name: string;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
         id: string;
+        email: string;
+        name: string;
         avatar: string | null;
         coverPhoto: string | null;
         bio: string | null;
+        role: import("@prisma/client").$Enums.UserRole;
         school: string | null;
         department: string | null;
         xp: number;
+        level: number;
         coins: number;
         isOnline: boolean;
         lastSeen: Date;

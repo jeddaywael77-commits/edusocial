@@ -8,7 +8,10 @@ import { AiSecurityService } from '../security/ai-security.service';
 import { AiAnalyticsService } from '../analytics/ai-analytics.service';
 import { RagPipelineService } from '../rag/rag-pipeline.service';
 import { AiToolsService } from '../tools/ai-tools.service';
-import type { ChatMessage, StreamChunk } from '../providers/ai-provider.interface';
+import type {
+  ChatMessage,
+  StreamChunk,
+} from '../providers/ai-provider.interface';
 
 export interface AiChatConversation {
   id: string;
@@ -45,7 +48,11 @@ export class AiChatService {
     private readonly config: ConfigService,
   ) {}
 
-  async createConversation(userId: string, title?: string, model?: string): Promise<AiChatConversation> {
+  async createConversation(
+    userId: string,
+    title?: string,
+    model?: string,
+  ): Promise<AiChatConversation> {
     const provider = this.providerFactory.getActiveProvider();
     const conversation = await this.prisma.auditLog.create({
       data: {
@@ -54,7 +61,8 @@ export class AiChatService {
         entity: 'ai_conversation',
         newData: {
           title: title || 'New Conversation',
-          model: model || this.config.get<string>('ai.openaiModel') || 'gpt-4o-mini',
+          model:
+            model || this.config.get<string>('ai.openaiModel') || 'gpt-4o-mini',
           provider: provider.name,
         },
       },
@@ -64,7 +72,8 @@ export class AiChatService {
       id: conversation.id,
       title: title || 'New Conversation',
       userId,
-      model: model || this.config.get<string>('ai.openaiModel') || 'gpt-4o-mini',
+      model:
+        model || this.config.get<string>('ai.openaiModel') || 'gpt-4o-mini',
       provider: provider.name,
       createdAt: conversation.createdAt,
       updatedAt: conversation.createdAt,
@@ -123,13 +132,24 @@ export class AiChatService {
       temperature?: number;
       maxTokens?: number;
     } = {},
-  ): Promise<{ message: AiChatMessage; usage: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
+  ): Promise<{
+    message: AiChatMessage;
+    usage: {
+      promptTokens: number;
+      completionTokens: number;
+      totalTokens: number;
+    };
+  }> {
     const startTime = Date.now();
 
     // Security check
     const securityCheck = this.securityService.comprehensiveCheck(content);
     if (!securityCheck.safe) {
-      this.securityService.logSecurityEvent(userId, 'chat_input', securityCheck.flags);
+      this.securityService.logSecurityEvent(
+        userId,
+        'chat_input',
+        securityCheck.flags,
+      );
     }
 
     const sanitizedContent = securityCheck.sanitized || content;
@@ -156,7 +176,10 @@ export class AiChatService {
     let ragContext = '';
     if (options.useRAG && options.ragCollection) {
       try {
-        const ragResults = await this.embeddingService_searchSimilar(sanitizedContent, options.ragCollection);
+        const ragResults = await this.embeddingService_searchSimilar(
+          sanitizedContent,
+          options.ragCollection,
+        );
         ragContext = ragResults.map((r: any) => r.payload.content).join('\n\n');
       } catch (error) {
         this.logger.warn('RAG search failed:', error);
@@ -166,7 +189,8 @@ export class AiChatService {
     // Build messages
     const messages: ChatMessage[] = [];
     if (options.systemPrompt || ragContext) {
-      let sysPrompt = options.systemPrompt || 'You are a helpful AI assistant for EduSocial.';
+      let sysPrompt =
+        options.systemPrompt || 'You are a helpful AI assistant for EduSocial.';
       if (ragContext) {
         sysPrompt += `\n\nRelevant context from documents:\n${ragContext}`;
       }
@@ -178,8 +202,14 @@ export class AiChatService {
     const provider = this.providerFactory.getActiveProvider();
     const response = await provider.chatCompletion({
       messages,
-      temperature: options.temperature || this.config.get<number>('ai.chatTemperature') || 0.7,
-      maxTokens: options.maxTokens || this.config.get<number>('ai.chatMaxTokens') || 4096,
+      temperature:
+        options.temperature ||
+        this.config.get<number>('ai.chatTemperature') ||
+        0.7,
+      maxTokens:
+        options.maxTokens ||
+        this.config.get<number>('ai.chatMaxTokens') ||
+        4096,
     });
 
     // Save assistant message
@@ -203,7 +233,7 @@ export class AiChatService {
       response.usage.completionTokens,
       {
         costInputPer1M: this.config.get<number>('ai.costInputPer1M') || 0.15,
-        costOutputPer1M: this.config.get<number>('ai.costOutputPer1M') || 0.60,
+        costOutputPer1M: this.config.get<number>('ai.costOutputPer1M') || 0.6,
       },
     );
 
@@ -223,7 +253,9 @@ export class AiChatService {
     // Generate title if first message
     const messageCount = history.length;
     if (messageCount <= 1) {
-      this.generateTitle(conversationId, sanitizedContent, userId).catch(() => {});
+      this.generateTitle(conversationId, sanitizedContent, userId).catch(
+        () => {},
+      );
     }
 
     return {
@@ -276,7 +308,10 @@ export class AiChatService {
     let ragContext = '';
     if (options.useRAG && options.ragCollection) {
       try {
-        const results = await this.embeddingService_searchSimilar(sanitizedContent, options.ragCollection);
+        const results = await this.embeddingService_searchSimilar(
+          sanitizedContent,
+          options.ragCollection,
+        );
         ragContext = results.map((r: any) => r.payload.content).join('\n\n');
       } catch (error) {
         this.logger.warn('RAG search failed:', error);
@@ -285,7 +320,8 @@ export class AiChatService {
 
     const messages: ChatMessage[] = [];
     if (options.systemPrompt || ragContext) {
-      let sysPrompt = options.systemPrompt || 'You are a helpful AI assistant for EduSocial.';
+      let sysPrompt =
+        options.systemPrompt || 'You are a helpful AI assistant for EduSocial.';
       if (ragContext) {
         sysPrompt += `\n\nRelevant context from documents:\n${ragContext}`;
       }
@@ -300,8 +336,14 @@ export class AiChatService {
 
     const stream = provider.chatCompletionStream({
       messages,
-      temperature: options.temperature || this.config.get<number>('ai.chatTemperature') || 0.7,
-      maxTokens: options.maxTokens || this.config.get<number>('ai.chatMaxTokens') || 4096,
+      temperature:
+        options.temperature ||
+        this.config.get<number>('ai.chatTemperature') ||
+        0.7,
+      maxTokens:
+        options.maxTokens ||
+        this.config.get<number>('ai.chatMaxTokens') ||
+        4096,
     });
 
     for await (const chunk of stream) {
@@ -336,7 +378,7 @@ export class AiChatService {
         lastUsage.completionTokens,
         {
           costInputPer1M: this.config.get<number>('ai.costInputPer1M') || 0.15,
-          costOutputPer1M: this.config.get<number>('ai.costOutputPer1M') || 0.60,
+          costOutputPer1M: this.config.get<number>('ai.costOutputPer1M') || 0.6,
         },
       );
 
@@ -356,11 +398,16 @@ export class AiChatService {
 
     // Generate title if first message
     if (history.length <= 1) {
-      this.generateTitle(conversationId, sanitizedContent, userId).catch(() => {});
+      this.generateTitle(conversationId, sanitizedContent, userId).catch(
+        () => {},
+      );
     }
   }
 
-  private async getConversationHistory(conversationId: string, userId: string): Promise<ChatMessage[]> {
+  private async getConversationHistory(
+    conversationId: string,
+    userId: string,
+  ): Promise<ChatMessage[]> {
     const maxHistory = this.config.get<number>('ai.chatMaxHistory') || 50;
     const logs = await this.prisma.auditLog.findMany({
       where: { entityId: conversationId, action: 'ai_chat_message' },
@@ -377,9 +424,15 @@ export class AiChatService {
     });
   }
 
-  private async generateTitle(conversationId: string, firstMessage: string, userId: string): Promise<void> {
+  private async generateTitle(
+    conversationId: string,
+    firstMessage: string,
+    userId: string,
+  ): Promise<void> {
     try {
-      const rendered = PromptRegistry.render('title-generator', { message: firstMessage });
+      const rendered = PromptRegistry.render('title-generator', {
+        message: firstMessage,
+      });
       const provider = this.providerFactory.getActiveProvider();
       const response = await provider.chatCompletion({
         messages: [
@@ -391,7 +444,9 @@ export class AiChatService {
       });
 
       // Update conversation title
-      const log = await this.prisma.auditLog.findUnique({ where: { id: conversationId } });
+      const log = await this.prisma.auditLog.findUnique({
+        where: { id: conversationId },
+      });
       if (log) {
         const data = log.newData as any;
         await this.prisma.auditLog.update({
@@ -409,12 +464,18 @@ export class AiChatService {
     }
   }
 
-  private async embeddingService_searchSimilar(_query: string, _collection: string): Promise<any[]> {
+  private async embeddingService_searchSimilar(
+    _query: string,
+    _collection: string,
+  ): Promise<any[]> {
     // Placeholder - in production, inject EmbeddingService properly
     return [];
   }
 
-  async deleteConversation(conversationId: string, userId: string): Promise<void> {
+  async deleteConversation(
+    conversationId: string,
+    userId: string,
+  ): Promise<void> {
     await this.prisma.auditLog.deleteMany({
       where: {
         entityId: conversationId,

@@ -53,6 +53,14 @@ export const SocketEvents = {
   GROUP_NEW_POST: 'group:new-post',
   GROUP_MEMBER_JOINED: 'group:member-joined',
   GROUP_MEMBER_LEFT: 'group:member-left',
+  GROUP_MEMBER_UPDATED: 'group:member-updated',
+  GROUP_MEMBER_REMOVED: 'group:member-removed',
+  GROUP_OWNERSHIP_TRANSFERRED: 'group:ownership-transferred',
+
+  // Admin events
+  NOTIFICATION_RECEIVED: 'notification:received',
+  USER_ROLE_CHANGED: 'user:role-changed',
+  USER_DEACTIVATED: 'user:deactivated',
 
   // Gamification events
   GAMIFICATION_XP_GAINED: 'gamification:xp-gained',

@@ -6,17 +6,17 @@ export declare class UsersController {
     constructor(usersService: UsersService);
     findAll(query: QueryUsersDto): Promise<{
         data: {
-            level: number;
-            name: string;
-            email: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            email: string;
+            name: string;
             avatar: string | null;
             coverPhoto: string | null;
             bio: string | null;
+            role: import("@prisma/client").$Enums.UserRole;
             school: string | null;
             department: string | null;
             xp: number;
+            level: number;
             coins: number;
             isOnline: boolean;
             lastSeen: Date;
@@ -39,25 +39,25 @@ export declare class UsersController {
         };
     }>;
     getOnlineUsers(): Promise<{
-        name: string;
         id: string;
+        name: string;
         avatar: string | null;
         isOnline: boolean;
         lastSeen: Date;
     }[]>;
     getLeaderboard(limit?: number): Promise<{
-        level: number;
-        name: string;
         id: string;
+        name: string;
         avatar: string | null;
         xp: number;
+        level: number;
         coins: number;
         badges: {
             badge: {
-                description: string | null;
-                name: string;
                 id: string;
+                name: string;
                 createdAt: Date;
+                description: string | null;
                 icon: string;
                 color: string;
                 xpRequired: number;
@@ -65,27 +65,27 @@ export declare class UsersController {
         }[];
     }[]>;
     findById(id: string): Promise<{
-        level: number;
-        name: string;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
         id: string;
+        email: string;
+        name: string;
         avatar: string | null;
         coverPhoto: string | null;
         bio: string | null;
+        role: import("@prisma/client").$Enums.UserRole;
         school: string | null;
         department: string | null;
         xp: number;
+        level: number;
         coins: number;
         isOnline: boolean;
         lastSeen: Date;
         createdAt: Date;
         badges: {
             badge: {
-                description: string | null;
-                name: string;
                 id: string;
+                name: string;
                 createdAt: Date;
+                description: string | null;
                 icon: string;
                 color: string;
                 xpRequired: number;
@@ -101,13 +101,13 @@ export declare class UsersController {
         };
     }>;
     update(id: string, dto: UpdateUserDto, currentUserId: string): Promise<{
-        name: string;
-        email: string;
-        role: import("@prisma/client").$Enums.UserRole;
         id: string;
+        email: string;
+        name: string;
         avatar: string | null;
         coverPhoto: string | null;
         bio: string | null;
+        role: import("@prisma/client").$Enums.UserRole;
         school: string | null;
         department: string | null;
         updatedAt: Date;

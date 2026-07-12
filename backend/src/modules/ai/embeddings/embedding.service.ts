@@ -43,7 +43,10 @@ export class EmbeddingService {
     let chunkIndex = 0;
 
     for (const sentence of sentences) {
-      if (currentChunk.length + sentence.length > this.chunkSize && currentChunk.length > 0) {
+      if (
+        currentChunk.length + sentence.length > this.chunkSize &&
+        currentChunk.length > 0
+      ) {
         chunks.push({
           content: currentChunk.trim(),
           source: metadata.source,
@@ -83,10 +86,14 @@ export class EmbeddingService {
     return chunks;
   }
 
-  async embedAndStore(chunks: ChunkedDocument[], collection: string): Promise<void> {
+  async embedAndStore(
+    chunks: ChunkedDocument[],
+    collection: string,
+  ): Promise<void> {
     if (!chunks.length) return;
 
-    const dimensions = this.config.get<number>('ai.embeddingDimensions') || 1536;
+    const dimensions =
+      this.config.get<number>('ai.embeddingDimensions') || 1536;
     await this.vectorStore.ensureCollection(collection, dimensions);
 
     const provider = this.providerFactory.getActiveProvider();
@@ -117,7 +124,9 @@ export class EmbeddingService {
         }));
 
         await this.vectorStore.upsert(documents);
-        this.logger.debug(`Embedded batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(chunks.length / batchSize)}`);
+        this.logger.debug(
+          `Embedded batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(chunks.length / batchSize)}`,
+        );
       } catch (error) {
         this.logger.error(`Failed to embed batch starting at ${i}:`, error);
       }

@@ -19,97 +19,97 @@ export declare class ExamsController {
     constructor(examsService: ExamsService);
     create(userId: string, dto: CreateExamDto): Promise<{
         course: {
-            title: string;
             id: string;
+            title: string;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
+        description: string | null;
+        title: string;
+        dueDate: Date;
         courseId: string;
         authorId: string;
-        dueDate: Date;
         timeLimit: number;
         questions: import("@prisma/client/runtime/client").JsonValue;
     }>;
     findAll(): Promise<({
         course: {
-            title: string;
             id: string;
+            title: string;
         };
         author: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
+        description: string | null;
+        title: string;
+        dueDate: Date;
         courseId: string;
         authorId: string;
-        dueDate: Date;
         timeLimit: number;
         questions: import("@prisma/client/runtime/client").JsonValue;
     })[]>;
     findByCourseId(courseId: string): Promise<({
         author: {
-            name: string;
             id: string;
+            name: string;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
+        description: string | null;
+        title: string;
+        dueDate: Date;
         courseId: string;
         authorId: string;
-        dueDate: Date;
         timeLimit: number;
         questions: import("@prisma/client/runtime/client").JsonValue;
     })[]>;
     findById(id: string): Promise<({
         course: {
-            title: string;
             id: string;
+            title: string;
         };
         author: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
+        description: string | null;
+        title: string;
+        dueDate: Date;
         courseId: string;
         authorId: string;
-        dueDate: Date;
         timeLimit: number;
         questions: import("@prisma/client/runtime/client").JsonValue;
     }) | null>;
     update(id: string, userId: string, dto: UpdateExamDto): Promise<{
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
+        description: string | null;
+        title: string;
+        dueDate: Date;
         courseId: string;
         authorId: string;
-        dueDate: Date;
         timeLimit: number;
         questions: import("@prisma/client/runtime/client").JsonValue;
     }>;
     delete(id: string, userId: string): Promise<{
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
+        description: string | null;
+        title: string;
+        dueDate: Date;
         courseId: string;
         authorId: string;
-        dueDate: Date;
         timeLimit: number;
         questions: import("@prisma/client/runtime/client").JsonValue;
     }>;

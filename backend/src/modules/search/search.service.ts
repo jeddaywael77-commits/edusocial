@@ -10,11 +10,13 @@ export class SearchService implements OnModuleInit {
   private readonly indexPrefix: string;
 
   constructor(private readonly config: ConfigService) {
-    this.indexPrefix = this.config.get<string>('search.indexPrefix') || 'edusocial_';
+    this.indexPrefix =
+      this.config.get<string>('search.indexPrefix') || 'edusocial_';
   }
 
   onModuleInit() {
-    const host = this.config.get<string>('search.host') || 'http://127.0.0.1:7700';
+    const host =
+      this.config.get<string>('search.host') || 'http://127.0.0.1:7700';
     const apiKey = this.config.get<string>('search.apiKey') || '';
 
     this.client = new Meilisearch({ host, apiKey });
@@ -37,11 +39,17 @@ export class SearchService implements OnModuleInit {
     for (const [key, config] of Object.entries(SEARCH_INDEXES)) {
       const indexName = this.getIndexName(key as SearchIndexName);
       try {
-        await this.client.createIndex(indexName, { primaryKey: config.primaryKey });
+        await this.client.createIndex(indexName, {
+          primaryKey: config.primaryKey,
+        });
         const index = this.client.index(indexName);
 
-        await index.updateSearchableAttributes([...config.searchableAttributes]);
-        await index.updateFilterableAttributes([...config.filterableAttributes]);
+        await index.updateSearchableAttributes([
+          ...config.searchableAttributes,
+        ]);
+        await index.updateFilterableAttributes([
+          ...config.filterableAttributes,
+        ]);
         await index.updateSortableAttributes([...config.sortableAttributes]);
         await index.updateRankingRules([...config.rankingRules]);
 
@@ -56,16 +64,19 @@ export class SearchService implements OnModuleInit {
     }
   }
 
-  async search(query: string, options: {
-    indexes?: string[];
-    limit?: number;
-    offset?: number;
-    filters?: Record<string, string | number | boolean>;
-  } = {}): Promise<Record<string, any>> {
+  async search(
+    query: string,
+    options: {
+      indexes?: string[];
+      limit?: number;
+      offset?: number;
+      filters?: Record<string, string | number | boolean>;
+    } = {},
+  ): Promise<Record<string, any>> {
     const { indexes, limit = 20, offset = 0, filters } = options;
-    const targetIndexes = indexes?.filter(
-      (i): i is SearchIndexName => i in SEARCH_INDEXES
-    ) || (Object.keys(SEARCH_INDEXES) as SearchIndexName[]);
+    const targetIndexes =
+      indexes?.filter((i): i is SearchIndexName => i in SEARCH_INDEXES) ||
+      (Object.keys(SEARCH_INDEXES) as SearchIndexName[]);
 
     const results: Record<string, any> = {};
 
@@ -73,7 +84,9 @@ export class SearchService implements OnModuleInit {
       try {
         const index = this.getIndex(indexName);
         const filterArray = filters
-          ? Object.entries(filters).map(([k, v]) => `${k} = ${typeof v === 'string' ? `"${v}"` : v}`)
+          ? Object.entries(filters).map(
+              ([k, v]) => `${k} = ${typeof v === 'string' ? `"${v}"` : v}`,
+            )
           : undefined;
 
         const searchResult = await index.search(query, {
@@ -87,7 +100,8 @@ export class SearchService implements OnModuleInit {
 
         results[indexName] = {
           hits: searchResult.hits,
-          totalHits: searchResult.estimatedTotalHits || searchResult.hits.length,
+          totalHits:
+            searchResult.estimatedTotalHits || searchResult.hits.length,
           processingTimeMs: searchResult.processingTimeMs,
         };
       } catch (error) {
@@ -100,14 +114,16 @@ export class SearchService implements OnModuleInit {
     return results;
   }
 
-  async autocomplete(query: string, options: {
-    index?: string;
-    limit?: number;
-  } = {}): Promise<any[]> {
+  async autocomplete(
+    query: string,
+    options: {
+      index?: string;
+      limit?: number;
+    } = {},
+  ): Promise<any[]> {
     const { index: indexName = 'users', limit = 5 } = options;
-    const validIndex = indexName in SEARCH_INDEXES
-      ? (indexName as SearchIndexName)
-      : 'users';
+    const validIndex =
+      indexName in SEARCH_INDEXES ? (indexName as SearchIndexName) : 'users';
 
     try {
       const index = this.getIndex(validIndex);
@@ -125,7 +141,10 @@ export class SearchService implements OnModuleInit {
     }
   }
 
-  async addDocuments(entityType: SearchIndexName, documents: any[]): Promise<void> {
+  async addDocuments(
+    entityType: SearchIndexName,
+    documents: any[],
+  ): Promise<void> {
     if (!documents.length) return;
 
     try {
@@ -137,19 +156,27 @@ export class SearchService implements OnModuleInit {
     }
   }
 
-  async updateDocuments(entityType: SearchIndexName, documents: any[]): Promise<void> {
+  async updateDocuments(
+    entityType: SearchIndexName,
+    documents: any[],
+  ): Promise<void> {
     if (!documents.length) return;
 
     try {
       const index = this.getIndex(entityType);
       await index.updateDocuments(documents);
-      this.logger.debug(`Updated ${documents.length} documents in ${entityType}`);
+      this.logger.debug(
+        `Updated ${documents.length} documents in ${entityType}`,
+      );
     } catch (error) {
       this.logger.error(`Failed to update documents in ${entityType}:`, error);
     }
   }
 
-  async deleteDocument(entityType: SearchIndexName, documentId: string): Promise<void> {
+  async deleteDocument(
+    entityType: SearchIndexName,
+    documentId: string,
+  ): Promise<void> {
     try {
       const index = this.getIndex(entityType);
       await index.deleteDocument(documentId);
@@ -159,15 +186,23 @@ export class SearchService implements OnModuleInit {
     }
   }
 
-  async deleteDocuments(entityType: SearchIndexName, documentIds: string[]): Promise<void> {
+  async deleteDocuments(
+    entityType: SearchIndexName,
+    documentIds: string[],
+  ): Promise<void> {
     if (!documentIds.length) return;
 
     try {
       const index = this.getIndex(entityType);
       await index.deleteDocuments(documentIds);
-      this.logger.debug(`Deleted ${documentIds.length} documents from ${entityType}`);
+      this.logger.debug(
+        `Deleted ${documentIds.length} documents from ${entityType}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to delete documents from ${entityType}:`, error);
+      this.logger.error(
+        `Failed to delete documents from ${entityType}:`,
+        error,
+      );
     }
   }
 

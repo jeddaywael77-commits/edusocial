@@ -22,10 +22,7 @@ describe('ChatService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ChatService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [ChatService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get(ChatService);
@@ -64,11 +61,15 @@ describe('ChatService', () => {
   describe('sendMessage', () => {
     it('should create message and update conversation timestamp', async () => {
       prisma.message.create.mockResolvedValue({
-        id: 'm1', content: 'Hi', sender: { id: 'u1', name: 'Test', avatar: null },
+        id: 'm1',
+        content: 'Hi',
+        sender: { id: 'u1', name: 'Test', avatar: null },
       });
       prisma.conversation.update.mockResolvedValue({});
 
-      const result = await service.sendMessage('user-1', 'conv-1', { content: 'Hi' });
+      const result = await service.sendMessage('user-1', 'conv-1', {
+        content: 'Hi',
+      });
 
       expect(result.content).toBe('Hi');
       expect(prisma.conversation.update).toHaveBeenCalled();

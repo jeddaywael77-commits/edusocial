@@ -43,7 +43,14 @@ export class LeaderboardService {
   async getUserRank(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, name: true, avatar: true, xp: true, level: true, coins: true },
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        xp: true,
+        level: true,
+        coins: true,
+      },
     });
     if (!user) throw new Error('User not found');
 

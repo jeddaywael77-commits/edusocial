@@ -16,7 +16,8 @@ export class StorageFactory {
     private minioProvider: MinioStorageProvider,
     private s3Provider: S3StorageProvider,
   ) {
-    const providerType = this.configService.get<string>('media.storageProvider') || 'local';
+    const providerType =
+      this.configService.get<string>('media.storageProvider') || 'local';
     this.provider = this.getProvider(providerType);
     this.logger.log(`Storage provider: ${providerType}`);
   }

@@ -13,11 +13,7 @@ export class GroqProvider implements AIProvider {
   private readonly client: OpenAI;
   private readonly defaultModel: string;
 
-  constructor(config: {
-    apiKey: string;
-    baseUrl: string;
-    model: string;
-  }) {
+  constructor(config: { apiKey: string; baseUrl: string; model: string }) {
     this.client = new OpenAI({
       apiKey: config.apiKey,
       baseURL: config.baseUrl,
@@ -25,7 +21,9 @@ export class GroqProvider implements AIProvider {
     this.defaultModel = config.model;
   }
 
-  async chatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
+  async chatCompletion(
+    options: ChatCompletionOptions,
+  ): Promise<ChatCompletionResponse> {
     const response = await this.client.chat.completions.create({
       model: options.model || this.defaultModel,
       messages: options.messages,
@@ -78,7 +76,9 @@ export class GroqProvider implements AIProvider {
   }
 
   async createEmbeddings(_input: EmbeddingInput): Promise<EmbeddingResponse> {
-    throw new Error('Groq does not support embeddings. Use OpenAI or a dedicated embedding provider.');
+    throw new Error(
+      'Groq does not support embeddings. Use OpenAI or a dedicated embedding provider.',
+    );
   }
 
   async getModels(): Promise<string[]> {

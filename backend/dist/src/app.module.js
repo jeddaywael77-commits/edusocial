@@ -14,8 +14,12 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const throttler_1 = require("@nestjs/throttler");
 const schedule_1 = require("@nestjs/schedule");
+const bullmq_1 = require("@nestjs/bullmq");
+const core_1 = require("@nestjs/core");
 const config_2 = __importDefault(require("./config"));
 const prisma_module_1 = require("./database/prisma.module");
+const observability_module_1 = require("./common/observability/observability.module");
+const health_module_1 = require("./modules/health/health.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const users_module_1 = require("./modules/users/users.module");
 const posts_module_1 = require("./modules/posts/posts.module");
@@ -37,6 +41,13 @@ const calendar_module_1 = require("./modules/calendar/calendar.module");
 const marketplace_module_1 = require("./modules/marketplace/marketplace.module");
 const gamification_module_1 = require("./modules/gamification/gamification.module");
 const leaderboard_module_1 = require("./modules/leaderboard/leaderboard.module");
+const socket_module_1 = require("./modules/socket/socket.module");
+const media_module_1 = require("./modules/media/media.module");
+const search_module_1 = require("./modules/search/search.module");
+const ai_module_1 = require("./modules/ai/ai.module");
+const admin_module_1 = require("./modules/admin/admin.module");
+const group_members_module_1 = require("./modules/group-members/group-members.module");
+const upload_module_1 = require("./modules/upload/upload.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -54,7 +65,19 @@ exports.AppModule = AppModule = __decorate([
                 },
             ]),
             schedule_1.ScheduleModule.forRoot(),
+            bullmq_1.BullModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: (configService) => ({
+                    connection: {
+                        host: configService.get('redis.host') || 'localhost',
+                        port: configService.get('redis.port') || 6379,
+                    },
+                }),
+                inject: [config_1.ConfigService],
+            }),
             prisma_module_1.PrismaModule,
+            observability_module_1.ObservabilityModule,
+            health_module_1.HealthModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             posts_module_1.PostsModule,
@@ -76,6 +99,19 @@ exports.AppModule = AppModule = __decorate([
             marketplace_module_1.MarketplaceModule,
             gamification_module_1.GamificationModule,
             leaderboard_module_1.LeaderboardModule,
+            socket_module_1.SocketModule,
+            media_module_1.MediaModule,
+            search_module_1.SearchModule,
+            ai_module_1.AiModule,
+            admin_module_1.AdminModule,
+            group_members_module_1.GroupMembersModule,
+            upload_module_1.UploadModule,
+        ],
+        providers: [
+            {
+                provide: core_1.APP_GUARD,
+                useClass: throttler_1.ThrottlerGuard,
+            },
         ],
     })
 ], AppModule);

@@ -6,7 +6,10 @@ export class GroupsService {
   private readonly logger = new Logger(GroupsService.name);
   constructor(private prisma: PrismaService) {}
 
-  async create(adminId: string, data: { name: string; description?: string; type?: string; cover?: string }) {
+  async create(
+    adminId: string,
+    data: { name: string; description?: string; type?: string; cover?: string },
+  ) {
     const group = await this.prisma.group.create({
       data: {
         name: data.name,
@@ -41,14 +44,22 @@ export class GroupsService {
       include: {
         admin: { select: { id: true, name: true, avatar: true } },
         members: {
-          include: { user: { select: { id: true, name: true, avatar: true, isOnline: true } } },
+          include: {
+            user: {
+              select: { id: true, name: true, avatar: true, isOnline: true },
+            },
+          },
         },
         _count: { select: { members: true, posts: true } },
       },
     });
   }
 
-  async update(id: string, userId: string, data: { name?: string; description?: string; cover?: string }) {
+  async update(
+    id: string,
+    userId: string,
+    data: { name?: string; description?: string; cover?: string },
+  ) {
     const group = await this.prisma.group.findUnique({ where: { id } });
     if (!group || group.adminId !== userId) throw new Error('Not authorized');
     return this.prisma.group.update({ where: { id }, data });

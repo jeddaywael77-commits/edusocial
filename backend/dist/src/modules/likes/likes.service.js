@@ -13,11 +13,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LikesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const socket_gateway_1 = require("../socket/socket.gateway");
+const socket_events_1 = require("../socket/socket.events");
 let LikesService = LikesService_1 = class LikesService {
     prisma;
+    socketGateway;
     logger = new common_1.Logger(LikesService_1.name);
-    constructor(prisma) {
+    constructor(prisma, socketGateway) {
         this.prisma = prisma;
+        this.socketGateway = socketGateway;
     }
     async toggle(userId, dto) {
         if (!dto.postId && !dto.commentId) {
@@ -58,6 +62,13 @@ let LikesService = LikesService_1 = class LikesService {
             data: { userId, postId, type },
         });
         this.logger.log(`Reaction added: ${type} on post ${postId}`);
+        if (post.authorId !== userId) {
+            this.socketGateway.broadcastToUser(post.authorId, socket_events_1.SocketEvents.FEED_NEW_REACTION, {
+                postId,
+                type,
+                userId,
+            });
+        }
         return { action: 'added', type };
     }
     async toggleCommentReaction(userId, commentId, type) {
@@ -148,6 +159,7 @@ let LikesService = LikesService_1 = class LikesService {
 exports.LikesService = LikesService;
 exports.LikesService = LikesService = LikesService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        socket_gateway_1.SocketGateway])
 ], LikesService);
 //# sourceMappingURL=likes.service.js.map

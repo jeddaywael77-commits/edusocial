@@ -24,7 +24,9 @@ export class LikesService {
       throw new BadRequestException('Either postId or commentId is required');
     }
     if (dto.postId && dto.commentId) {
-      throw new BadRequestException('Provide only postId or commentId, not both');
+      throw new BadRequestException(
+        'Provide only postId or commentId, not both',
+      );
     }
 
     if (dto.postId) {
@@ -70,11 +72,15 @@ export class LikesService {
     this.logger.log(`Reaction added: ${type} on post ${postId}`);
 
     if (post.authorId !== userId) {
-      this.socketGateway.broadcastToUser(post.authorId, SocketEvents.FEED_NEW_REACTION, {
-        postId,
-        type,
-        userId,
-      });
+      this.socketGateway.broadcastToUser(
+        post.authorId,
+        SocketEvents.FEED_NEW_REACTION,
+        {
+          postId,
+          type,
+          userId,
+        },
+      );
     }
 
     return { action: 'added', type };
@@ -155,7 +161,11 @@ export class LikesService {
     };
   }
 
-  async getPostReactors(postId: string, type?: ReactionType, limit: number = 20) {
+  async getPostReactors(
+    postId: string,
+    type?: ReactionType,
+    limit: number = 20,
+  ) {
     const where = {
       postId,
       ...(type && { type }),

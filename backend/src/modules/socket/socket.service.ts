@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IoAdapter } from '@nestjs/platform-socket.io';
-import { Server, ServerOptions } from 'socket.io';
+import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { Redis } from 'ioredis';
 import { PrismaService } from '../../database/prisma.service';
@@ -27,8 +26,12 @@ export class SocketService implements OnModuleInit {
     this.pubClient = new Redis({ host, port, maxRetriesPerRequest: null });
     this.subClient = this.pubClient.duplicate();
 
-    this.pubClient.on('error', (err) => this.logger.error('Redis pub error:', err.message));
-    this.subClient.on('error', (err) => this.logger.error('Redis sub error:', err.message));
+    this.pubClient.on('error', (err) =>
+      this.logger.error('Redis pub error:', err.message),
+    );
+    this.subClient.on('error', (err) =>
+      this.logger.error('Redis sub error:', err.message),
+    );
     this.pubClient.on('connect', () => this.logger.log('Redis pub connected'));
     this.subClient.on('connect', () => this.logger.log('Redis sub connected'));
   }
@@ -126,7 +129,7 @@ export class SocketService implements OnModuleInit {
     const socket = this.server?.sockets?.sockets?.get(socketId);
     if (socket) {
       for (const { conversationId } of conversations) {
-        socket.join(`conversation:${conversationId}`);
+        void socket.join(`conversation:${conversationId}`);
       }
     }
   }
@@ -140,7 +143,7 @@ export class SocketService implements OnModuleInit {
     const socket = this.server?.sockets?.sockets?.get(socketId);
     if (socket) {
       for (const { groupId } of memberships) {
-        socket.join(`group:${groupId}`);
+        void socket.join(`group:${groupId}`);
       }
     }
   }
@@ -154,7 +157,7 @@ export class SocketService implements OnModuleInit {
     const socket = this.server?.sockets?.sockets?.get(socketId);
     if (socket) {
       for (const { courseId } of enrollments) {
-        socket.join(`course:${courseId}`);
+        void socket.join(`course:${courseId}`);
       }
     }
   }
@@ -162,14 +165,14 @@ export class SocketService implements OnModuleInit {
   joinRoom(socketId: string, room: string) {
     const socket = this.server?.sockets?.sockets?.get(socketId);
     if (socket) {
-      socket.join(room);
+      void socket.join(room);
     }
   }
 
   leaveRoom(socketId: string, room: string) {
     const socket = this.server?.sockets?.sockets?.get(socketId);
     if (socket) {
-      socket.leave(room);
+      void socket.leave(room);
     }
   }
 

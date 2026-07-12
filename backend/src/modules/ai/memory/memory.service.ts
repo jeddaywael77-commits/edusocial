@@ -17,7 +17,10 @@ export class MemoryService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async addMemory(userId: string, entry: Omit<MemoryEntry, 'id' | 'createdAt'>): Promise<void> {
+  async addMemory(
+    userId: string,
+    entry: Omit<MemoryEntry, 'id' | 'createdAt'>,
+  ): Promise<void> {
     try {
       await this.prisma.auditLog.create({
         data: {
@@ -37,11 +40,14 @@ export class MemoryService {
     }
   }
 
-  async getMemory(userId: string, options: {
-    type?: string;
-    conversationId?: string;
-    limit?: number;
-  } = {}): Promise<MemoryEntry[]> {
+  async getMemory(
+    userId: string,
+    options: {
+      type?: string;
+      conversationId?: string;
+      limit?: number;
+    } = {},
+  ): Promise<MemoryEntry[]> {
     const { type, conversationId, limit = 20 } = options;
 
     try {
@@ -76,7 +82,10 @@ export class MemoryService {
     }
   }
 
-  async getConversationContext(conversationId: string, maxTokens: number = 4000): Promise<string> {
+  async getConversationContext(
+    conversationId: string,
+    maxTokens: number = 4000,
+  ): Promise<string> {
     try {
       const messages = await this.prisma.auditLog.findMany({
         where: {
@@ -108,7 +117,10 @@ export class MemoryService {
   }
 
   async getUserPreferences(userId: string): Promise<Record<string, any>> {
-    const memories = await this.getMemory(userId, { type: 'preference', limit: 50 });
+    const memories = await this.getMemory(userId, {
+      type: 'preference',
+      limit: 50,
+    });
     const preferences: Record<string, any> = {};
     for (const mem of memories) {
       try {

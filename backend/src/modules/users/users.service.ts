@@ -3,7 +3,10 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
-import { buildPaginationArgs, buildPaginatedResponse } from '../../common/utils/prisma-helpers';
+import {
+  buildPaginationArgs,
+  buildPaginatedResponse,
+} from '../../common/utils/prisma-helpers';
 
 @Injectable()
 export class UsersService {

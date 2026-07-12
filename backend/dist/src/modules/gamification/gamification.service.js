@@ -48,7 +48,9 @@ let GamificationService = GamificationService_1 = class GamificationService {
         if (!user)
             throw new Error('User not found');
         const badgeCount = await this.prisma.userBadge.count({ where: { userId } });
-        const postCount = await this.prisma.post.count({ where: { authorId: userId } });
+        const postCount = await this.prisma.post.count({
+            where: { authorId: userId },
+        });
         return { ...user, badgeCount, postCount };
     }
     async addXp(userId, xp) {

@@ -47,12 +47,21 @@ export class AiAnalyticsService {
     }
   }
 
-  async getUserStats(userId: string, days: number = 30): Promise<{
+  async getUserStats(
+    userId: string,
+    days: number = 30,
+  ): Promise<{
     totalRequests: number;
     totalTokens: number;
     totalCostUsd: number;
-    byProvider: Record<string, { requests: number; tokens: number; cost: number }>;
-    byFeature: Record<string, { requests: number; tokens: number; cost: number }>;
+    byProvider: Record<
+      string,
+      { requests: number; tokens: number; cost: number }
+    >;
+    byFeature: Record<
+      string,
+      { requests: number; tokens: number; cost: number }
+    >;
     avgLatencyMs: number;
     successRate: number;
   }> {
@@ -68,8 +77,14 @@ export class AiAnalyticsService {
         },
       });
 
-      const byProvider: Record<string, { requests: number; tokens: number; cost: number }> = {};
-      const byFeature: Record<string, { requests: number; tokens: number; cost: number }> = {};
+      const byProvider: Record<
+        string,
+        { requests: number; tokens: number; cost: number }
+      > = {};
+      const byFeature: Record<
+        string,
+        { requests: number; tokens: number; cost: number }
+      > = {};
       let totalTokens = 0;
       let totalCost = 0;
       let totalLatency = 0;
@@ -89,12 +104,14 @@ export class AiAnalyticsService {
         totalLatency += latency;
         if (success) successCount++;
 
-        if (!byProvider[provider]) byProvider[provider] = { requests: 0, tokens: 0, cost: 0 };
+        if (!byProvider[provider])
+          byProvider[provider] = { requests: 0, tokens: 0, cost: 0 };
         byProvider[provider].requests++;
         byProvider[provider].tokens += tokens;
         byProvider[provider].cost += cost;
 
-        if (!byFeature[feature]) byFeature[feature] = { requests: 0, tokens: 0, cost: 0 };
+        if (!byFeature[feature])
+          byFeature[feature] = { requests: 0, tokens: 0, cost: 0 };
         byFeature[feature].requests++;
         byFeature[feature].tokens += tokens;
         byFeature[feature].cost += cost;
@@ -174,10 +191,14 @@ export class AiAnalyticsService {
     }
   }
 
-  calculateCost(promptTokens: number, completionTokens: number, config: {
-    costInputPer1M: number;
-    costOutputPer1M: number;
-  }): number {
+  calculateCost(
+    promptTokens: number,
+    completionTokens: number,
+    config: {
+      costInputPer1M: number;
+      costOutputPer1M: number;
+    },
+  ): number {
     return (
       (promptTokens / 1_000_000) * config.costInputPer1M +
       (completionTokens / 1_000_000) * config.costOutputPer1M

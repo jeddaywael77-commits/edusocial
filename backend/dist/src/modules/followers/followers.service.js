@@ -36,14 +36,34 @@ let FollowersService = FollowersService_1 = class FollowersService {
     async getFollowers(userId) {
         return this.prisma.follower.findMany({
             where: { userId },
-            include: { follower: { select: { id: true, name: true, avatar: true, isOnline: true, role: true } } },
+            include: {
+                follower: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatar: true,
+                        isOnline: true,
+                        role: true,
+                    },
+                },
+            },
             orderBy: { createdAt: 'desc' },
         });
     }
     async getFollowing(userId) {
         return this.prisma.follower.findMany({
             where: { followerId: userId },
-            include: { user: { select: { id: true, name: true, avatar: true, isOnline: true, role: true } } },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatar: true,
+                        isOnline: true,
+                        role: true,
+                    },
+                },
+            },
             orderBy: { createdAt: 'desc' },
         });
     }

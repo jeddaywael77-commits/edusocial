@@ -22,108 +22,108 @@ export declare class LessonsController {
     constructor(lessonsService: LessonsService);
     create(userId: string, dto: CreateLessonDto): Promise<{
         course: {
-            title: string;
             id: string;
+            title: string;
         };
     } & {
-        title: string;
         id: string;
         createdAt: Date;
-        content: string | null;
-        pdfUrl: string | null;
+        title: string;
+        isPublished: boolean;
         courseId: string;
         authorId: string;
-        isPublished: boolean;
+        content: string | null;
+        pdfUrl: string | null;
         order: number;
         videoUrl: string | null;
         duration: number | null;
     }>;
     findAll(): Promise<({
         course: {
-            title: string;
             id: string;
+            title: string;
         };
         author: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        title: string;
         id: string;
         createdAt: Date;
-        content: string | null;
-        pdfUrl: string | null;
+        title: string;
+        isPublished: boolean;
         courseId: string;
         authorId: string;
-        isPublished: boolean;
+        content: string | null;
+        pdfUrl: string | null;
         order: number;
         videoUrl: string | null;
         duration: number | null;
     })[]>;
     findByCourseId(courseId: string): Promise<({
         author: {
-            name: string;
             id: string;
+            name: string;
         };
     } & {
-        title: string;
         id: string;
         createdAt: Date;
-        content: string | null;
-        pdfUrl: string | null;
+        title: string;
+        isPublished: boolean;
         courseId: string;
         authorId: string;
-        isPublished: boolean;
+        content: string | null;
+        pdfUrl: string | null;
         order: number;
         videoUrl: string | null;
         duration: number | null;
     })[]>;
     findById(id: string): Promise<({
         course: {
-            title: string;
             id: string;
+            title: string;
         };
         author: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        title: string;
         id: string;
         createdAt: Date;
-        content: string | null;
-        pdfUrl: string | null;
+        title: string;
+        isPublished: boolean;
         courseId: string;
         authorId: string;
-        isPublished: boolean;
+        content: string | null;
+        pdfUrl: string | null;
         order: number;
         videoUrl: string | null;
         duration: number | null;
     }) | null>;
     update(id: string, userId: string, dto: UpdateLessonDto): Promise<{
-        title: string;
         id: string;
         createdAt: Date;
-        content: string | null;
-        pdfUrl: string | null;
+        title: string;
+        isPublished: boolean;
         courseId: string;
         authorId: string;
-        isPublished: boolean;
+        content: string | null;
+        pdfUrl: string | null;
         order: number;
         videoUrl: string | null;
         duration: number | null;
     }>;
     delete(id: string, userId: string): Promise<{
-        title: string;
         id: string;
         createdAt: Date;
-        content: string | null;
-        pdfUrl: string | null;
+        title: string;
+        isPublished: boolean;
         courseId: string;
         authorId: string;
-        isPublished: boolean;
+        content: string | null;
+        pdfUrl: string | null;
         order: number;
         videoUrl: string | null;
         duration: number | null;

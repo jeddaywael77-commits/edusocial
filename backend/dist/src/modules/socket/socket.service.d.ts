@@ -1,0 +1,36 @@
+import { OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Server } from 'socket.io';
+import { PrismaService } from '../../database/prisma.service';
+export declare class SocketService implements OnModuleInit {
+    private configService;
+    private prisma;
+    private readonly logger;
+    private server;
+    private pubClient;
+    private subClient;
+    private readonly userSockets;
+    private readonly socketUsers;
+    constructor(configService: ConfigService, prisma: PrismaService);
+    onModuleInit(): void;
+    createRedisAdapter(): (nsp: any) => import("@socket.io/redis-adapter").RedisAdapter;
+    setServer(server: Server): void;
+    getServer(): Server;
+    registerSocket(socketId: string, userId: string): void;
+    unregisterSocket(socketId: string): string | undefined;
+    getUserId(socketId: string): string | undefined;
+    getUserSocketIds(userId: string): string[];
+    isUserOnline(userId: string): boolean;
+    getOnlineUserIds(): string[];
+    markUserOnline(userId: string): Promise<void>;
+    markUserOffline(userId: string): Promise<void>;
+    emitToUser(userId: string, event: string, data: unknown): void;
+    emitToRoom(room: string, event: string, data: unknown): void;
+    broadcastToAll(event: string, data: unknown): void;
+    addSocketToConversationRooms(socketId: string, userId: string): Promise<void>;
+    addSocketToGroupRooms(socketId: string, userId: string): Promise<void>;
+    addSocketToCourseRooms(socketId: string, userId: string): Promise<void>;
+    joinRoom(socketId: string, room: string): void;
+    leaveRoom(socketId: string, room: string): void;
+    cleanup(): Promise<void>;
+}

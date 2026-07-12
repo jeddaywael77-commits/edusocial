@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Param, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Param,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { SubmissionsService } from './submissions.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -27,7 +37,10 @@ export class SubmissionsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Submit an assignment' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateSubmissionDto) {
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateSubmissionDto,
+  ) {
     return this.submissionsService.create(userId, dto);
   }
 
@@ -51,7 +64,11 @@ export class SubmissionsController {
 
   @Patch(':id/grade')
   @ApiOperation({ summary: 'Grade a submission' })
-  async grade(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() dto: GradeSubmissionDto) {
+  async grade(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+    @Body() dto: GradeSubmissionDto,
+  ) {
     return this.submissionsService.grade(id, userId, dto);
   }
 }

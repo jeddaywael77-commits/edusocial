@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsNumber, IsArray, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsArray,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -8,7 +15,10 @@ export class GlobalSearchDto {
   @IsOptional()
   q?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by index types', example: ['users', 'posts'] })
+  @ApiPropertyOptional({
+    description: 'Filter by index types',
+    example: ['users', 'posts'],
+  })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
@@ -55,7 +65,18 @@ export class AutocompleteDto {
 }
 
 export class IndexEntityDto {
-  @ApiPropertyOptional({ description: 'Entity type to index', enum: ['users', 'posts', 'courses', 'groups', 'marketplace', 'documents', 'lessons'] })
+  @ApiPropertyOptional({
+    description: 'Entity type to index',
+    enum: [
+      'users',
+      'posts',
+      'courses',
+      'groups',
+      'marketplace',
+      'documents',
+      'lessons',
+    ],
+  })
   @IsString()
   @IsOptional()
   entityType?: string;

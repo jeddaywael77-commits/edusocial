@@ -25,7 +25,17 @@ export class FollowersService {
   async getFollowers(userId: string) {
     return this.prisma.follower.findMany({
       where: { userId },
-      include: { follower: { select: { id: true, name: true, avatar: true, isOnline: true, role: true } } },
+      include: {
+        follower: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+            isOnline: true,
+            role: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -33,7 +43,17 @@ export class FollowersService {
   async getFollowing(userId: string) {
     return this.prisma.follower.findMany({
       where: { followerId: userId },
-      include: { user: { select: { id: true, name: true, avatar: true, isOnline: true, role: true } } },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+            isOnline: true,
+            role: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }

@@ -13,100 +13,100 @@ export declare class SubmissionsController {
     constructor(submissionsService: SubmissionsService);
     create(userId: string, dto: CreateSubmissionDto): Promise<{
         assignment: {
-            title: string;
             id: string;
+            title: string;
         };
         student: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
         id: string;
         content: string | null;
-        status: import("@prisma/client").$Enums.SubmissionStatus;
         fileUrl: string | null;
         score: number | null;
         feedback: string | null;
-        assignmentId: string;
-        studentId: string;
+        status: import("@prisma/client").$Enums.SubmissionStatus;
         submittedAt: Date;
         gradedAt: Date | null;
+        assignmentId: string;
+        studentId: string;
     }>;
     findAll(): Promise<({
         assignment: {
-            title: string;
             id: string;
+            title: string;
         };
         student: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
         id: string;
         content: string | null;
-        status: import("@prisma/client").$Enums.SubmissionStatus;
         fileUrl: string | null;
         score: number | null;
         feedback: string | null;
-        assignmentId: string;
-        studentId: string;
+        status: import("@prisma/client").$Enums.SubmissionStatus;
         submittedAt: Date;
         gradedAt: Date | null;
+        assignmentId: string;
+        studentId: string;
     })[]>;
     findByAssignmentId(assignmentId: string): Promise<({
         student: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
         id: string;
         content: string | null;
-        status: import("@prisma/client").$Enums.SubmissionStatus;
         fileUrl: string | null;
         score: number | null;
         feedback: string | null;
-        assignmentId: string;
-        studentId: string;
+        status: import("@prisma/client").$Enums.SubmissionStatus;
         submittedAt: Date;
         gradedAt: Date | null;
+        assignmentId: string;
+        studentId: string;
     })[]>;
     findById(id: string): Promise<({
         assignment: {
-            title: string;
             id: string;
+            title: string;
             maxScore: number;
         };
         student: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
         id: string;
         content: string | null;
-        status: import("@prisma/client").$Enums.SubmissionStatus;
         fileUrl: string | null;
         score: number | null;
         feedback: string | null;
-        assignmentId: string;
-        studentId: string;
+        status: import("@prisma/client").$Enums.SubmissionStatus;
         submittedAt: Date;
         gradedAt: Date | null;
+        assignmentId: string;
+        studentId: string;
     }) | null>;
     grade(id: string, userId: string, dto: GradeSubmissionDto): Promise<{
         id: string;
         content: string | null;
-        status: import("@prisma/client").$Enums.SubmissionStatus;
         fileUrl: string | null;
         score: number | null;
         feedback: string | null;
-        assignmentId: string;
-        studentId: string;
+        status: import("@prisma/client").$Enums.SubmissionStatus;
         submittedAt: Date;
         gradedAt: Date | null;
+        assignmentId: string;
+        studentId: string;
     }>;
 }
 export {};

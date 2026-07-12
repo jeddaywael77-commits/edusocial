@@ -19,7 +19,10 @@ const INJECTION_PATTERNS = [
 
 const PII_PATTERNS = [
   { name: 'email', pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g },
-  { name: 'phone', pattern: /(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g },
+  {
+    name: 'phone',
+    pattern: /(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g,
+  },
   { name: 'ssn', pattern: /\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/g },
   { name: 'creditCard', pattern: /\b(?:\d{4}[-.\s]?){3}\d{4}\b/g },
   { name: 'ip', pattern: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g },
@@ -58,7 +61,10 @@ export class AiSecurityService {
       const matches = input.match(pattern);
       if (matches) {
         flags.push(`pii:${name}`);
-        sanitized = sanitized.replace(pattern, `[REDACTED ${name.toUpperCase()}]`);
+        sanitized = sanitized.replace(
+          pattern,
+          `[REDACTED ${name.toUpperCase()}]`,
+        );
       }
     }
     return { safe: flags.length === 0, flags, sanitized };
@@ -74,12 +80,19 @@ export class AiSecurityService {
     return { safe: flags.length === 0, flags };
   }
 
-  comprehensiveCheck(input: string, options: {
-    checkInjection?: boolean;
-    filterPII?: boolean;
-    checkHarmful?: boolean;
-  } = {}): SecurityCheckResult {
-    const { checkInjection = true, filterPII = true, checkHarmful = true } = options;
+  comprehensiveCheck(
+    input: string,
+    options: {
+      checkInjection?: boolean;
+      filterPII?: boolean;
+      checkHarmful?: boolean;
+    } = {},
+  ): SecurityCheckResult {
+    const {
+      checkInjection = true,
+      filterPII = true,
+      checkHarmful = true,
+    } = options;
     const allFlags: string[] = [];
     let sanitized = input;
 
@@ -116,6 +129,8 @@ export class AiSecurityService {
   }
 
   logSecurityEvent(userId: string, type: string, flags: string[]): void {
-    this.logger.warn(`Security event: user=${userId}, type=${type}, flags=${flags.join(',')}`);
+    this.logger.warn(
+      `Security event: user=${userId}, type=${type}, flags=${flags.join(',')}`,
+    );
   }
 }

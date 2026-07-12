@@ -15,7 +15,11 @@ describe('Posts (e2e)', () => {
     app = moduleFixture.createNestApplication();
     app.setGlobalPrefix('api/v1');
     app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
     );
     await app.init();
 
@@ -23,7 +27,12 @@ describe('Posts (e2e)', () => {
     const email = `posts-test-${Date.now()}@example.com`;
     const res = await request(app.getHttpServer())
       .post('/api/v1/auth/register')
-      .send({ name: 'Posts Tester', email, password: 'Password123', role: 'STUDENT' });
+      .send({
+        name: 'Posts Tester',
+        email,
+        password: 'Password123',
+        role: 'STUDENT',
+      });
     authToken = res.body.tokens.accessToken;
   }, 30000);
 
@@ -36,7 +45,11 @@ describe('Posts (e2e)', () => {
       return request(app.getHttpServer())
         .post('/api/v1/posts')
         .set('Authorization', `Bearer ${authToken}`)
-        .send({ content: 'Hello EduSocial!', type: 'TEXT', visibility: 'PUBLIC' })
+        .send({
+          content: 'Hello EduSocial!',
+          type: 'TEXT',
+          visibility: 'PUBLIC',
+        })
         .expect(201)
         .expect((res) => {
           expect(res.body.content).toBe('Hello EduSocial!');

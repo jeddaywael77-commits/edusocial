@@ -60,12 +60,20 @@ let SubmissionsService = SubmissionsService_1 = class SubmissionsService {
         });
     }
     async grade(id, userId, data) {
-        const submission = await this.prisma.submission.findUnique({ where: { id }, include: { assignment: true } });
+        const submission = await this.prisma.submission.findUnique({
+            where: { id },
+            include: { assignment: true },
+        });
         if (!submission)
             throw new Error('Submission not found');
         return this.prisma.submission.update({
             where: { id },
-            data: { score: data.score, feedback: data.feedback, status: 'GRADED', gradedAt: new Date() },
+            data: {
+                score: data.score,
+                feedback: data.feedback,
+                status: 'GRADED',
+                gradedAt: new Date(),
+            },
         });
     }
 };

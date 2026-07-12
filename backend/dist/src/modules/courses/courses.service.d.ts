@@ -11,88 +11,96 @@ export declare class CoursesService {
         thumbnail?: string;
     }): Promise<{
         teacher: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
         id: string;
+        level: import("@prisma/client").$Enums.CourseLevel;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        title: string;
         thumbnail: string | null;
         category: string;
-        teacherId: string;
         isPublished: boolean;
+        teacherId: string;
     }>;
-    findAll(): Promise<({
-        _count: {
-            lessons: number;
-            assignments: number;
-            enrollments: number;
-        };
-        teacher: {
-            name: string;
+    findAll(page?: number, limit?: number): Promise<{
+        data: ({
+            teacher: {
+                id: string;
+                name: string;
+                avatar: string | null;
+            };
+            _count: {
+                lessons: number;
+                assignments: number;
+                enrollments: number;
+            };
+        } & {
             id: string;
-            avatar: string | null;
+            level: import("@prisma/client").$Enums.CourseLevel;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string | null;
+            title: string;
+            thumbnail: string | null;
+            category: string;
+            isPublished: boolean;
+            teacherId: string;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
         };
-    } & {
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        thumbnail: string | null;
-        category: string;
-        teacherId: string;
-        isPublished: boolean;
-    })[]>;
+    }>;
     findById(id: string): Promise<({
         lessons: {
-            title: string;
             id: string;
             createdAt: Date;
-            content: string | null;
-            pdfUrl: string | null;
+            title: string;
+            isPublished: boolean;
             courseId: string;
             authorId: string;
-            isPublished: boolean;
+            content: string | null;
+            pdfUrl: string | null;
             order: number;
             videoUrl: string | null;
             duration: number | null;
         }[];
-        _count: {
-            enrollments: number;
-        };
         teacher: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
         assignments: {
-            description: string | null;
-            title: string;
             id: string;
             createdAt: Date;
-            courseId: string | null;
-            authorId: string;
+            description: string | null;
+            title: string;
             dueDate: Date;
             maxScore: number;
+            courseId: string | null;
+            authorId: string;
         }[];
+        _count: {
+            enrollments: number;
+        };
     } & {
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
         id: string;
+        level: import("@prisma/client").$Enums.CourseLevel;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        title: string;
         thumbnail: string | null;
         category: string;
-        teacherId: string;
         isPublished: boolean;
+        teacherId: string;
     }) | null>;
     update(id: string, userId: string, data: {
         title?: string;
@@ -100,47 +108,55 @@ export declare class CoursesService {
         thumbnail?: string;
         isPublished?: boolean;
     }): Promise<{
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
         id: string;
+        level: import("@prisma/client").$Enums.CourseLevel;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        title: string;
         thumbnail: string | null;
         category: string;
-        teacherId: string;
         isPublished: boolean;
+        teacherId: string;
     }>;
     delete(id: string, userId: string): Promise<{
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
         id: string;
+        level: import("@prisma/client").$Enums.CourseLevel;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        title: string;
         thumbnail: string | null;
         category: string;
-        teacherId: string;
         isPublished: boolean;
+        teacherId: string;
     }>;
     enroll(courseId: string, userId: string): Promise<{
         id: string;
-        userId: string;
         courseId: string;
+        userId: string;
         progress: number;
         enrolledAt: Date;
     }>;
-    getEnrollments(courseId: string): Promise<({
-        user: {
-            name: string;
+    getEnrollments(courseId: string, page?: number, limit?: number): Promise<{
+        data: ({
+            user: {
+                id: string;
+                name: string;
+                avatar: string | null;
+            };
+        } & {
             id: string;
-            avatar: string | null;
+            courseId: string;
+            userId: string;
+            progress: number;
+            enrolledAt: Date;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
         };
-    } & {
-        id: string;
-        userId: string;
-        courseId: string;
-        progress: number;
-        enrolledAt: Date;
-    })[]>;
+    }>;
 }

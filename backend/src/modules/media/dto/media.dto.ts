@@ -1,9 +1,20 @@
-import { IsOptional, IsString, IsEnum, IsArray, IsInt, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsArray,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MediaCategory } from '../../../common/enums';
 
 export class UploadMediaDto {
-  @ApiPropertyOptional({ enum: MediaCategory, default: MediaCategory.POST_IMAGE })
+  @ApiPropertyOptional({
+    enum: MediaCategory,
+    default: MediaCategory.POST_IMAGE,
+  })
   @IsOptional()
   @IsEnum(MediaCategory)
   category?: MediaCategory;
@@ -15,7 +26,10 @@ export class UploadMediaDto {
 }
 
 export class BulkUploadMediaDto {
-  @ApiPropertyOptional({ enum: MediaCategory, default: MediaCategory.POST_IMAGE })
+  @ApiPropertyOptional({
+    enum: MediaCategory,
+    default: MediaCategory.POST_IMAGE,
+  })
   @IsOptional()
   @IsEnum(MediaCategory)
   category?: MediaCategory;

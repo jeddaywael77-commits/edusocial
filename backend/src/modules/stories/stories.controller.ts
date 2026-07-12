@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { StoriesService } from './stories.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -21,7 +31,10 @@ export class StoriesController {
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a story' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateStoryDto) {
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateStoryDto,
+  ) {
     return this.storiesService.create(userId, dto);
   }
 
@@ -42,7 +55,10 @@ export class StoriesController {
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Mark story as viewed' })
-  async markAsViewed(@Param('id') id: string, @CurrentUser('sub') userId: string) {
+  async markAsViewed(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+  ) {
     return this.storiesService.markAsViewed(id, userId);
   }
 

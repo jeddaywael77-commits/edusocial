@@ -3,12 +3,19 @@ import { registerAs } from '@nestjs/config';
 export default registerAs('media', () => ({
   storageProvider: process.env.MEDIA_STORAGE_PROVIDER || 'local',
   maxFileSize: parseInt(process.env.MEDIA_MAX_FILE_SIZE || '52428800', 10),
-  maxFilesPerUpload: parseInt(process.env.MEDIA_MAX_FILES_PER_UPLOAD || '10', 10),
-  allowedMimeTypes: process.env.MEDIA_ALLOWED_MIME_TYPES || 'image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.*,application/vnd.ms-excel,application/vnd.ms-powerpoint,text/plain',
+  maxFilesPerUpload: parseInt(
+    process.env.MEDIA_MAX_FILES_PER_UPLOAD || '10',
+    10,
+  ),
+  allowedMimeTypes:
+    process.env.MEDIA_ALLOWED_MIME_TYPES ||
+    'image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.*,application/vnd.ms-excel,application/vnd.ms-powerpoint,text/plain',
   bucket: process.env.MEDIA_BUCKET || 'edusocial',
 
   // Local
-  storageBaseUrl: process.env.MEDIA_STORAGE_BASE_URL || `http://localhost:${process.env.PORT || 3001}/uploads`,
+  storageBaseUrl:
+    process.env.MEDIA_STORAGE_BASE_URL ||
+    `http://localhost:${process.env.PORT || 3001}/uploads`,
 
   // MinIO
   minioEndpoint: process.env.MINIO_ENDPOINT || 'localhost',

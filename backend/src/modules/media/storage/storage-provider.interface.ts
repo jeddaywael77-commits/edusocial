@@ -20,10 +20,21 @@ export interface SignedUrlOptions {
 }
 
 export interface IStorageProvider {
-  upload(buffer: Buffer, options: StorageUploadOptions): Promise<StorageUploadResult>;
-  uploadStream(stream: NodeJS.ReadableStream, options: StorageUploadOptions): Promise<StorageUploadResult>;
+  upload(
+    buffer: Buffer,
+    options: StorageUploadOptions,
+  ): Promise<StorageUploadResult>;
+  uploadStream(
+    stream: NodeJS.ReadableStream,
+    options: StorageUploadOptions,
+  ): Promise<StorageUploadResult>;
   delete(bucket: string, key: string): Promise<void>;
   getSignedUrl(options: SignedUrlOptions): Promise<string>;
   getPublicUrl(bucket: string, key: string): string;
-  copy(srcBucket: string, srcKey: string, destBucket: string, destKey: string): Promise<void>;
+  copy(
+    srcBucket: string,
+    srcKey: string,
+    destBucket: string,
+    destKey: string,
+  ): Promise<void>;
 }

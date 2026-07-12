@@ -6,18 +6,18 @@ export declare class FriendsController {
     private readonly friendsService;
     constructor(friendsService: FriendsService);
     getFriends(userId: string): Promise<{
-        name: string;
-        role: import("@prisma/client").$Enums.UserRole;
         id: string;
+        name: string;
         avatar: string | null;
+        role: import("@prisma/client").$Enums.UserRole;
         isOnline: boolean;
     }[]>;
     getRequests(userId: string): Promise<({
         sender: {
-            name: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            name: string;
             avatar: string | null;
+            role: import("@prisma/client").$Enums.UserRole;
         };
     } & {
         id: string;
@@ -29,13 +29,13 @@ export declare class FriendsController {
     })[]>;
     sendRequest(userId: string, dto: SendRequestDto): Promise<{
         sender: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
         receiver: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {

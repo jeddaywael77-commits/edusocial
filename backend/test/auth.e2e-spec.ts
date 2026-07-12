@@ -52,12 +52,22 @@ describe('Auth (e2e)', () => {
       const email = `dup-${Date.now()}@example.com`;
       await request(app.getHttpServer())
         .post('/api/v1/auth/register')
-        .send({ name: 'First', email, password: 'Password123', role: 'STUDENT' })
+        .send({
+          name: 'First',
+          email,
+          password: 'Password123',
+          role: 'STUDENT',
+        })
         .expect(201);
 
       return request(app.getHttpServer())
         .post('/api/v1/auth/register')
-        .send({ name: 'Second', email, password: 'Password123', role: 'STUDENT' })
+        .send({
+          name: 'Second',
+          email,
+          password: 'Password123',
+          role: 'STUDENT',
+        })
         .expect(409);
     });
 
@@ -79,7 +89,12 @@ describe('Auth (e2e)', () => {
       const email = `login-${Date.now()}@example.com`;
       await request(app.getHttpServer())
         .post('/api/v1/auth/register')
-        .send({ name: 'Login User', email, password: 'Password123', role: 'STUDENT' })
+        .send({
+          name: 'Login User',
+          email,
+          password: 'Password123',
+          role: 'STUDENT',
+        })
         .expect(201);
 
       return request(app.getHttpServer())
@@ -105,7 +120,12 @@ describe('Auth (e2e)', () => {
       const email = `profile-${Date.now()}@example.com`;
       const registerRes = await request(app.getHttpServer())
         .post('/api/v1/auth/register')
-        .send({ name: 'Profile User', email, password: 'Password123', role: 'STUDENT' })
+        .send({
+          name: 'Profile User',
+          email,
+          password: 'Password123',
+          role: 'STUDENT',
+        })
         .expect(201);
 
       const token = registerRes.body.tokens.accessToken;

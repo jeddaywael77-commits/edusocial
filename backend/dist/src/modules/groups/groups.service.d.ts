@@ -10,107 +10,107 @@ export declare class GroupsService {
         cover?: string;
     }): Promise<{
         admin: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        type: import("@prisma/client").$Enums.GroupType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
         cover: string | null;
-        adminId: string;
+        type: import("@prisma/client").$Enums.GroupType;
         isPublic: boolean;
+        adminId: string;
     }>;
     findAll(): Promise<({
-        _count: {
-            members: number;
-        };
         admin: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
-    } & {
-        type: import("@prisma/client").$Enums.GroupType;
-        description: string | null;
-        name: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        cover: string | null;
-        adminId: string;
-        isPublic: boolean;
-    })[]>;
-    findById(id: string): Promise<({
         _count: {
-            posts: number;
             members: number;
         };
+    } & {
+        id: string;
+        name: string;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        cover: string | null;
+        type: import("@prisma/client").$Enums.GroupType;
+        isPublic: boolean;
+        adminId: string;
+    })[]>;
+    findById(id: string): Promise<({
         admin: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
         members: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
                 avatar: string | null;
                 isOnline: boolean;
             };
         } & {
-            role: string;
             id: string;
-            userId: string;
+            role: string;
             groupId: string;
+            userId: string;
             joinedAt: Date;
         })[];
+        _count: {
+            posts: number;
+            members: number;
+        };
     } & {
-        type: import("@prisma/client").$Enums.GroupType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
         cover: string | null;
-        adminId: string;
+        type: import("@prisma/client").$Enums.GroupType;
         isPublic: boolean;
+        adminId: string;
     }) | null>;
     update(id: string, userId: string, data: {
         name?: string;
         description?: string;
         cover?: string;
     }): Promise<{
-        type: import("@prisma/client").$Enums.GroupType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
         cover: string | null;
-        adminId: string;
+        type: import("@prisma/client").$Enums.GroupType;
         isPublic: boolean;
+        adminId: string;
     }>;
     delete(id: string, userId: string): Promise<{
-        type: import("@prisma/client").$Enums.GroupType;
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
         cover: string | null;
-        adminId: string;
+        type: import("@prisma/client").$Enums.GroupType;
         isPublic: boolean;
+        adminId: string;
     }>;
     join(groupId: string, userId: string): Promise<{
-        role: string;
         id: string;
-        userId: string;
+        role: string;
         groupId: string;
+        userId: string;
         joinedAt: Date;
     }>;
     leave(groupId: string, userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;

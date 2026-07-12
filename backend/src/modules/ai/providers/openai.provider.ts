@@ -30,7 +30,9 @@ export class OpenAIProvider implements AIProvider {
     this.embeddingModel = config.embeddingModel;
   }
 
-  async chatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
+  async chatCompletion(
+    options: ChatCompletionOptions,
+  ): Promise<ChatCompletionResponse> {
     const response = await this.client.chat.completions.create({
       model: options.model || this.defaultModel,
       messages: options.messages,

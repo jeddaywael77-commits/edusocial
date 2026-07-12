@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { GroupsService } from './groups.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -8,14 +19,20 @@ import { ApiProperty } from '@nestjs/swagger';
 
 class CreateGroupDto {
   @ApiProperty() @IsString() name: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() type?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() cover?: string;
 }
 
 class UpdateGroupDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() name?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() cover?: string;
 }
 
@@ -29,7 +46,10 @@ export class GroupsController {
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a group' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateGroupDto) {
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateGroupDto,
+  ) {
     return this.groupsService.create(userId, dto);
   }
 
@@ -49,7 +69,11 @@ export class GroupsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update a group' })
-  async update(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() dto: UpdateGroupDto) {
+  async update(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+    @Body() dto: UpdateGroupDto,
+  ) {
     return this.groupsService.update(id, userId, dto);
   }
 

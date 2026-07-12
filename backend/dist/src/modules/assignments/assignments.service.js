@@ -52,13 +52,17 @@ let AssignmentsService = AssignmentsService_1 = class AssignmentsService {
                 course: { select: { id: true, title: true } },
                 author: { select: { id: true, name: true, avatar: true } },
                 submissions: {
-                    include: { student: { select: { id: true, name: true, avatar: true } } },
+                    include: {
+                        student: { select: { id: true, name: true, avatar: true } },
+                    },
                 },
             },
         });
     }
     async update(id, userId, data) {
-        const assignment = await this.prisma.assignment.findUnique({ where: { id } });
+        const assignment = await this.prisma.assignment.findUnique({
+            where: { id },
+        });
         if (!assignment || assignment.authorId !== userId)
             throw new Error('Not authorized');
         const updateData = { ...data };
@@ -67,7 +71,9 @@ let AssignmentsService = AssignmentsService_1 = class AssignmentsService {
         return this.prisma.assignment.update({ where: { id }, data: updateData });
     }
     async delete(id, userId) {
-        const assignment = await this.prisma.assignment.findUnique({ where: { id } });
+        const assignment = await this.prisma.assignment.findUnique({
+            where: { id },
+        });
         if (!assignment || assignment.authorId !== userId)
             throw new Error('Not authorized');
         return this.prisma.assignment.delete({ where: { id } });

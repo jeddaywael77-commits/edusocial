@@ -12,15 +12,14 @@ export class OllamaProvider implements AIProvider {
   private readonly baseUrl: string;
   private readonly defaultModel: string;
 
-  constructor(config: {
-    baseUrl: string;
-    model: string;
-  }) {
+  constructor(config: { baseUrl: string; model: string }) {
     this.baseUrl = config.baseUrl;
     this.defaultModel = config.model;
   }
 
-  async chatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
+  async chatCompletion(
+    options: ChatCompletionOptions,
+  ): Promise<ChatCompletionResponse> {
     const response = await fetch(`${this.baseUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -100,7 +99,8 @@ export class OllamaProvider implements AIProvider {
               ? {
                   promptTokens: data.prompt_eval_count || 0,
                   completionTokens: data.eval_count || 0,
-                  totalTokens: (data.prompt_eval_count || 0) + (data.eval_count || 0),
+                  totalTokens:
+                    (data.prompt_eval_count || 0) + (data.eval_count || 0),
                 }
               : undefined,
           };

@@ -21,19 +21,24 @@ let JwtRefreshStrategy = class JwtRefreshStrategy extends (0, passport_1.Passpor
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: configService.get('jwt.refreshSecret') || 'fallback-refresh',
+            secretOrKey: configService.get('jwt.refreshSecret'),
         });
         this.prisma = prisma;
     }
-    async validate(payload) {
-        const user = await this.prisma.user.findUnique({
-            where: { id: payload.sub },
-            select: { id: true, refreshToken: true, isActive: true },
-        });
-        if (!user || !user.isActive || !user.refreshToken) {
-            throw new common_1.UnauthorizedException('Invalid refresh token');
+    async validate(payload, done) {
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: { id: payload.sub },
+                select: { id: true, refreshToken: true, isActive: true },
+            });
+            if (!user || !user.isActive || !user.refreshToken) {
+                return done(new common_1.UnauthorizedException('Invalid refresh token'));
+            }
+            return done(null, { sub: user.id });
         }
-        return { sub: user.id };
+        catch (error) {
+            return done(error);
+        }
     }
 };
 exports.JwtRefreshStrategy = JwtRefreshStrategy;

@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CoursesService } from './courses.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -8,17 +19,32 @@ import { ApiProperty } from '@nestjs/swagger';
 
 class CreateCourseDto {
   @ApiProperty() @IsString() title: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
   @ApiProperty() @IsString() category: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() level?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() thumbnail?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  thumbnail?: string;
 }
 
 class UpdateCourseDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() title?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() thumbnail?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsBoolean() isPublished?: boolean;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  thumbnail?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isPublished?: boolean;
 }
 
 @ApiTags('Courses')
@@ -31,7 +57,10 @@ export class CoursesController {
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a course' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateCourseDto) {
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateCourseDto,
+  ) {
     return this.coursesService.create(userId, dto);
   }
 
@@ -51,7 +80,11 @@ export class CoursesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update a course' })
-  async update(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() dto: UpdateCourseDto) {
+  async update(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+    @Body() dto: UpdateCourseDto,
+  ) {
     return this.coursesService.update(id, userId, dto);
   }
 

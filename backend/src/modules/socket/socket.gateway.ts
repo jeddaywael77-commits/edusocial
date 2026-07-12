@@ -42,7 +42,8 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @UseGuards(WsJwtGuard)
   async handleConnection(client: Socket) {
-    const user = client.data?.user;
+    const wsData = client.data as { user?: { sub?: string } } | undefined;
+    const user = wsData?.user;
     if (!user?.sub) {
       client.disconnect();
       return;
@@ -52,9 +53,9 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.socketService.registerSocket(client.id, userId);
     await this.socketService.markUserOnline(userId);
 
-    await this.socketService.addSocketToConversationRooms(client.id, userId);
-    await this.socketService.addSocketToGroupRooms(client.id, userId);
-    await this.socketService.addSocketToCourseRooms(client.id, userId);
+    void this.socketService.addSocketToConversationRooms(client.id, userId);
+    void this.socketService.addSocketToGroupRooms(client.id, userId);
+    void this.socketService.addSocketToCourseRooms(client.id, userId);
 
     this.server.emit(SocketEvents.PRESENCE_ONLINE, { userId });
     this.logger.log(`Client connected: ${client.id} (user: ${userId})`);
@@ -94,16 +95,29 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleChatMessage(
     @ConnectedSocket() client: Socket,
     @WsCurrentUser('sub') userId: string,
-    @MessageBody() data: { conversationId: string; content: string; type?: string; fileUrl?: string; fileName?: string },
+    @MessageBody()
+    data: {
+      conversationId: string;
+      content: string;
+      type?: string;
+      fileUrl?: string;
+      fileName?: string;
+    },
   ) {
-    const message = await this.chatService.sendMessage(userId, data.conversationId, {
-      content: data.content,
-      type: data.type,
-      fileUrl: data.fileUrl,
-      fileName: data.fileName,
-    });
+    const message = await this.chatService.sendMessage(
+      userId,
+      data.conversationId,
+      {
+        content: data.content,
+        type: data.type,
+        fileUrl: data.fileUrl,
+        fileName: data.fileName,
+      },
+    );
 
-    this.server.to(`conversation:${data.conversationId}`).emit(SocketEvents.CHAT_RECEIVE_MESSAGE, message);
+    this.server
+      .to(`conversation:${data.conversationId}`)
+      .emit(SocketEvents.CHAT_RECEIVE_MESSAGE, message);
   }
 
   @UseGuards(WsJwtGuard)
@@ -113,11 +127,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WsCurrentUser('sub') userId: string,
     @MessageBody() data: { conversationId: string; userName: string },
   ) {
-    client.to(`conversation:${data.conversationId}`).emit(SocketEvents.CHAT_TYPING, {
-      conversationId: data.conversationId,
-      userId,
-      userName: data.userName,
-    });
+    client
+      .to(`conversation:${data.conversationId}`)
+      .emit(SocketEvents.CHAT_TYPING, {
+        conversationId: data.conversationId,
+        userId,
+        userName: data.userName,
+      });
   }
 
   @UseGuards(WsJwtGuard)
@@ -127,10 +143,12 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WsCurrentUser('sub') userId: string,
     @MessageBody() data: { conversationId: string },
   ) {
-    client.to(`conversation:${data.conversationId}`).emit(SocketEvents.CHAT_STOP_TYPING, {
-      conversationId: data.conversationId,
-      userId,
-    });
+    client
+      .to(`conversation:${data.conversationId}`)
+      .emit(SocketEvents.CHAT_STOP_TYPING, {
+        conversationId: data.conversationId,
+        userId,
+      });
   }
 
   @UseGuards(WsJwtGuard)
@@ -142,11 +160,13 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     await this.chatService.markAsRead(data.conversationId, userId);
 
-    client.to(`conversation:${data.conversationId}`).emit(SocketEvents.CHAT_READ_RECEIPT, {
-      conversationId: data.conversationId,
-      userId,
-      readAt: new Date().toISOString(),
-    });
+    client
+      .to(`conversation:${data.conversationId}`)
+      .emit(SocketEvents.CHAT_READ_RECEIPT, {
+        conversationId: data.conversationId,
+        userId,
+        readAt: new Date().toISOString(),
+      });
   }
 
   @UseGuards(WsJwtGuard)
@@ -169,6 +189,10 @@ export class SocketGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   broadcastToRoom(room: string, event: string, data: unknown) {
     this.server.to(room).emit(event, data);
+  }
+
+  broadcastToGroup(groupId: string, event: string, data: unknown) {
+    this.server.to(`group:${groupId}`).emit(event, data);
   }
 
   broadcastToAll(event: string, data: unknown) {

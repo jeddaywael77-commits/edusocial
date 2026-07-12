@@ -13,14 +13,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.NotificationsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const socket_gateway_1 = require("../socket/socket.gateway");
+const socket_events_1 = require("../socket/socket.events");
 let NotificationsService = NotificationsService_1 = class NotificationsService {
     prisma;
+    socketGateway;
     logger = new common_1.Logger(NotificationsService_1.name);
-    constructor(prisma) {
+    constructor(prisma, socketGateway) {
         this.prisma = prisma;
+        this.socketGateway = socketGateway;
     }
     async create(userId, data) {
-        return this.prisma.notification.create({
+        const notification = await this.prisma.notification.create({
             data: {
                 type: data.type,
                 title: data.title,
@@ -29,7 +33,14 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
                 userId,
                 senderId: data.senderId,
             },
+            include: {
+                sender: { select: { id: true, name: true, avatar: true, level: true } },
+            },
         });
+        this.socketGateway.broadcastToUser(userId, socket_events_1.SocketEvents.NOTIFICATION_NEW, notification);
+        const unreadCount = await this.getUnreadCount(userId);
+        this.socketGateway.broadcastToUser(userId, socket_events_1.SocketEvents.NOTIFICATION_UNREAD_COUNT, { count: unreadCount });
+        return notification;
     }
     async findAll(userId) {
         return this.prisma.notification.findMany({
@@ -48,19 +59,31 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
         return this.prisma.notification.count({ where: { userId, isRead: false } });
     }
     async markAsRead(id, userId) {
-        const notification = await this.prisma.notification.findUnique({ where: { id } });
+        const notification = await this.prisma.notification.findUnique({
+            where: { id },
+        });
         if (!notification || notification.userId !== userId)
             throw new Error('Not authorized');
-        return this.prisma.notification.update({ where: { id }, data: { isRead: true } });
+        const updated = await this.prisma.notification.update({
+            where: { id },
+            data: { isRead: true },
+        });
+        const unreadCount = await this.getUnreadCount(userId);
+        this.socketGateway.broadcastToUser(userId, socket_events_1.SocketEvents.NOTIFICATION_UNREAD_COUNT, { count: unreadCount });
+        return updated;
     }
     async markAllAsRead(userId) {
-        return this.prisma.notification.updateMany({
+        const result = await this.prisma.notification.updateMany({
             where: { userId, isRead: false },
             data: { isRead: true },
         });
+        this.socketGateway.broadcastToUser(userId, socket_events_1.SocketEvents.NOTIFICATION_UNREAD_COUNT, { count: 0 });
+        return result;
     }
     async delete(id, userId) {
-        const notification = await this.prisma.notification.findUnique({ where: { id } });
+        const notification = await this.prisma.notification.findUnique({
+            where: { id },
+        });
         if (!notification || notification.userId !== userId)
             throw new Error('Not authorized');
         return this.prisma.notification.delete({ where: { id } });
@@ -69,6 +92,7 @@ let NotificationsService = NotificationsService_1 = class NotificationsService {
 exports.NotificationsService = NotificationsService;
 exports.NotificationsService = NotificationsService = NotificationsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        socket_gateway_1.SocketGateway])
 ], NotificationsService);
 //# sourceMappingURL=notifications.service.js.map

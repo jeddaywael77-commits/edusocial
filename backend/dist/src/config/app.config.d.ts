@@ -5,6 +5,7 @@ declare const _default: (() => {
     corsOrigin: string;
     uploadDir: string;
     maxFileSize: number;
+    storageBaseUrl: string;
 }) & import("@nestjs/config").ConfigFactoryKeyHost<{
     port: number;
     nodeEnv: string;
@@ -12,5 +13,6 @@ declare const _default: (() => {
     corsOrigin: string;
     uploadDir: string;
     maxFileSize: number;
+    storageBaseUrl: string;
 }>;
 export default _default;

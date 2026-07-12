@@ -1,17 +1,19 @@
 import { PrismaService } from '../../database/prisma.service';
+import { SocketGateway } from '../socket/socket.gateway';
 export declare class FriendsService {
     private prisma;
+    private socketGateway;
     private readonly logger;
-    constructor(prisma: PrismaService);
+    constructor(prisma: PrismaService, socketGateway: SocketGateway);
     sendRequest(senderId: string, receiverId: string): Promise<{
         sender: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
         receiver: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
@@ -24,10 +26,10 @@ export declare class FriendsService {
     }>;
     getRequests(userId: string): Promise<({
         sender: {
-            name: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            name: string;
             avatar: string | null;
+            role: import("@prisma/client").$Enums.UserRole;
         };
     } & {
         id: string;
@@ -49,10 +51,10 @@ export declare class FriendsService {
         receiverId: string;
     }>;
     getFriends(userId: string): Promise<{
-        name: string;
-        role: import("@prisma/client").$Enums.UserRole;
         id: string;
+        name: string;
         avatar: string | null;
+        role: import("@prisma/client").$Enums.UserRole;
         isOnline: boolean;
     }[]>;
     removeFriend(userId: string, friendId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;

@@ -1,5 +1,22 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { CalendarService } from './calendar.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -10,7 +27,10 @@ class CreateCalendarEventDto {
   @ApiProperty() @IsString() title: string;
   @ApiProperty() @IsString() date: string;
   @ApiProperty() @IsString() startTime: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() endTime?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() type?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() color?: string;
@@ -19,9 +39,15 @@ class CreateCalendarEventDto {
 
 class UpdateCalendarEventDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() title?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() date?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() startTime?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  startTime?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() endTime?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() type?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() color?: string;
@@ -37,7 +63,10 @@ export class CalendarController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a calendar event' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateCalendarEventDto) {
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateCalendarEventDto,
+  ) {
     return this.calendarService.create(userId, dto);
   }
 
@@ -67,7 +96,11 @@ export class CalendarController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Update a calendar event' })
-  async update(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() dto: UpdateCalendarEventDto) {
+  async update(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+    @Body() dto: UpdateCalendarEventDto,
+  ) {
     return this.calendarService.update(id, userId, dto);
   }
 

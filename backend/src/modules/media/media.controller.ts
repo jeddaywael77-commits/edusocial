@@ -30,7 +30,10 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { MediaService } from './media.service';
 import { MediaCategory } from '../../common/enums';
 import { QueryMediaDto, BulkDeleteDto, UploadMediaDto } from './dto/media.dto';
-import { FileValidationPipe, MultiFileValidationPipe } from './guards/file-validation.pipe';
+import {
+  FileValidationPipe,
+  MultiFileValidationPipe,
+} from './guards/file-validation.pipe';
 import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Media')
@@ -51,7 +54,11 @@ export class MediaController {
       type: 'object',
       properties: {
         file: { type: 'string', format: 'binary' },
-        category: { type: 'string', enum: Object.values(MediaCategory), default: 'POST_IMAGE' },
+        category: {
+          type: 'string',
+          enum: Object.values(MediaCategory),
+          default: 'POST_IMAGE',
+        },
       },
     },
   })
@@ -66,7 +73,11 @@ export class MediaController {
     file: Express.Multer.File,
     @Body('category') category?: MediaCategory,
   ) {
-    return this.mediaService.upload(userId, file, category || MediaCategory.POST_IMAGE);
+    return this.mediaService.upload(
+      userId,
+      file,
+      category || MediaCategory.POST_IMAGE,
+    );
   }
 
   @Post('upload/multiple')
@@ -78,7 +89,11 @@ export class MediaController {
       type: 'object',
       properties: {
         files: { type: 'array', items: { type: 'string', format: 'binary' } },
-        category: { type: 'string', enum: Object.values(MediaCategory), default: 'POST_IMAGE' },
+        category: {
+          type: 'string',
+          enum: Object.values(MediaCategory),
+          default: 'POST_IMAGE',
+        },
       },
     },
   })
@@ -94,7 +109,11 @@ export class MediaController {
     files: Express.Multer.File[],
     @Body('category') category?: MediaCategory,
   ) {
-    return this.mediaService.uploadMultiple(userId, files, category || MediaCategory.POST_IMAGE);
+    return this.mediaService.uploadMultiple(
+      userId,
+      files,
+      category || MediaCategory.POST_IMAGE,
+    );
   }
 
   @Get('mine')
@@ -114,10 +133,7 @@ export class MediaController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get media by ID' })
-  async findOne(
-    @Param('id') id: string,
-    @CurrentUser('sub') userId: string,
-  ) {
+  async findOne(@Param('id') id: string, @CurrentUser('sub') userId: string) {
     return this.mediaService.findById(id, userId);
   }
 
@@ -138,7 +154,8 @@ export class MediaController {
   async replace(
     @Param('id') id: string,
     @CurrentUser('sub') userId: string,
-    @UploadedFile(new FileValidationPipe({ maxSize: 50 * 1024 * 1024 })) file: Express.Multer.File,
+    @UploadedFile(new FileValidationPipe({ maxSize: 50 * 1024 * 1024 }))
+    file: Express.Multer.File,
   ) {
     return this.mediaService.replace(id, userId, file);
   }

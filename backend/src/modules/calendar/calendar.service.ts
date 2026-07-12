@@ -6,7 +6,19 @@ export class CalendarService {
   private readonly logger = new Logger(CalendarService.name);
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: string, data: { title: string; description?: string; date: string; startTime: string; endTime?: string; type?: string; color?: string; courseId?: string }) {
+  async create(
+    userId: string,
+    data: {
+      title: string;
+      description?: string;
+      date: string;
+      startTime: string;
+      endTime?: string;
+      type?: string;
+      color?: string;
+      courseId?: string;
+    },
+  ) {
     return this.prisma.calendarEvent.create({
       data: {
         title: data.title,
@@ -46,14 +58,29 @@ export class CalendarService {
     });
   }
 
-  async update(id: string, userId: string, data: { title?: string; description?: string; date?: string; startTime?: string; endTime?: string; type?: string; color?: string }) {
+  async update(
+    id: string,
+    userId: string,
+    data: {
+      title?: string;
+      description?: string;
+      date?: string;
+      startTime?: string;
+      endTime?: string;
+      type?: string;
+      color?: string;
+    },
+  ) {
     const event = await this.prisma.calendarEvent.findUnique({ where: { id } });
     if (!event || event.userId !== userId) throw new Error('Not authorized');
     const updateData: any = { ...data };
     if (data.date) updateData.date = new Date(data.date);
     if (data.startTime) updateData.startTime = new Date(data.startTime);
     if (data.endTime) updateData.endTime = new Date(data.endTime);
-    return this.prisma.calendarEvent.update({ where: { id }, data: updateData });
+    return this.prisma.calendarEvent.update({
+      where: { id },
+      data: updateData,
+    });
   }
 
   async delete(id: string, userId: string) {

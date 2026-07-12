@@ -5,13 +5,13 @@ export declare class FollowersService {
     constructor(prisma: PrismaService);
     follow(followerId: string, userId: string): Promise<{
         user: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
         follower: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
@@ -23,10 +23,10 @@ export declare class FollowersService {
     unfollow(followerId: string, userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
     getFollowers(userId: string): Promise<({
         follower: {
-            name: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            name: string;
             avatar: string | null;
+            role: import("@prisma/client").$Enums.UserRole;
             isOnline: boolean;
         };
     } & {
@@ -37,10 +37,10 @@ export declare class FollowersService {
     })[]>;
     getFollowing(userId: string): Promise<({
         user: {
-            name: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            name: string;
             avatar: string | null;
+            role: import("@prisma/client").$Enums.UserRole;
             isOnline: boolean;
         };
     } & {

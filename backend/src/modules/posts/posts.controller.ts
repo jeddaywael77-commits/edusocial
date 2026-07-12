@@ -42,10 +42,7 @@ export class PostsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new post' })
   @ApiResponse({ status: 201, description: 'Post created' })
-  async create(
-    @CurrentUser('sub') userId: string,
-    @Body() dto: CreatePostDto,
-  ) {
+  async create(@CurrentUser('sub') userId: string, @Body() dto: CreatePostDto) {
     return this.postsService.create(userId, dto);
   }
 
@@ -90,10 +87,7 @@ export class PostsController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Get post by ID' })
   @ApiParam({ name: 'id' })
-  async findById(
-    @Param('id') id: string,
-    @CurrentUser('sub') userId: string,
-  ) {
+  async findById(@Param('id') id: string, @CurrentUser('sub') userId: string) {
     return this.postsService.findById(id, userId);
   }
 
@@ -131,10 +125,7 @@ export class PostsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Pin/unpin a post' })
   @ApiParam({ name: 'id' })
-  async pin(
-    @Param('id') id: string,
-    @CurrentUser('sub') userId: string,
-  ) {
+  async pin(@Param('id') id: string, @CurrentUser('sub') userId: string) {
     return this.postsService.pin(id, userId);
   }
 
@@ -158,10 +149,7 @@ export class PostsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Save/unsave a post' })
   @ApiParam({ name: 'id' })
-  async save(
-    @Param('id') id: string,
-    @CurrentUser('sub') userId: string,
-  ) {
+  async save(@Param('id') id: string, @CurrentUser('sub') userId: string) {
     return this.postsService.save(id, userId);
   }
 

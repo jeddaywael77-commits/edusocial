@@ -8,45 +8,45 @@ export declare class StoriesService {
         text?: string;
     }): Promise<{
         author: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
         id: string;
         createdAt: Date;
         authorId: string;
-        image: string;
         text: string | null;
+        image: string;
         expiresAt: Date;
     }>;
     findAll(): Promise<({
+        author: {
+            id: string;
+            name: string;
+            avatar: string | null;
+        };
         _count: {
             viewers: number;
-        };
-        author: {
-            name: string;
-            id: string;
-            avatar: string | null;
         };
     } & {
         id: string;
         createdAt: Date;
         authorId: string;
-        image: string;
         text: string | null;
+        image: string;
         expiresAt: Date;
     })[]>;
     findById(id: string): Promise<({
         author: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
         viewers: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
             };
         } & {
             id: string;
@@ -58,8 +58,8 @@ export declare class StoriesService {
         id: string;
         createdAt: Date;
         authorId: string;
-        image: string;
         text: string | null;
+        image: string;
         expiresAt: Date;
     }) | null>;
     markAsViewed(storyId: string, userId: string): Promise<{
@@ -72,8 +72,8 @@ export declare class StoriesService {
         id: string;
         createdAt: Date;
         authorId: string;
-        image: string;
         text: string | null;
+        image: string;
         expiresAt: Date;
     }>;
 }

@@ -6,7 +6,17 @@ export class DocumentsService {
   private readonly logger = new Logger(DocumentsService.name);
   constructor(private prisma: PrismaService) {}
 
-  async create(uploadedById: string, data: { name: string; type: string; size: number; url: string; thumbnail?: string; tags?: string[] }) {
+  async create(
+    uploadedById: string,
+    data: {
+      name: string;
+      type: string;
+      size: number;
+      url: string;
+      thumbnail?: string;
+      tags?: string[];
+    },
+  ) {
     return this.prisma.document.create({
       data: {
         name: data.name,
@@ -17,13 +27,17 @@ export class DocumentsService {
         tags: data.tags ?? [],
         uploadedById,
       },
-      include: { uploadedBy: { select: { id: true, name: true, avatar: true } } },
+      include: {
+        uploadedBy: { select: { id: true, name: true, avatar: true } },
+      },
     });
   }
 
   async findAll() {
     return this.prisma.document.findMany({
-      include: { uploadedBy: { select: { id: true, name: true, avatar: true } } },
+      include: {
+        uploadedBy: { select: { id: true, name: true, avatar: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -31,7 +45,9 @@ export class DocumentsService {
   async findById(id: string) {
     return this.prisma.document.findUnique({
       where: { id },
-      include: { uploadedBy: { select: { id: true, name: true, avatar: true } } },
+      include: {
+        uploadedBy: { select: { id: true, name: true, avatar: true } },
+      },
     });
   }
 

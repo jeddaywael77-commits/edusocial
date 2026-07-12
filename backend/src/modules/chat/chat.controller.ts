@@ -1,5 +1,20 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -9,7 +24,10 @@ import { ApiProperty } from '@nestjs/swagger';
 class CreateConversationDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() name?: string;
   @ApiProperty() @IsArray() participantIds: string[];
-  @ApiProperty({ required: false }) @IsOptional() @IsBoolean() isGroup?: boolean;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isGroup?: boolean;
 }
 
 class SendMessageDto {
@@ -35,7 +53,10 @@ export class ChatController {
   @Post('conversations')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a conversation' })
-  async createConversation(@CurrentUser('sub') userId: string, @Body() dto: CreateConversationDto) {
+  async createConversation(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateConversationDto,
+  ) {
     return this.chatService.createConversation(userId, dto);
   }
 
@@ -65,7 +86,10 @@ export class ChatController {
   @Post('conversations/:id/read')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Mark conversation as read' })
-  async markAsRead(@Param('id') conversationId: string, @CurrentUser('sub') userId: string) {
+  async markAsRead(
+    @Param('id') conversationId: string,
+    @CurrentUser('sub') userId: string,
+  ) {
     return this.chatService.markAsRead(conversationId, userId);
   }
 }

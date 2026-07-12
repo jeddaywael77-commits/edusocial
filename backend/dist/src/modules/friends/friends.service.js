@@ -13,30 +13,40 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FriendsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../database/prisma.service");
+const socket_gateway_1 = require("../socket/socket.gateway");
+const socket_events_1 = require("../socket/socket.events");
 let FriendsService = FriendsService_1 = class FriendsService {
     prisma;
+    socketGateway;
     logger = new common_1.Logger(FriendsService_1.name);
-    constructor(prisma) {
+    constructor(prisma, socketGateway) {
         this.prisma = prisma;
+        this.socketGateway = socketGateway;
     }
     async sendRequest(senderId, receiverId) {
-        return this.prisma.friendRequest.create({
+        const request = await this.prisma.friendRequest.create({
             data: { senderId, receiverId },
             include: {
                 sender: { select: { id: true, name: true, avatar: true } },
                 receiver: { select: { id: true, name: true, avatar: true } },
             },
         });
+        this.socketGateway.broadcastToUser(receiverId, socket_events_1.SocketEvents.FRIEND_REQUEST_SENT, request);
+        return request;
     }
     async getRequests(userId) {
         return this.prisma.friendRequest.findMany({
             where: { receiverId: userId, status: 'PENDING' },
-            include: { sender: { select: { id: true, name: true, avatar: true, role: true } } },
+            include: {
+                sender: { select: { id: true, name: true, avatar: true, role: true } },
+            },
             orderBy: { createdAt: 'desc' },
         });
     }
     async acceptRequest(requestId, userId) {
-        const request = await this.prisma.friendRequest.findUnique({ where: { id: requestId } });
+        const request = await this.prisma.friendRequest.findUnique({
+            where: { id: requestId },
+        });
         if (!request || request.receiverId !== userId)
             throw new Error('Not authorized');
         if (request.status !== 'PENDING')
@@ -48,29 +58,50 @@ let FriendsService = FriendsService_1 = class FriendsService {
         await this.prisma.friendship.create({
             data: { userId: request.senderId, friendId: request.receiverId },
         });
+        this.socketGateway.broadcastToUser(request.senderId, socket_events_1.SocketEvents.FRIEND_REQUEST_ACCEPTED, { requestId, userId });
         return { success: true };
     }
     async declineRequest(requestId, userId) {
-        const request = await this.prisma.friendRequest.findUnique({ where: { id: requestId } });
+        const request = await this.prisma.friendRequest.findUnique({
+            where: { id: requestId },
+        });
         if (!request || request.receiverId !== userId)
             throw new Error('Not authorized');
-        return this.prisma.friendRequest.update({
+        const updated = await this.prisma.friendRequest.update({
             where: { id: requestId },
             data: { status: 'DECLINED' },
         });
+        this.socketGateway.broadcastToUser(request.senderId, socket_events_1.SocketEvents.FRIEND_REQUEST_DECLINED, { requestId });
+        return updated;
     }
     async getFriends(userId) {
         const friendships = await this.prisma.friendship.findMany({
             where: { OR: [{ userId }, { friendId: userId }] },
             include: {
-                user: { select: { id: true, name: true, avatar: true, isOnline: true, role: true } },
-                friend: { select: { id: true, name: true, avatar: true, isOnline: true, role: true } },
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatar: true,
+                        isOnline: true,
+                        role: true,
+                    },
+                },
+                friend: {
+                    select: {
+                        id: true,
+                        name: true,
+                        avatar: true,
+                        isOnline: true,
+                        role: true,
+                    },
+                },
             },
         });
         return friendships.map((f) => (f.userId === userId ? f.friend : f.user));
     }
     async removeFriend(userId, friendId) {
-        return this.prisma.friendship.deleteMany({
+        const result = await this.prisma.friendship.deleteMany({
             where: {
                 OR: [
                     { userId, friendId },
@@ -78,11 +109,16 @@ let FriendsService = FriendsService_1 = class FriendsService {
                 ],
             },
         });
+        this.socketGateway.broadcastToUser(friendId, socket_events_1.SocketEvents.FRIEND_REMOVED, {
+            userId,
+        });
+        return result;
     }
 };
 exports.FriendsService = FriendsService;
 exports.FriendsService = FriendsService = FriendsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        socket_gateway_1.SocketGateway])
 ], FriendsService);
 //# sourceMappingURL=friends.service.js.map

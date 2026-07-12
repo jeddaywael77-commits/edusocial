@@ -50,7 +50,11 @@ let GroupsService = GroupsService_1 = class GroupsService {
             include: {
                 admin: { select: { id: true, name: true, avatar: true } },
                 members: {
-                    include: { user: { select: { id: true, name: true, avatar: true, isOnline: true } } },
+                    include: {
+                        user: {
+                            select: { id: true, name: true, avatar: true, isOnline: true },
+                        },
+                    },
                 },
                 _count: { select: { members: true, posts: true } },
             },

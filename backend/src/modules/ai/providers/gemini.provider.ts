@@ -13,15 +13,14 @@ export class GeminiProvider implements AIProvider {
   private readonly client: GoogleGenerativeAI;
   private readonly defaultModel: string;
 
-  constructor(config: {
-    apiKey: string;
-    model: string;
-  }) {
+  constructor(config: { apiKey: string; model: string }) {
     this.client = new GoogleGenerativeAI(config.apiKey);
     this.defaultModel = config.model;
   }
 
-  private convertMessages(messages: ChatMessage[]): { role: string; parts: { text: string }[] }[] {
+  private convertMessages(
+    messages: ChatMessage[],
+  ): { role: string; parts: { text: string }[] }[] {
     return messages
       .filter((m) => m.role !== 'system')
       .map((m) => ({
@@ -35,7 +34,9 @@ export class GeminiProvider implements AIProvider {
     return systemMsg?.content;
   }
 
-  async chatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
+  async chatCompletion(
+    options: ChatCompletionOptions,
+  ): Promise<ChatCompletionResponse> {
     const model = this.client.getGenerativeModel({
       model: options.model || this.defaultModel,
       systemInstruction: this.getSystemInstruction(options.messages),
@@ -124,7 +125,12 @@ export class GeminiProvider implements AIProvider {
   }
 
   async getModels(): Promise<string[]> {
-    return [this.defaultModel, 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'];
+    return [
+      this.defaultModel,
+      'gemini-2.0-flash',
+      'gemini-1.5-pro',
+      'gemini-1.5-flash',
+    ];
   }
 
   async getTokenCount(text: string): Promise<number> {

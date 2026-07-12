@@ -1,9 +1,11 @@
 import { GamificationService } from './gamification.service';
 declare class AwardBadgeDto {
     badgeId: string;
+    userId?: string;
 }
 declare class AddXpDto {
     xp: number;
+    userId?: string;
 }
 export declare class GamificationController {
     private readonly gamificationService;
@@ -13,59 +15,59 @@ export declare class GamificationController {
             users: number;
         };
     } & {
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
+        description: string | null;
         icon: string;
         color: string;
         xpRequired: number;
     })[]>;
     getMyBadges(userId: string): Promise<({
         badge: {
-            description: string | null;
-            name: string;
             id: string;
+            name: string;
             createdAt: Date;
+            description: string | null;
             icon: string;
             color: string;
             xpRequired: number;
         };
     } & {
         id: string;
+        earnedAt: Date;
         userId: string;
         badgeId: string;
-        earnedAt: Date;
     })[]>;
     awardBadge(userId: string, dto: AwardBadgeDto): Promise<{
         badge: {
-            description: string | null;
-            name: string;
             id: string;
+            name: string;
             createdAt: Date;
+            description: string | null;
             icon: string;
             color: string;
             xpRequired: number;
         };
     } & {
         id: string;
+        earnedAt: Date;
         userId: string;
         badgeId: string;
-        earnedAt: Date;
     }>;
     getStats(userId: string): Promise<{
         badgeCount: number;
         postCount: number;
-        level: number;
-        name: string;
         id: string;
+        name: string;
         xp: number;
+        level: number;
         coins: number;
     }>;
     addXp(userId: string, dto: AddXpDto): Promise<{
-        level: number;
         id: string;
         xp: number;
+        level: number;
         coins: number;
     }>;
 }

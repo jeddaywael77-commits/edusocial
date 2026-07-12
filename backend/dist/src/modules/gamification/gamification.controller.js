@@ -17,25 +17,42 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const gamification_service_1 = require("./gamification.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const roles_guard_1 = require("../../common/guards/roles.guard");
+const roles_decorator_1 = require("../../common/decorators/roles.decorator");
+const enums_1 = require("../../common/enums");
 const current_user_decorator_1 = require("../../common/decorators/current-user.decorator");
 const class_validator_1 = require("class-validator");
 const swagger_2 = require("@nestjs/swagger");
 class AwardBadgeDto {
     badgeId;
+    userId;
 }
 __decorate([
     (0, swagger_2.ApiProperty)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], AwardBadgeDto.prototype, "badgeId", void 0);
+__decorate([
+    (0, swagger_2.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], AwardBadgeDto.prototype, "userId", void 0);
 class AddXpDto {
     xp;
+    userId;
 }
 __decorate([
     (0, swagger_2.ApiProperty)(),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], AddXpDto.prototype, "xp", void 0);
+__decorate([
+    (0, swagger_2.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], AddXpDto.prototype, "userId", void 0);
 let GamificationController = class GamificationController {
     gamificationService;
     constructor(gamificationService) {
@@ -48,13 +65,15 @@ let GamificationController = class GamificationController {
         return this.gamificationService.getUserBadges(userId);
     }
     async awardBadge(userId, dto) {
-        return this.gamificationService.awardBadge(userId, dto.badgeId);
+        const targetUserId = dto.userId || userId;
+        return this.gamificationService.awardBadge(targetUserId, dto.badgeId);
     }
     async getStats(userId) {
         return this.gamificationService.getUserStats(userId);
     }
     async addXp(userId, dto) {
-        return this.gamificationService.addXp(userId, dto.xp);
+        const targetUserId = dto.userId || userId;
+        return this.gamificationService.addXp(targetUserId, dto.xp);
     }
 };
 exports.GamificationController = GamificationController;
@@ -77,7 +96,8 @@ __decorate([
 ], GamificationController.prototype, "getMyBadges", null);
 __decorate([
     (0, common_1.Post)('award-badge'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(enums_1.UserRole.ADMIN, enums_1.UserRole.TEACHER),
     (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Award a badge to a user' }),
@@ -99,7 +119,8 @@ __decorate([
 ], GamificationController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Post)('add-xp'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(enums_1.UserRole.ADMIN, enums_1.UserRole.TEACHER),
     (0, swagger_1.ApiBearerAuth)('access-token'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Add XP to a user' }),

@@ -24,21 +24,23 @@ async function bootstrap() {
   if (!jwtSecret || jwtSecret.includes('fallback')) {
     throw new Error(
       'JWT_SECRET environment variable is required and must not contain "fallback". ' +
-      'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"',
+        "Generate one with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"",
     );
   }
   if (!jwtRefreshSecret || jwtRefreshSecret.includes('fallback')) {
     throw new Error(
       'JWT_REFRESH_SECRET environment variable is required and must not contain "fallback". ' +
-      'Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"',
+        "Generate one with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"",
     );
   }
 
   // Security headers
-  app.use(helmet({
-    contentSecurityPolicy: nodeEnv === 'production' ? undefined : false,
-    crossOriginEmbedderPolicy: false,
-  }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: nodeEnv === 'production' ? undefined : false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
   // Compression
   app.use(compression());
@@ -122,12 +124,16 @@ async function bootstrap() {
         persistAuthorization: true,
       },
     });
-    logger.log(`📚 Swagger docs: http://localhost:${configService.get<number>('app.port') || 3001}/docs`);
+    logger.log(
+      `📚 Swagger docs: http://localhost:${configService.get<number>('app.port') || 3001}/docs`,
+    );
   }
 
   // WebSocket adapter with Redis
   const socketService = app.get(SocketService);
-  const ioAdapter = new (await import('@nestjs/platform-socket.io')).IoAdapter(app);
+  const ioAdapter = new (await import('@nestjs/platform-socket.io')).IoAdapter(
+    app,
+  );
   socketService.createRedisAdapter();
   ioAdapter.createIOServer = ((originalCreateIOServer: any) => {
     return (...args: any[]) => {

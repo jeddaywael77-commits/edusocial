@@ -9,80 +9,80 @@ export declare class CommentsController {
             type: import("@prisma/client").$Enums.ReactionType;
         }[];
         author: {
-            level: number;
-            name: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            name: string;
             avatar: string | null;
+            role: import("@prisma/client").$Enums.UserRole;
+            level: number;
         };
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        authorId: string;
         content: string;
         mentions: string[];
-        authorId: string;
         isDeleted: boolean;
         deletedAt: Date | null;
-        postId: string;
-        parentId: string | null;
         depth: number;
         isEdited: boolean;
+        postId: string;
+        parentId: string | null;
     }>;
     findAll(postId: string, userId: string, cursor?: string, limit?: number): Promise<{
         data: ({
             reactions: {
                 type: import("@prisma/client").$Enums.ReactionType;
             }[];
-            _count: {
-                reactions: number;
-                replies: number;
-            };
             author: {
-                level: number;
-                name: string;
-                role: import("@prisma/client").$Enums.UserRole;
                 id: string;
+                name: string;
                 avatar: string | null;
+                role: import("@prisma/client").$Enums.UserRole;
+                level: number;
             };
             replies: ({
                 reactions: {
                     type: import("@prisma/client").$Enums.ReactionType;
                 }[];
                 author: {
-                    level: number;
-                    name: string;
-                    role: import("@prisma/client").$Enums.UserRole;
                     id: string;
+                    name: string;
                     avatar: string | null;
+                    role: import("@prisma/client").$Enums.UserRole;
+                    level: number;
                 };
             } & {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
+                authorId: string;
                 content: string;
                 mentions: string[];
-                authorId: string;
                 isDeleted: boolean;
                 deletedAt: Date | null;
-                postId: string;
-                parentId: string | null;
                 depth: number;
                 isEdited: boolean;
+                postId: string;
+                parentId: string | null;
             })[];
+            _count: {
+                reactions: number;
+                replies: number;
+            };
         } & {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            authorId: string;
             content: string;
             mentions: string[];
-            authorId: string;
             isDeleted: boolean;
             deletedAt: Date | null;
-            postId: string;
-            parentId: string | null;
             depth: number;
             isEdited: boolean;
+            postId: string;
+            parentId: string | null;
         })[];
         nextCursor: string | null;
         hasNext: boolean;
@@ -92,29 +92,29 @@ export declare class CommentsController {
             reactions: {
                 type: import("@prisma/client").$Enums.ReactionType;
             }[];
+            author: {
+                id: string;
+                name: string;
+                avatar: string | null;
+                role: import("@prisma/client").$Enums.UserRole;
+                level: number;
+            };
             _count: {
                 reactions: number;
-            };
-            author: {
-                level: number;
-                name: string;
-                role: import("@prisma/client").$Enums.UserRole;
-                id: string;
-                avatar: string | null;
             };
         } & {
             id: string;
             createdAt: Date;
             updatedAt: Date;
+            authorId: string;
             content: string;
             mentions: string[];
-            authorId: string;
             isDeleted: boolean;
             deletedAt: Date | null;
-            postId: string;
-            parentId: string | null;
             depth: number;
             isEdited: boolean;
+            postId: string;
+            parentId: string | null;
         })[];
         nextCursor: string | null;
         hasNext: boolean;
@@ -124,25 +124,25 @@ export declare class CommentsController {
             type: import("@prisma/client").$Enums.ReactionType;
         }[];
         author: {
-            level: number;
-            name: string;
-            role: import("@prisma/client").$Enums.UserRole;
             id: string;
+            name: string;
             avatar: string | null;
+            role: import("@prisma/client").$Enums.UserRole;
+            level: number;
         };
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
+        authorId: string;
         content: string;
         mentions: string[];
-        authorId: string;
         isDeleted: boolean;
         deletedAt: Date | null;
-        postId: string;
-        parentId: string | null;
         depth: number;
         isEdited: boolean;
+        postId: string;
+        parentId: string | null;
     }>;
     delete(commentId: string, userId: string, userRole: string): Promise<{
         message: string;

@@ -22,7 +22,11 @@ export interface ProcessedDocument {
 export class DocumentProcessor {
   private readonly logger = new Logger(DocumentProcessor.name);
 
-  async processBuffer(buffer: Buffer, mimeType: string, filename: string): Promise<ProcessedDocument> {
+  async processBuffer(
+    buffer: Buffer,
+    mimeType: string,
+    filename: string,
+  ): Promise<ProcessedDocument> {
     switch (mimeType) {
       case 'application/pdf':
         return this.processPDF(buffer, filename);
@@ -39,7 +43,10 @@ export class DocumentProcessor {
     }
   }
 
-  private async processPDF(buffer: Buffer, filename: string): Promise<ProcessedDocument> {
+  private async processPDF(
+    buffer: Buffer,
+    filename: string,
+  ): Promise<ProcessedDocument> {
     try {
       const pdfParse = require('pdf-parse');
       const data = await pdfParse(buffer);
@@ -68,7 +75,10 @@ export class DocumentProcessor {
     }
   }
 
-  private async processDOCX(buffer: Buffer, filename: string): Promise<ProcessedDocument> {
+  private async processDOCX(
+    buffer: Buffer,
+    filename: string,
+  ): Promise<ProcessedDocument> {
     try {
       const mammoth = require('mammoth');
       const result = await mammoth.extractRawText({ buffer });
@@ -88,7 +98,8 @@ export class DocumentProcessor {
           wordCount: text.split(/\s+/).length,
           charCount: text.length,
           fileType: 'docx',
-          mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          mimeType:
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         },
       };
     } catch (error) {
@@ -141,7 +152,10 @@ export class DocumentProcessor {
   private processHTML(buffer: Buffer, filename: string): ProcessedDocument {
     const text = buffer.toString('utf-8');
     // Strip HTML tags for basic extraction
-    const cleaned = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const cleaned = text
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
     const sections = this.extractSections(cleaned);
 
     return {
@@ -159,7 +173,9 @@ export class DocumentProcessor {
     };
   }
 
-  private extractSections(text: string): { heading: string; content: string; level: number }[] {
+  private extractSections(
+    text: string,
+  ): { heading: string; content: string; level: number }[] {
     const sections: { heading: string; content: string; level: number }[] = [];
     const lines = text.split('\n');
     let currentHeading = '';
@@ -170,7 +186,11 @@ export class DocumentProcessor {
       const headingMatch = line.match(/^(#{1,6})\s+(.+)/);
       if (headingMatch) {
         if (currentHeading) {
-          sections.push({ heading: currentHeading, content: currentContent.trim(), level: currentLevel });
+          sections.push({
+            heading: currentHeading,
+            content: currentContent.trim(),
+            level: currentLevel,
+          });
         }
         currentLevel = headingMatch[1].length;
         currentHeading = headingMatch[2];
@@ -181,7 +201,11 @@ export class DocumentProcessor {
     }
 
     if (currentHeading) {
-      sections.push({ heading: currentHeading, content: currentContent.trim(), level: currentLevel });
+      sections.push({
+        heading: currentHeading,
+        content: currentContent.trim(),
+        level: currentLevel,
+      });
     }
 
     // If no sections found, create a single section
@@ -192,11 +216,15 @@ export class DocumentProcessor {
     return sections;
   }
 
-  private extractMarkdownSections(text: string): { heading: string; content: string; level: number }[] {
+  private extractMarkdownSections(
+    text: string,
+  ): { heading: string; content: string; level: number }[] {
     return this.extractSections(text);
   }
 
-  private extractTables(text: string): { headers: string[]; rows: string[][] }[] {
+  private extractTables(
+    text: string,
+  ): { headers: string[]; rows: string[][] }[] {
     const tables: { headers: string[]; rows: string[][] }[] = [];
     const lines = text.split('\n');
     let inTable = false;
@@ -204,7 +232,10 @@ export class DocumentProcessor {
     let rows: string[][] = [];
 
     for (const line of lines) {
-      const cells = line.split('|').map((c) => c.trim()).filter(Boolean);
+      const cells = line
+        .split('|')
+        .map((c) => c.trim())
+        .filter(Boolean);
       if (cells.length > 1 && cells.some((c) => c !== '-')) {
         if (!inTable) {
           inTable = true;
@@ -225,11 +256,15 @@ export class DocumentProcessor {
     return tables;
   }
 
-  private extractMarkdownTables(text: string): { headers: string[]; rows: string[][] }[] {
+  private extractMarkdownTables(
+    text: string,
+  ): { headers: string[]; rows: string[][] }[] {
     return this.extractTables(text);
   }
 
-  private extractCodeBlocks(text: string): { language: string; code: string }[] {
+  private extractCodeBlocks(
+    text: string,
+  ): { language: string; code: string }[] {
     const blocks: { language: string; code: string }[] = [];
     const regex = /```(\w*)\n([\s\S]*?)```/g;
     let match;
@@ -244,7 +279,11 @@ export class DocumentProcessor {
     return blocks;
   }
 
-  private createFallbackDocument(content: string, filename: string, fileType: string): ProcessedDocument {
+  private createFallbackDocument(
+    content: string,
+    filename: string,
+    fileType: string,
+  ): ProcessedDocument {
     return {
       title: filename.replace(/\.\w+$/, ''),
       content,

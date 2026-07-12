@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { LessonsService } from './lessons.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,7 +34,10 @@ class UpdateLessonDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() pdfUrl?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsNumber() duration?: number;
   @ApiProperty({ required: false }) @IsOptional() @IsNumber() order?: number;
-  @ApiProperty({ required: false }) @IsOptional() @IsBoolean() isPublished?: boolean;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isPublished?: boolean;
 }
 
 @ApiTags('Lessons')
@@ -36,7 +50,10 @@ export class LessonsController {
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a lesson' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateLessonDto) {
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateLessonDto,
+  ) {
     return this.lessonsService.create(userId, dto);
   }
 
@@ -62,7 +79,11 @@ export class LessonsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update a lesson' })
-  async update(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() dto: UpdateLessonDto) {
+  async update(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+    @Body() dto: UpdateLessonDto,
+  ) {
     return this.lessonsService.update(id, userId, dto);
   }
 

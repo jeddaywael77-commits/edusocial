@@ -374,15 +374,24 @@ export class SearchProcessor extends WorkerHost {
     }
   }
 
-  private async updateDocument(entityType: SearchIndexName, document: any): Promise<void> {
+  private async updateDocument(
+    entityType: SearchIndexName,
+    document: any,
+  ): Promise<void> {
     await this.searchService.updateDocuments(entityType, [document]);
   }
 
-  private async deleteDocument(entityType: SearchIndexName, documentId: string): Promise<void> {
+  private async deleteDocument(
+    entityType: SearchIndexName,
+    documentId: string,
+  ): Promise<void> {
     await this.searchService.deleteDocument(entityType, documentId);
   }
 
-  private async deleteDocuments(entityType: SearchIndexName, documentIds: string[]): Promise<void> {
+  private async deleteDocuments(
+    entityType: SearchIndexName,
+    documentIds: string[],
+  ): Promise<void> {
     await this.searchService.deleteDocuments(entityType, documentIds);
   }
 }

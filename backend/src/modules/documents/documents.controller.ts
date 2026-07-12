@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { DocumentsService } from './documents.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -11,7 +21,10 @@ class CreateDocumentDto {
   @ApiProperty() @IsString() type: string;
   @ApiProperty() @IsNumber() size: number;
   @ApiProperty() @IsString() url: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() thumbnail?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  thumbnail?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsArray() tags?: string[];
 }
 
@@ -25,7 +38,10 @@ export class DocumentsController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Upload a document' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateDocumentDto) {
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateDocumentDto,
+  ) {
     return this.documentsService.create(userId, dto);
   }
 

@@ -35,7 +35,9 @@ export class CommentsService {
         throw new NotFoundException('Parent comment not found');
       }
       if (parent.postId !== postId) {
-        throw new ForbiddenException('Parent comment belongs to different post');
+        throw new ForbiddenException(
+          'Parent comment belongs to different post',
+        );
       }
       depth = parent.depth + 1;
       if (depth > 5) {
@@ -58,10 +60,14 @@ export class CommentsService {
     this.logger.log(`Comment created: ${comment.id} on post ${postId}`);
 
     if (post.authorId !== authorId) {
-      this.socketGateway.broadcastToUser(post.authorId, SocketEvents.FEED_NEW_COMMENT, {
-        comment,
-        postId,
-      });
+      this.socketGateway.broadcastToUser(
+        post.authorId,
+        SocketEvents.FEED_NEW_COMMENT,
+        {
+          comment,
+          postId,
+        },
+      );
     }
 
     return comment;

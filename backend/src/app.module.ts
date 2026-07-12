@@ -6,6 +6,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { APP_GUARD } from '@nestjs/core';
 import config from './config';
 import { PrismaModule } from './database/prisma.module';
+import { ObservabilityModule } from './common/observability/observability.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
@@ -32,6 +33,9 @@ import { SocketModule } from './modules/socket/socket.module';
 import { MediaModule } from './modules/media/media.module';
 import { SearchModule } from './modules/search/search.module';
 import { AiModule } from './modules/ai/ai.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { GroupMembersModule } from './modules/group-members/group-members.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -67,6 +71,9 @@ import { AiModule } from './modules/ai/ai.module';
     // Database
     PrismaModule,
 
+    // Observability
+    ObservabilityModule,
+
     // Health checks
     HealthModule,
 
@@ -96,6 +103,9 @@ import { AiModule } from './modules/ai/ai.module';
     MediaModule,
     SearchModule,
     AiModule,
+    AdminModule,
+    GroupMembersModule,
+    UploadModule,
   ],
   providers: [
     {

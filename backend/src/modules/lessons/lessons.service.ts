@@ -6,7 +6,18 @@ export class LessonsService {
   private readonly logger = new Logger(LessonsService.name);
   constructor(private prisma: PrismaService) {}
 
-  async create(authorId: string, data: { title: string; content?: string; courseId: string; videoUrl?: string; pdfUrl?: string; duration?: number; order?: number }) {
+  async create(
+    authorId: string,
+    data: {
+      title: string;
+      content?: string;
+      courseId: string;
+      videoUrl?: string;
+      pdfUrl?: string;
+      duration?: number;
+      order?: number;
+    },
+  ) {
     return this.prisma.lesson.create({
       data: {
         title: data.title,
@@ -50,15 +61,29 @@ export class LessonsService {
     });
   }
 
-  async update(id: string, userId: string, data: { title?: string; content?: string; videoUrl?: string; pdfUrl?: string; duration?: number; order?: number; isPublished?: boolean }) {
+  async update(
+    id: string,
+    userId: string,
+    data: {
+      title?: string;
+      content?: string;
+      videoUrl?: string;
+      pdfUrl?: string;
+      duration?: number;
+      order?: number;
+      isPublished?: boolean;
+    },
+  ) {
     const lesson = await this.prisma.lesson.findUnique({ where: { id } });
-    if (!lesson || lesson.authorId !== userId) throw new Error('Not authorized');
+    if (!lesson || lesson.authorId !== userId)
+      throw new Error('Not authorized');
     return this.prisma.lesson.update({ where: { id }, data });
   }
 
   async delete(id: string, userId: string) {
     const lesson = await this.prisma.lesson.findUnique({ where: { id } });
-    if (!lesson || lesson.authorId !== userId) throw new Error('Not authorized');
+    if (!lesson || lesson.authorId !== userId)
+      throw new Error('Not authorized');
     return this.prisma.lesson.delete({ where: { id } });
   }
 }

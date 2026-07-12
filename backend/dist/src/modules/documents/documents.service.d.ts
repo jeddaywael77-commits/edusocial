@@ -12,83 +12,83 @@ export declare class DocumentsService {
         tags?: string[];
     }): Promise<{
         uploadedBy: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
         url: string;
-        type: string;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
+        type: string;
         thumbnail: string | null;
+        tags: string[];
         size: number;
         version: number;
         uploadedById: string;
     }>;
     findAll(): Promise<({
         uploadedBy: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
         url: string;
-        type: string;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
+        type: string;
         thumbnail: string | null;
+        tags: string[];
         size: number;
         version: number;
         uploadedById: string;
     })[]>;
     findById(id: string): Promise<({
         uploadedBy: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
         url: string;
-        type: string;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
+        type: string;
         thumbnail: string | null;
+        tags: string[];
         size: number;
         version: number;
         uploadedById: string;
     }) | null>;
     findByUserId(userId: string): Promise<{
         url: string;
-        type: string;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
+        type: string;
         thumbnail: string | null;
+        tags: string[];
         size: number;
         version: number;
         uploadedById: string;
     }[]>;
     delete(id: string, userId: string): Promise<{
         url: string;
-        type: string;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
         updatedAt: Date;
-        tags: string[];
+        type: string;
         thumbnail: string | null;
+        tags: string[];
         size: number;
         version: number;
         uploadedById: string;

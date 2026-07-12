@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AssignmentsService } from './assignments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -9,14 +20,20 @@ import { ApiProperty } from '@nestjs/swagger';
 class CreateAssignmentDto {
   @ApiProperty() @IsString() title: string;
   @ApiProperty() @IsString() dueDate: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsNumber() maxScore?: number;
   @ApiProperty({ required: false }) @IsOptional() @IsString() courseId?: string;
 }
 
 class UpdateAssignmentDto {
   @ApiProperty({ required: false }) @IsOptional() @IsString() title?: string;
-  @ApiProperty({ required: false }) @IsOptional() @IsString() description?: string;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsString() dueDate?: string;
   @ApiProperty({ required: false }) @IsOptional() @IsNumber() maxScore?: number;
 }
@@ -31,7 +48,10 @@ export class AssignmentsController {
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create an assignment' })
-  async create(@CurrentUser('sub') userId: string, @Body() dto: CreateAssignmentDto) {
+  async create(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: CreateAssignmentDto,
+  ) {
     return this.assignmentsService.create(userId, dto);
   }
 
@@ -51,7 +71,11 @@ export class AssignmentsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Update an assignment' })
-  async update(@Param('id') id: string, @CurrentUser('sub') userId: string, @Body() dto: UpdateAssignmentDto) {
+  async update(
+    @Param('id') id: string,
+    @CurrentUser('sub') userId: string,
+    @Body() dto: UpdateAssignmentDto,
+  ) {
     return this.assignmentsService.update(id, userId, dto);
   }
 

@@ -1,10 +1,12 @@
 import { PrismaService } from '../../database/prisma.service';
 import { ToggleReactionDto } from './dto/toggle-reaction.dto';
 import { ReactionType } from '../../common/enums';
+import { SocketGateway } from '../socket/socket.gateway';
 export declare class LikesService {
     private prisma;
+    private socketGateway;
     private readonly logger;
-    constructor(prisma: PrismaService);
+    constructor(prisma: PrismaService, socketGateway: SocketGateway);
     toggle(userId: string, dto: ToggleReactionDto): Promise<{
         action: string;
         type: null;
@@ -29,13 +31,13 @@ export declare class LikesService {
         }[];
     }>;
     getPostReactors(postId: string, type?: ReactionType, limit?: number): Promise<{
+        createdAt: Date;
         user: {
-            level: number;
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
+            level: number;
         };
         type: import("@prisma/client").$Enums.ReactionType;
-        createdAt: Date;
     }[]>;
 }

@@ -10,72 +10,80 @@ export declare class ChatService {
     }): Promise<{
         participants: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
                 avatar: string | null;
             };
         } & {
             id: string;
             userId: string;
-            joinedAt: Date;
             conversationId: string;
+            joinedAt: Date;
         })[];
     } & {
-        name: string | null;
         id: string;
+        name: string | null;
         avatar: string | null;
         createdAt: Date;
         updatedAt: Date;
         isGroup: boolean;
     }>;
-    getConversations(userId: string): Promise<({
-        participants: ({
-            user: {
-                name: string;
+    getConversations(userId: string, page?: number, limit?: number): Promise<{
+        data: ({
+            participants: ({
+                user: {
+                    id: string;
+                    name: string;
+                    avatar: string | null;
+                    isOnline: boolean;
+                };
+            } & {
                 id: string;
-                avatar: string | null;
-                isOnline: boolean;
-            };
+                userId: string;
+                conversationId: string;
+                joinedAt: Date;
+            })[];
+            messages: {
+                id: string;
+                createdAt: Date;
+                type: string;
+                content: string;
+                fileUrl: string | null;
+                senderId: string;
+                conversationId: string;
+                fileName: string | null;
+                isRead: boolean;
+            }[];
         } & {
             id: string;
-            userId: string;
-            joinedAt: Date;
-            conversationId: string;
-        })[];
-        messages: {
-            type: string;
-            id: string;
+            name: string | null;
+            avatar: string | null;
             createdAt: Date;
-            content: string;
-            senderId: string;
-            fileUrl: string | null;
-            fileName: string | null;
-            conversationId: string;
-            isRead: boolean;
-        }[];
-    } & {
-        name: string | null;
-        id: string;
-        avatar: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        isGroup: boolean;
-    })[]>;
+            updatedAt: Date;
+            isGroup: boolean;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
+        };
+    }>;
     getMessages(conversationId: string, page?: number, limit?: number): Promise<({
         sender: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        type: string;
         id: string;
         createdAt: Date;
+        type: string;
         content: string;
-        senderId: string;
         fileUrl: string | null;
-        fileName: string | null;
+        senderId: string;
         conversationId: string;
+        fileName: string | null;
         isRead: boolean;
     })[]>;
     sendMessage(senderId: string, conversationId: string, data: {
@@ -85,19 +93,19 @@ export declare class ChatService {
         fileName?: string;
     }): Promise<{
         sender: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        type: string;
         id: string;
         createdAt: Date;
+        type: string;
         content: string;
-        senderId: string;
         fileUrl: string | null;
-        fileName: string | null;
+        senderId: string;
         conversationId: string;
+        fileName: string | null;
         isRead: boolean;
     }>;
     markAsRead(conversationId: string, userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;

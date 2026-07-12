@@ -40,15 +40,24 @@ export class AiProcessingProcessor extends WorkerHost {
 
     try {
       const buffer = Buffer.from(bufferBase64, 'base64');
-      const doc = await this.documentProcessor.processBuffer(buffer, mimeType, filename);
+      const doc = await this.documentProcessor.processBuffer(
+        buffer,
+        mimeType,
+        filename,
+      );
       const chunks = this.embeddingService.chunkDocument(doc.content, {
         source: filename,
         sourceType: mimeType.includes('pdf') ? 'pdf' : 'txt',
       });
 
-      await this.embeddingService.embedAndStore(chunks, collection || `user_${userId}`);
+      await this.embeddingService.embedAndStore(
+        chunks,
+        collection || `user_${userId}`,
+      );
       await job.updateProgress(100);
-      this.logger.log(`Document indexed: ${filename} (${chunks.length} chunks)`);
+      this.logger.log(
+        `Document indexed: ${filename} (${chunks.length} chunks)`,
+      );
     } catch (error) {
       this.logger.error(`Document indexing failed: ${filename}`, error);
       throw error;
@@ -64,7 +73,9 @@ export class AiProcessingProcessor extends WorkerHost {
       await this.indexDocument({
         data: { ...doc, userId },
         updateProgress: async (p: number) => {
-          await job.updateProgress(Math.round((i / documents.length) * 100 + p / documents.length));
+          await job.updateProgress(
+            Math.round((i / documents.length) * 100 + p / documents.length),
+          );
         },
       } as any);
     }

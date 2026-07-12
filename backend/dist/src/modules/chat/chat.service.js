@@ -25,22 +25,48 @@ let ChatService = ChatService_1 = class ChatService {
                 name: data.name,
                 isGroup: data.isGroup ?? false,
                 participants: {
-                    create: [{ userId }, ...data.participantIds.map((id) => ({ userId: id }))],
+                    create: [
+                        { userId },
+                        ...data.participantIds.map((id) => ({ userId: id })),
+                    ],
                 },
             },
-            include: { participants: { include: { user: { select: { id: true, name: true, avatar: true } } } } },
+            include: {
+                participants: {
+                    include: { user: { select: { id: true, name: true, avatar: true } } },
+                },
+            },
         });
         return conversation;
     }
-    async getConversations(userId) {
-        return this.prisma.conversation.findMany({
-            where: { participants: { some: { userId } } },
-            include: {
-                participants: { include: { user: { select: { id: true, name: true, avatar: true, isOnline: true } } } },
-                messages: { orderBy: { createdAt: 'desc' }, take: 1 },
-            },
-            orderBy: { updatedAt: 'desc' },
-        });
+    async getConversations(userId, page = 1, limit = 20) {
+        const skip = (page - 1) * limit;
+        const take = Math.min(limit, 50);
+        const [conversations, total] = await Promise.all([
+            this.prisma.conversation.findMany({
+                where: { participants: { some: { userId } } },
+                include: {
+                    participants: {
+                        include: {
+                            user: {
+                                select: { id: true, name: true, avatar: true, isOnline: true },
+                            },
+                        },
+                    },
+                    messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+                },
+                orderBy: { updatedAt: 'desc' },
+                skip,
+                take,
+            }),
+            this.prisma.conversation.count({
+                where: { participants: { some: { userId } } },
+            }),
+        ]);
+        return {
+            data: conversations,
+            meta: { total, page, limit: take, totalPages: Math.ceil(total / take) },
+        };
     }
     async getMessages(conversationId, page = 1, limit = 50) {
         const skip = (page - 1) * limit;

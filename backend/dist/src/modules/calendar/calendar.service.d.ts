@@ -13,61 +13,61 @@ export declare class CalendarService {
         color?: string;
         courseId?: string;
     }): Promise<{
-        type: import("@prisma/client").$Enums.CalendarEventType;
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        userId: string;
-        color: string;
+        description: string | null;
+        type: import("@prisma/client").$Enums.CalendarEventType;
+        title: string;
         courseId: string | null;
+        color: string;
+        userId: string;
+        endTime: Date | null;
         date: Date;
         startTime: Date;
-        endTime: Date | null;
     }>;
     findAll(userId: string): Promise<{
-        type: import("@prisma/client").$Enums.CalendarEventType;
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        userId: string;
-        color: string;
+        description: string | null;
+        type: import("@prisma/client").$Enums.CalendarEventType;
+        title: string;
         courseId: string | null;
+        color: string;
+        userId: string;
+        endTime: Date | null;
         date: Date;
         startTime: Date;
-        endTime: Date | null;
     }[]>;
     findById(id: string): Promise<({
         course: {
-            title: string;
             id: string;
+            title: string;
         } | null;
     } & {
-        type: import("@prisma/client").$Enums.CalendarEventType;
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        userId: string;
-        color: string;
+        description: string | null;
+        type: import("@prisma/client").$Enums.CalendarEventType;
+        title: string;
         courseId: string | null;
+        color: string;
+        userId: string;
+        endTime: Date | null;
         date: Date;
         startTime: Date;
-        endTime: Date | null;
     }) | null>;
     findByDateRange(userId: string, start: string, end: string): Promise<{
-        type: import("@prisma/client").$Enums.CalendarEventType;
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        userId: string;
-        color: string;
+        description: string | null;
+        type: import("@prisma/client").$Enums.CalendarEventType;
+        title: string;
         courseId: string | null;
+        color: string;
+        userId: string;
+        endTime: Date | null;
         date: Date;
         startTime: Date;
-        endTime: Date | null;
     }[]>;
     update(id: string, userId: string, data: {
         title?: string;
@@ -78,29 +78,29 @@ export declare class CalendarService {
         type?: string;
         color?: string;
     }): Promise<{
-        type: import("@prisma/client").$Enums.CalendarEventType;
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        userId: string;
-        color: string;
+        description: string | null;
+        type: import("@prisma/client").$Enums.CalendarEventType;
+        title: string;
         courseId: string | null;
+        color: string;
+        userId: string;
+        endTime: Date | null;
         date: Date;
         startTime: Date;
-        endTime: Date | null;
     }>;
     delete(id: string, userId: string): Promise<{
-        type: import("@prisma/client").$Enums.CalendarEventType;
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
-        userId: string;
-        color: string;
+        description: string | null;
+        type: import("@prisma/client").$Enums.CalendarEventType;
+        title: string;
         courseId: string | null;
+        color: string;
+        userId: string;
+        endTime: Date | null;
         date: Date;
         startTime: Date;
-        endTime: Date | null;
     }>;
 }

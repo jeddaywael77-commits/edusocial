@@ -67,7 +67,14 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
-      select: { id: true, email: true, password: true, role: true, name: true, isActive: true },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        role: true,
+        name: true,
+        isActive: true,
+      },
     });
 
     if (!user || !user.isActive) {
@@ -97,7 +104,13 @@ export class AuthService {
   async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, role: true, refreshToken: true, isActive: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        refreshToken: true,
+        isActive: true,
+      },
     });
 
     if (!user || !user.isActive || !user.refreshToken) {
@@ -166,21 +179,23 @@ export class AuthService {
     return user;
   }
 
-  private async generateTokens(
-    userId: string,
-    email: string,
-    role: string,
-  ) {
+  private async generateTokens(userId: string, email: string, role: string) {
     const payload: JwtPayload = { sub: userId, email, role };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload as any, {
         secret: this.configService.get<string>('jwt.secret'),
-        expiresIn: this.configService.get<string>('jwt.expiration', '15m') as any,
+        expiresIn: this.configService.get<string>(
+          'jwt.expiration',
+          '15m',
+        ) as any,
       }),
       this.jwtService.signAsync(payload as any, {
         secret: this.configService.get<string>('jwt.refreshSecret'),
-        expiresIn: this.configService.get<string>('jwt.refreshExpiration', '7d') as any,
+        expiresIn: this.configService.get<string>(
+          'jwt.refreshExpiration',
+          '7d',
+        ) as any,
       }),
     ]);
 

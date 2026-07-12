@@ -3,8 +3,17 @@ import { BullModule } from '@nestjs/bullmq';
 import { MulterModule } from '@nestjs/platform-express';
 import { MediaController } from './media.controller';
 import { MediaService } from './media.service';
-import { MediaProcessor, ImageProcessor, DocumentProcessor } from './processors';
-import { LocalStorageProvider, MinioStorageProvider, S3StorageProvider, StorageFactory } from './storage';
+import {
+  MediaProcessor,
+  ImageProcessor,
+  DocumentProcessor,
+} from './processors';
+import {
+  LocalStorageProvider,
+  MinioStorageProvider,
+  S3StorageProvider,
+  StorageFactory,
+} from './storage';
 import { AuthModule } from '../auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { diskStorage } from 'multer';
@@ -19,14 +28,16 @@ import { v4 as uuid } from 'uuid';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         storage: diskStorage({
-          destination: configService.get<string>('app.uploadDir') || './uploads',
+          destination:
+            configService.get<string>('app.uploadDir') || './uploads',
           filename: (_req, file, cb) => {
             const uniqueName = `${uuid()}${extname(file.originalname)}`;
             cb(null, uniqueName);
           },
         }),
         limits: {
-          fileSize: configService.get<number>('media.maxFileSize') || 50 * 1024 * 1024,
+          fileSize:
+            configService.get<number>('media.maxFileSize') || 50 * 1024 * 1024,
         },
       }),
       inject: [ConfigService],

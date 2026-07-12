@@ -39,11 +39,14 @@ export class MediaService {
       return existing;
     }
 
-    const ext = path.extname(file.originalname).toLowerCase().replace('.', '') || this.getExtFromMime(file.mimetype);
+    const ext =
+      path.extname(file.originalname).toLowerCase().replace('.', '') ||
+      this.getExtFromMime(file.mimetype);
     const key = this.generateKey(ownerId, category, ext);
 
     const storage = this.storageFactory.getProviderInstance();
-    const bucket = this.configService.get<string>('media.bucket') || 'edusocial';
+    const bucket =
+      this.configService.get<string>('media.bucket') || 'edusocial';
 
     const result = await storage.upload(file.buffer, {
       bucket,
@@ -60,7 +63,8 @@ export class MediaService {
       data: {
         ownerId,
         category: category as any,
-        storageProvider: this.configService.get<string>('media.storageProvider') || 'local',
+        storageProvider:
+          this.configService.get<string>('media.storageProvider') || 'local',
         bucket: result.bucket,
         key: result.key,
         url: result.url,
@@ -70,8 +74,12 @@ export class MediaService {
         size: file.size,
         checksum,
         status: MediaStatus.UPLOADING as any,
-        width: file.mimetype.startsWith('image/') ? (file as any).width || null : null,
-        height: file.mimetype.startsWith('image/') ? (file as any).height || null : null,
+        width: file.mimetype.startsWith('image/')
+          ? (file as any).width || null
+          : null,
+        height: file.mimetype.startsWith('image/')
+          ? (file as any).height || null
+          : null,
       },
     });
 
@@ -113,8 +121,10 @@ export class MediaService {
     const where: Prisma.MediaWhereInput = {
       ownerId: userId,
       isDeleted: false,
-      ...(query.category && { category: query.category as any }),
-      ...(query.mimeType && { mimeType: { contains: query.mimeType, mode: 'insensitive' } }),
+      ...(query.category && { category: query.category }),
+      ...(query.mimeType && {
+        mimeType: { contains: query.mimeType, mode: 'insensitive' },
+      }),
       ...(query.search && {
         OR: [
           { originalName: { contains: query.search, mode: 'insensitive' } },
@@ -152,13 +162,20 @@ export class MediaService {
 
   async getSignedUrl(id: string, userId: string, expiresIn?: number) {
     const media = await this.prisma.media.findUnique({ where: { id } });
-    if (!media || media.isDeleted) throw new NotFoundException('Media not found');
+    if (!media || media.isDeleted)
+      throw new NotFoundException('Media not found');
 
     const storage = this.storageFactory.getProviderInstance();
     const url = await storage.getSignedUrl({
-      bucket: media.bucket || this.configService.get<string>('media.bucket') || 'edusocial',
+      bucket:
+        media.bucket ||
+        this.configService.get<string>('media.bucket') ||
+        'edusocial',
       key: media.key,
-      expiresIn: expiresIn || this.configService.get<number>('media.signedUrlExpiry') || 3600,
+      expiresIn:
+        expiresIn ||
+        this.configService.get<number>('media.signedUrlExpiry') ||
+        3600,
     });
 
     return { url, expiresIn: expiresIn || 3600 };
@@ -166,17 +183,27 @@ export class MediaService {
 
   async replace(id: string, userId: string, file: Express.Multer.File) {
     const media = await this.prisma.media.findUnique({ where: { id } });
-    if (!media || media.isDeleted) throw new NotFoundException('Media not found');
-    if (media.ownerId !== userId) throw new ForbiddenException('Not authorized');
+    if (!media || media.isDeleted)
+      throw new NotFoundException('Media not found');
+    if (media.ownerId !== userId)
+      throw new ForbiddenException('Not authorized');
 
     const storage = this.storageFactory.getProviderInstance();
-    const bucket = media.bucket || this.configService.get<string>('media.bucket') || 'edusocial';
+    const bucket =
+      media.bucket ||
+      this.configService.get<string>('media.bucket') ||
+      'edusocial';
     await storage.delete(bucket, media.key);
 
     const checksum = createHash('sha256').update(file.buffer).digest('hex');
-    const ext = path.extname(file.originalname).toLowerCase().replace('.', '') || this.getExtFromMime(file.mimetype);
+    const ext =
+      path.extname(file.originalname).toLowerCase().replace('.', '') ||
+      this.getExtFromMime(file.mimetype);
 
-    const replaceBucket = media.bucket || this.configService.get<string>('media.bucket') || 'edusocial';
+    const replaceBucket =
+      media.bucket ||
+      this.configService.get<string>('media.bucket') ||
+      'edusocial';
     const result = await storage.upload(file.buffer, {
       bucket: replaceBucket,
       key: media.key,
@@ -202,7 +229,8 @@ export class MediaService {
 
   async delete(id: string, userId: string, userRole?: string) {
     const media = await this.prisma.media.findUnique({ where: { id } });
-    if (!media || media.isDeleted) throw new NotFoundException('Media not found');
+    if (!media || media.isDeleted)
+      throw new NotFoundException('Media not found');
 
     const isOwner = media.ownerId === userId;
     const isAdmin = userRole === 'ADMIN' || userRole === 'MODERATOR';
@@ -230,8 +258,12 @@ export class MediaService {
     return results;
   }
 
-  async updateStatus(id: string, status: MediaStatus, metadata?: Record<string, any>) {
-    const data: Prisma.MediaUpdateInput = { status: status as any };
+  async updateStatus(
+    id: string,
+    status: MediaStatus,
+    metadata?: Record<string, any>,
+  ) {
+    const data: Prisma.MediaUpdateInput = { status: status };
     if (metadata) {
       data.metadata = metadata;
     }
@@ -267,7 +299,9 @@ export class MediaService {
       _sum: { size: true },
     });
 
-    const totalMedia = await this.prisma.media.count({ where: { ownerId, isDeleted: false } });
+    const totalMedia = await this.prisma.media.count({
+      where: { ownerId, isDeleted: false },
+    });
     const totalSize = await this.prisma.media.aggregate({
       where: { ownerId, isDeleted: false },
       _sum: { size: true },
@@ -276,18 +310,28 @@ export class MediaService {
     return {
       totalMedia,
       totalSize: totalSize._sum.size || 0,
-      byCategory: stats.reduce((acc, s) => {
-        acc[s.category] = (acc[s.category] || 0) + s._count.id;
-        return acc;
-      }, {} as Record<string, number>),
-      byType: stats.reduce((acc, s) => {
-        acc[s.mimeType] = (acc[s.mimeType] || 0) + s._count.id;
-        return acc;
-      }, {} as Record<string, number>),
+      byCategory: stats.reduce(
+        (acc, s) => {
+          acc[s.category] = (acc[s.category] || 0) + s._count.id;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
+      byType: stats.reduce(
+        (acc, s) => {
+          acc[s.mimeType] = (acc[s.mimeType] || 0) + s._count.id;
+          return acc;
+        },
+        {} as Record<string, number>,
+      ),
     };
   }
 
-  private generateKey(ownerId: string, category: MediaCategory, ext: string): string {
+  private generateKey(
+    ownerId: string,
+    category: MediaCategory,
+    ext: string,
+  ): string {
     const date = new Date();
     const datePath = `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}`;
     const uuid = randomUUID();
@@ -304,11 +348,14 @@ export class MediaService {
       'video/webm': 'webm',
       'application/pdf': 'pdf',
       'application/msword': 'doc',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        'docx',
       'application/vnd.ms-excel': 'xls',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+        'xlsx',
       'application/vnd.ms-powerpoint': 'ppt',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+        'pptx',
       'text/plain': 'txt',
     };
     return mimeMap[mimeType] || 'bin';

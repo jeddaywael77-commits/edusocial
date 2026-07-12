@@ -6,7 +6,17 @@ export class ExamsService {
   private readonly logger = new Logger(ExamsService.name);
   constructor(private prisma: PrismaService) {}
 
-  async create(authorId: string, data: { title: string; description?: string; courseId: string; timeLimit: number; dueDate: string; questions?: any }) {
+  async create(
+    authorId: string,
+    data: {
+      title: string;
+      description?: string;
+      courseId: string;
+      timeLimit: number;
+      dueDate: string;
+      questions?: any;
+    },
+  ) {
     return this.prisma.exam.create({
       data: {
         title: data.title,
@@ -49,7 +59,17 @@ export class ExamsService {
     });
   }
 
-  async update(id: string, userId: string, data: { title?: string; description?: string; timeLimit?: number; dueDate?: string; questions?: any }) {
+  async update(
+    id: string,
+    userId: string,
+    data: {
+      title?: string;
+      description?: string;
+      timeLimit?: number;
+      dueDate?: string;
+      questions?: any;
+    },
+  ) {
     const exam = await this.prisma.exam.findUnique({ where: { id } });
     if (!exam || exam.authorId !== userId) throw new Error('Not authorized');
     const updateData: any = { ...data };

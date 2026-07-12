@@ -6,16 +6,26 @@ export class ChatService {
   private readonly logger = new Logger(ChatService.name);
   constructor(private prisma: PrismaService) {}
 
-  async createConversation(userId: string, data: { name?: string; participantIds: string[]; isGroup?: boolean }) {
+  async createConversation(
+    userId: string,
+    data: { name?: string; participantIds: string[]; isGroup?: boolean },
+  ) {
     const conversation = await this.prisma.conversation.create({
       data: {
         name: data.name,
         isGroup: data.isGroup ?? false,
         participants: {
-          create: [{ userId }, ...data.participantIds.map((id) => ({ userId: id }))],
+          create: [
+            { userId },
+            ...data.participantIds.map((id) => ({ userId: id })),
+          ],
         },
       },
-      include: { participants: { include: { user: { select: { id: true, name: true, avatar: true } } } } },
+      include: {
+        participants: {
+          include: { user: { select: { id: true, name: true, avatar: true } } },
+        },
+      },
     });
     return conversation;
   }
@@ -27,7 +37,13 @@ export class ChatService {
       this.prisma.conversation.findMany({
         where: { participants: { some: { userId } } },
         include: {
-          participants: { include: { user: { select: { id: true, name: true, avatar: true, isOnline: true } } } },
+          participants: {
+            include: {
+              user: {
+                select: { id: true, name: true, avatar: true, isOnline: true },
+              },
+            },
+          },
           messages: { orderBy: { createdAt: 'desc' }, take: 1 },
         },
         orderBy: { updatedAt: 'desc' },
@@ -38,7 +54,10 @@ export class ChatService {
         where: { participants: { some: { userId } } },
       }),
     ]);
-    return { data: conversations, meta: { total, page, limit: take, totalPages: Math.ceil(total / take) } };
+    return {
+      data: conversations,
+      meta: { total, page, limit: take, totalPages: Math.ceil(total / take) },
+    };
   }
 
   async getMessages(conversationId: string, page = 1, limit = 50) {
@@ -52,7 +71,16 @@ export class ChatService {
     });
   }
 
-  async sendMessage(senderId: string, conversationId: string, data: { content: string; type?: string; fileUrl?: string; fileName?: string }) {
+  async sendMessage(
+    senderId: string,
+    conversationId: string,
+    data: {
+      content: string;
+      type?: string;
+      fileUrl?: string;
+      fileName?: string;
+    },
+  ) {
     const message = await this.prisma.message.create({
       data: {
         content: data.content,

@@ -13,18 +13,18 @@ export declare class MarketplaceService {
         currency?: string;
     }): Promise<{
         seller: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        images: string[];
+        description: string | null;
+        title: string;
         category: string;
+        images: string[];
         price: number;
         currency: string;
         condition: string;
@@ -33,18 +33,18 @@ export declare class MarketplaceService {
     }>;
     findAll(): Promise<({
         seller: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        images: string[];
+        description: string | null;
+        title: string;
         category: string;
+        images: string[];
         price: number;
         currency: string;
         condition: string;
@@ -53,19 +53,19 @@ export declare class MarketplaceService {
     })[]>;
     findById(id: string): Promise<({
         seller: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
             isOnline: boolean;
         };
     } & {
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        images: string[];
+        description: string | null;
+        title: string;
         category: string;
+        images: string[];
         price: number;
         currency: string;
         condition: string;
@@ -73,13 +73,13 @@ export declare class MarketplaceService {
         sellerId: string;
     }) | null>;
     findBySeller(sellerId: string): Promise<{
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        images: string[];
+        description: string | null;
+        title: string;
         category: string;
+        images: string[];
         price: number;
         currency: string;
         condition: string;
@@ -93,13 +93,13 @@ export declare class MarketplaceService {
         isAvailable?: boolean;
         images?: string[];
     }): Promise<{
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        images: string[];
+        description: string | null;
+        title: string;
         category: string;
+        images: string[];
         price: number;
         currency: string;
         condition: string;
@@ -107,13 +107,13 @@ export declare class MarketplaceService {
         sellerId: string;
     }>;
     delete(id: string, userId: string): Promise<{
-        description: string | null;
-        title: string;
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        images: string[];
+        description: string | null;
+        title: string;
         category: string;
+        images: string[];
         price: number;
         currency: string;
         condition: string;

@@ -77,8 +77,15 @@ export class AiController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new AI chat conversation' })
-  async createConversation(@Req() req: any, @Body() dto: CreateConversationDto) {
-    return this.chatService.createConversation(req.user.id, dto.title, dto.model);
+  async createConversation(
+    @Req() req: any,
+    @Body() dto: CreateConversationDto,
+  ) {
+    return this.chatService.createConversation(
+      req.user.id,
+      dto.title,
+      dto.model,
+    );
   }
 
   @Get('chat/conversations')
@@ -106,13 +113,18 @@ export class AiController {
     @Param('id') conversationId: string,
     @Body() dto: SendMessageDto,
   ) {
-    return this.chatService.sendMessage(conversationId, req.user.id, dto.content, {
-      systemPrompt: dto.systemPrompt,
-      useRAG: dto.useRAG,
-      ragCollection: dto.ragCollection,
-      temperature: dto.temperature,
-      maxTokens: dto.maxTokens,
-    });
+    return this.chatService.sendMessage(
+      conversationId,
+      req.user.id,
+      dto.content,
+      {
+        systemPrompt: dto.systemPrompt,
+        useRAG: dto.useRAG,
+        ragCollection: dto.ragCollection,
+        temperature: dto.temperature,
+        maxTokens: dto.maxTokens,
+      },
+    );
   }
 
   @Post('chat/conversations/:id/stream')
@@ -219,7 +231,10 @@ export class AiController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Generate flashcards' })
-  async generateFlashcards(@Req() req: any, @Body() dto: GenerateFlashcardsDto) {
+  async generateFlashcards(
+    @Req() req: any,
+    @Body() dto: GenerateFlashcardsDto,
+  ) {
     return this.featuresService.generateFlashcards(req.user.id, dto);
   }
 
@@ -270,7 +285,10 @@ export class AiController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get user AI usage stats' })
   async getUserStats(@Req() req: any, @Query('days') days?: string) {
-    return this.analyticsService.getUserStats(req.user.id, days ? parseInt(days) : 30);
+    return this.analyticsService.getUserStats(
+      req.user.id,
+      days ? parseInt(days) : 30,
+    );
   }
 
   @Get('analytics/global')
@@ -290,10 +308,38 @@ export class AiController {
   @ApiOperation({ summary: 'Get suggested AI questions' })
   async getSuggestedQuestions() {
     return [
-      { category: 'Tutoring', questions: ['Explain photosynthesis', 'How does photosynthesis work?', 'What are the steps of mitosis?'] },
-      { category: 'Homework', questions: ['Help me solve this math problem', 'Check my essay for errors', 'Explain this concept'] },
-      { category: 'Study', questions: ['Create flashcards for Chapter 5', 'Make a mind map of the water cycle', 'Generate a quiz on World War II'] },
-      { category: 'Planning', questions: ['Create a study plan for my exams', 'Summarize this PDF', 'What should I study next?'] },
+      {
+        category: 'Tutoring',
+        questions: [
+          'Explain photosynthesis',
+          'How does photosynthesis work?',
+          'What are the steps of mitosis?',
+        ],
+      },
+      {
+        category: 'Homework',
+        questions: [
+          'Help me solve this math problem',
+          'Check my essay for errors',
+          'Explain this concept',
+        ],
+      },
+      {
+        category: 'Study',
+        questions: [
+          'Create flashcards for Chapter 5',
+          'Make a mind map of the water cycle',
+          'Generate a quiz on World War II',
+        ],
+      },
+      {
+        category: 'Planning',
+        questions: [
+          'Create a study plan for my exams',
+          'Summarize this PDF',
+          'What should I study next?',
+        ],
+      },
     ];
   }
 }

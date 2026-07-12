@@ -4,30 +4,30 @@ export declare class LeaderboardService {
     private readonly logger;
     constructor(prisma: PrismaService);
     getTopByXp(limit?: number): Promise<{
-        level: number;
-        name: string;
-        role: import("@prisma/client").$Enums.UserRole;
         id: string;
+        name: string;
         avatar: string | null;
+        role: import("@prisma/client").$Enums.UserRole;
         xp: number;
+        level: number;
         coins: number;
     }[]>;
     getTopByLevel(limit?: number): Promise<{
-        level: number;
-        name: string;
-        role: import("@prisma/client").$Enums.UserRole;
         id: string;
+        name: string;
         avatar: string | null;
+        role: import("@prisma/client").$Enums.UserRole;
         xp: number;
+        level: number;
         coins: number;
     }[]>;
     getUserRank(userId: string): Promise<{
         rank: number;
-        level: number;
-        name: string;
         id: string;
+        name: string;
         avatar: string | null;
         xp: number;
+        level: number;
         coins: number;
     }>;
 }

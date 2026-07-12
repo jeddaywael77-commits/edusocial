@@ -54,7 +54,9 @@ export interface EmbeddingResponse {
 export interface AIProvider {
   readonly name: string;
 
-  chatCompletion(options: ChatCompletionOptions): Promise<ChatCompletionResponse>;
+  chatCompletion(
+    options: ChatCompletionOptions,
+  ): Promise<ChatCompletionResponse>;
   chatCompletionStream(
     options: ChatCompletionOptions,
   ): AsyncGenerator<StreamChunk, void, unknown>;

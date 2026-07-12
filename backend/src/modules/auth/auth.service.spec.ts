@@ -5,10 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { RegisterRole } from './dto/register.dto';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let prisma: { user: { findUnique: jest.Mock; create: jest.Mock; update: jest.Mock } };
+  let prisma: {
+    user: { findUnique: jest.Mock; create: jest.Mock; update: jest.Mock };
+  };
   let jwt: { signAsync: jest.Mock };
   let config: { get: jest.Mock };
 
@@ -39,21 +42,38 @@ describe('AuthService', () => {
     it('should throw ConflictException if email exists', async () => {
       prisma.user.findUnique.mockResolvedValue({ id: 'existing' });
       await expect(
-        service.register({ name: 'Test', email: 'test@test.com', password: 'Pass1234', role: 'STUDENT' }),
+        service.register({
+          name: 'Test',
+          email: 'test@test.com',
+          password: 'Pass1234',
+          role: RegisterRole.STUDENT,
+        }),
       ).rejects.toThrow(ConflictException);
     });
 
     it('should create user with hashed password', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       prisma.user.create.mockResolvedValue({
-        id: '1', name: 'Test', email: 'test@test.com', role: 'STUDENT',
-        avatar: null, bio: null, school: null, department: null,
-        xp: 0, level: 1, coins: 50, createdAt: new Date(),
+        id: '1',
+        name: 'Test',
+        email: 'test@test.com',
+        role: RegisterRole.STUDENT,
+        avatar: null,
+        bio: null,
+        school: null,
+        department: null,
+        xp: 0,
+        level: 1,
+        coins: 50,
+        createdAt: new Date(),
       });
       prisma.user.update.mockResolvedValue({});
 
       const result = await service.register({
-        name: 'Test', email: 'test@test.com', password: 'Pass1234', role: 'STUDENT',
+        name: 'Test',
+        email: 'test@test.com',
+        password: 'Pass1234',
+        role: RegisterRole.STUDENT,
       });
 
       expect(result.user).toBeDefined();
@@ -72,8 +92,12 @@ describe('AuthService', () => {
 
     it('should throw UnauthorizedException for inactive user', async () => {
       prisma.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@test.com', password: 'hashed', role: 'STUDENT',
-        name: 'Test', isActive: false,
+        id: '1',
+        email: 'test@test.com',
+        password: 'hashed',
+        role: RegisterRole.STUDENT,
+        name: 'Test',
+        isActive: false,
       });
       await expect(
         service.login({ email: 'test@test.com', password: 'Pass1234' }),
@@ -83,8 +107,12 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException for wrong password', async () => {
       const hashedPassword = await bcrypt.hash('correct', 12);
       prisma.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@test.com', password: hashedPassword, role: 'STUDENT',
-        name: 'Test', isActive: true,
+        id: '1',
+        email: 'test@test.com',
+        password: hashedPassword,
+        role: RegisterRole.STUDENT,
+        name: 'Test',
+        isActive: true,
       });
       await expect(
         service.login({ email: 'test@test.com', password: 'wrong' }),
@@ -94,12 +122,19 @@ describe('AuthService', () => {
     it('should return tokens on successful login', async () => {
       const hashedPassword = await bcrypt.hash('Pass1234', 12);
       prisma.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@test.com', password: hashedPassword, role: 'STUDENT',
-        name: 'Test', isActive: true,
+        id: '1',
+        email: 'test@test.com',
+        password: hashedPassword,
+        role: RegisterRole.STUDENT,
+        name: 'Test',
+        isActive: true,
       });
       prisma.user.update.mockResolvedValue({});
 
-      const result = await service.login({ email: 'test@test.com', password: 'Pass1234' });
+      const result = await service.login({
+        email: 'test@test.com',
+        password: 'Pass1234',
+      });
 
       expect(result.user).toBeDefined();
       expect(result.tokens).toBeDefined();
@@ -110,26 +145,39 @@ describe('AuthService', () => {
   describe('refreshTokens', () => {
     it('should throw UnauthorizedException if no stored refresh token', async () => {
       prisma.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@test.com', role: 'STUDENT',
-        refreshToken: null, isActive: true,
+        id: '1',
+        email: 'test@test.com',
+        role: RegisterRole.STUDENT,
+        refreshToken: null,
+        isActive: true,
       });
-      await expect(service.refreshTokens('1', 'some-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens('1', 'some-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should throw UnauthorizedException if refresh token does not match', async () => {
       const storedHash = await bcrypt.hash('correct-token', 12);
       prisma.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@test.com', role: 'STUDENT',
-        refreshToken: storedHash, isActive: true,
+        id: '1',
+        email: 'test@test.com',
+        role: RegisterRole.STUDENT,
+        refreshToken: storedHash,
+        isActive: true,
       });
-      await expect(service.refreshTokens('1', 'wrong-token')).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshTokens('1', 'wrong-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should return new tokens if refresh token matches', async () => {
       const storedHash = await bcrypt.hash('valid-token', 12);
       prisma.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@test.com', role: 'STUDENT',
-        refreshToken: storedHash, isActive: true,
+        id: '1',
+        email: 'test@test.com',
+        role: RegisterRole.STUDENT,
+        refreshToken: storedHash,
+        isActive: true,
       });
       prisma.user.update.mockResolvedValue({});
 
@@ -141,8 +189,11 @@ describe('AuthService', () => {
     it('should invalidate all tokens on token reuse', async () => {
       const storedHash = await bcrypt.hash('valid-token', 12);
       prisma.user.findUnique.mockResolvedValue({
-        id: '1', email: 'test@test.com', role: 'STUDENT',
-        refreshToken: storedHash, isActive: true,
+        id: '1',
+        email: 'test@test.com',
+        role: RegisterRole.STUDENT,
+        refreshToken: storedHash,
+        isActive: true,
       });
       prisma.user.update.mockResolvedValue({});
 

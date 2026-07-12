@@ -38,7 +38,8 @@ export class RagPipelineService {
   ) {
     this.topK = this.config.get<number>('ai.ragTopK') || 10;
     this.rerankTopK = this.config.get<number>('ai.ragRerankTopK') || 5;
-    this.maxContextLength = this.config.get<number>('ai.ragMaxContextLength') || 8000;
+    this.maxContextLength =
+      this.config.get<number>('ai.ragMaxContextLength') || 8000;
   }
 
   async indexDocument(
@@ -46,12 +47,28 @@ export class RagPipelineService {
     mimeType: string,
     filename: string,
     collection: string,
-    metadata?: { sourceId?: string; sourceType?: 'pdf' | 'docx' | 'txt' | 'md' | 'pptx' | 'image' | 'lesson' | 'assignment' },
+    metadata?: {
+      sourceId?: string;
+      sourceType?:
+        | 'pdf'
+        | 'docx'
+        | 'txt'
+        | 'md'
+        | 'pptx'
+        | 'image'
+        | 'lesson'
+        | 'assignment';
+    },
   ): Promise<{ chunks: number; document: ProcessedDocument }> {
-    const document = await this.documentProcessor.processBuffer(buffer, mimeType, filename);
+    const document = await this.documentProcessor.processBuffer(
+      buffer,
+      mimeType,
+      filename,
+    );
     const chunks = this.embeddingService.chunkDocument(document.content, {
       source: filename,
-      sourceType: metadata?.sourceType || (mimeType.includes('pdf') ? 'pdf' : 'txt'),
+      sourceType:
+        metadata?.sourceType || (mimeType.includes('pdf') ? 'pdf' : 'txt'),
       sourceId: metadata?.sourceId,
       metadata: {
         title: document.title,
@@ -60,7 +77,9 @@ export class RagPipelineService {
     });
 
     await this.embeddingService.embedAndStore(chunks, collection);
-    this.logger.log(`Indexed ${chunks.length} chunks from "${filename}" into ${collection}`);
+    this.logger.log(
+      `Indexed ${chunks.length} chunks from "${filename}" into ${collection}`,
+    );
 
     return { chunks: chunks.length, document };
   }
@@ -74,15 +93,26 @@ export class RagPipelineService {
       systemPrompt?: string;
       stream?: boolean;
     } = {},
-  ): Promise<RAGResult | AsyncGenerator<{ content: string; done: boolean; sources?: RAGResult['sources'] }, void, unknown>> {
+  ): Promise<
+    | RAGResult
+    | AsyncGenerator<
+        { content: string; done: boolean; sources?: RAGResult['sources'] },
+        void,
+        unknown
+      >
+  > {
     const startTime = Date.now();
     const topK = options.topK || this.topK;
 
     // Step 1: Retrieve relevant chunks
-    const searchResults = await this.embeddingService.searchSimilar(question, collection, {
-      limit: topK,
-      filter: options.filter,
-    });
+    const searchResults = await this.embeddingService.searchSimilar(
+      question,
+      collection,
+      {
+        limit: topK,
+        filter: options.filter,
+      },
+    );
 
     // Step 2: Re-rank by relevance (simple score threshold)
     const reranked = searchResults
@@ -106,11 +136,16 @@ export class RagPipelineService {
 
     // Step 4: Generate response
     const provider = this.providerFactory.getActiveProvider();
-    const systemMsg = options.systemPrompt || `You are a helpful AI assistant for EduSocial. Use the provided context to answer questions accurately. If the context doesn't contain enough information, say so. Always cite your sources.`;
+    const systemMsg =
+      options.systemPrompt ||
+      `You are a helpful AI assistant for EduSocial. Use the provided context to answer questions accurately. If the context doesn't contain enough information, say so. Always cite your sources.`;
 
     const messages = [
       { role: 'system' as const, content: systemMsg },
-      { role: 'user' as const, content: `Context:\n${context}\n\nQuestion: ${question}` },
+      {
+        role: 'user' as const,
+        content: `Context:\n${context}\n\nQuestion: ${question}`,
+      },
     ];
 
     if (options.stream) {
@@ -136,7 +171,11 @@ export class RagPipelineService {
     messages: any[],
     sources: RAGResult['sources'],
     startTime: number,
-  ): AsyncGenerator<{ content: string; done: boolean; sources?: RAGResult['sources'] }, void, unknown> {
+  ): AsyncGenerator<
+    { content: string; done: boolean; sources?: RAGResult['sources'] },
+    void,
+    unknown
+  > {
     const stream = provider.chatCompletionStream({
       messages,
       temperature: this.config.get<number>('ai.chatTemperature') || 0.7,

@@ -24,10 +24,7 @@ describe('CoursesService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        CoursesService,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [CoursesService, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     service = module.get(CoursesService);
@@ -60,7 +57,10 @@ describe('CoursesService', () => {
 
   describe('update', () => {
     it('should throw ForbiddenException if not course owner', async () => {
-      prisma.course.findUnique.mockResolvedValue({ id: '1', teacherId: 'teacher-1' });
+      prisma.course.findUnique.mockResolvedValue({
+        id: '1',
+        teacherId: 'teacher-1',
+      });
 
       await expect(
         service.update('1', 'other-user', { title: 'New Title' }),
@@ -68,10 +68,15 @@ describe('CoursesService', () => {
     });
 
     it('should update course if owner', async () => {
-      prisma.course.findUnique.mockResolvedValue({ id: '1', teacherId: 'teacher-1' });
+      prisma.course.findUnique.mockResolvedValue({
+        id: '1',
+        teacherId: 'teacher-1',
+      });
       prisma.course.update.mockResolvedValue({ id: '1', title: 'New Title' });
 
-      const result = await service.update('1', 'teacher-1', { title: 'New Title' });
+      const result = await service.update('1', 'teacher-1', {
+        title: 'New Title',
+      });
       expect(result.title).toBe('New Title');
     });
   });

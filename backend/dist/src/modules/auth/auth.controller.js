@@ -32,8 +32,10 @@ let AuthController = class AuthController {
     async login(dto) {
         return this.authService.login(dto);
     }
-    async refresh(userId) {
-        return this.authService.refreshTokens(userId);
+    async refresh(userId, req) {
+        const authHeader = req.headers.authorization;
+        const refreshToken = authHeader?.replace('Bearer ', '');
+        return this.authService.refreshTokens(userId, refreshToken);
     }
     async logout(userId) {
         return this.authService.logout(userId);
@@ -72,8 +74,9 @@ __decorate([
     (0, swagger_1.ApiOperation)({ summary: 'Refresh access token' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Tokens refreshed' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)('sub')),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "refresh", null);
 __decorate([

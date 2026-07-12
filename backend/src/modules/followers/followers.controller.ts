@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Delete, Param, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { FollowersService } from './followers.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -14,13 +23,19 @@ export class FollowersController {
   @Post(':userId/follow')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Follow a user' })
-  async follow(@CurrentUser('sub') followerId: string, @Param('userId') userId: string) {
+  async follow(
+    @CurrentUser('sub') followerId: string,
+    @Param('userId') userId: string,
+  ) {
     return this.followersService.follow(followerId, userId);
   }
 
   @Delete(':userId/unfollow')
   @ApiOperation({ summary: 'Unfollow a user' })
-  async unfollow(@CurrentUser('sub') followerId: string, @Param('userId') userId: string) {
+  async unfollow(
+    @CurrentUser('sub') followerId: string,
+    @Param('userId') userId: string,
+  ) {
     return this.followersService.unfollow(followerId, userId);
   }
 

@@ -6,7 +6,18 @@ export class MarketplaceService {
   private readonly logger = new Logger(MarketplaceService.name);
   constructor(private prisma: PrismaService) {}
 
-  async create(sellerId: string, data: { title: string; description?: string; price: number; category: string; images?: string[]; condition?: string; currency?: string }) {
+  async create(
+    sellerId: string,
+    data: {
+      title: string;
+      description?: string;
+      price: number;
+      category: string;
+      images?: string[];
+      condition?: string;
+      currency?: string;
+    },
+  ) {
     return this.prisma.marketplaceItem.create({
       data: {
         title: data.title,
@@ -33,7 +44,11 @@ export class MarketplaceService {
   async findById(id: string) {
     return this.prisma.marketplaceItem.findUnique({
       where: { id },
-      include: { seller: { select: { id: true, name: true, avatar: true, isOnline: true } } },
+      include: {
+        seller: {
+          select: { id: true, name: true, avatar: true, isOnline: true },
+        },
+      },
     });
   }
 
@@ -44,14 +59,28 @@ export class MarketplaceService {
     });
   }
 
-  async update(id: string, userId: string, data: { title?: string; description?: string; price?: number; isAvailable?: boolean; images?: string[] }) {
-    const item = await this.prisma.marketplaceItem.findUnique({ where: { id } });
+  async update(
+    id: string,
+    userId: string,
+    data: {
+      title?: string;
+      description?: string;
+      price?: number;
+      isAvailable?: boolean;
+      images?: string[];
+    },
+  ) {
+    const item = await this.prisma.marketplaceItem.findUnique({
+      where: { id },
+    });
     if (!item || item.sellerId !== userId) throw new Error('Not authorized');
     return this.prisma.marketplaceItem.update({ where: { id }, data });
   }
 
   async delete(id: string, userId: string) {
-    const item = await this.prisma.marketplaceItem.findUnique({ where: { id } });
+    const item = await this.prisma.marketplaceItem.findUnique({
+      where: { id },
+    });
     if (!item || item.sellerId !== userId) throw new Error('Not authorized');
     return this.prisma.marketplaceItem.delete({ where: { id } });
   }

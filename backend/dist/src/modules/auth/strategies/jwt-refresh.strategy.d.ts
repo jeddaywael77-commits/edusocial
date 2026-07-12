@@ -7,8 +7,6 @@ declare const JwtRefreshStrategy_base: new (...args: [opt: import("passport-jwt"
 export declare class JwtRefreshStrategy extends JwtRefreshStrategy_base {
     private prisma;
     constructor(configService: ConfigService, prisma: PrismaService);
-    validate(payload: any): Promise<{
-        sub: string;
-    }>;
+    validate(payload: any, done: (err: any, user?: any) => void): Promise<void>;
 }
 export {};

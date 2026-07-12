@@ -17,132 +17,148 @@ export declare class CoursesController {
     constructor(coursesService: CoursesService);
     create(userId: string, dto: CreateCourseDto): Promise<{
         teacher: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
         id: string;
+        level: import("@prisma/client").$Enums.CourseLevel;
         createdAt: Date;
         updatedAt: Date;
+        description: string | null;
+        title: string;
         thumbnail: string | null;
         category: string;
-        teacherId: string;
         isPublished: boolean;
+        teacherId: string;
     }>;
-    findAll(): Promise<({
-        _count: {
-            lessons: number;
-            assignments: number;
-            enrollments: number;
-        };
-        teacher: {
-            name: string;
+    findAll(): Promise<{
+        data: ({
+            teacher: {
+                id: string;
+                name: string;
+                avatar: string | null;
+            };
+            _count: {
+                lessons: number;
+                assignments: number;
+                enrollments: number;
+            };
+        } & {
             id: string;
-            avatar: string | null;
+            level: import("@prisma/client").$Enums.CourseLevel;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string | null;
+            title: string;
+            thumbnail: string | null;
+            category: string;
+            isPublished: boolean;
+            teacherId: string;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
         };
-    } & {
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        thumbnail: string | null;
-        category: string;
-        teacherId: string;
-        isPublished: boolean;
-    })[]>;
+    }>;
     findById(id: string): Promise<({
         lessons: {
-            title: string;
             id: string;
             createdAt: Date;
-            content: string | null;
-            pdfUrl: string | null;
+            title: string;
+            isPublished: boolean;
             courseId: string;
             authorId: string;
-            isPublished: boolean;
+            content: string | null;
+            pdfUrl: string | null;
             order: number;
             videoUrl: string | null;
             duration: number | null;
         }[];
-        _count: {
-            enrollments: number;
-        };
         teacher: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
         assignments: {
-            description: string | null;
-            title: string;
             id: string;
             createdAt: Date;
-            courseId: string | null;
-            authorId: string;
+            description: string | null;
+            title: string;
             dueDate: Date;
             maxScore: number;
+            courseId: string | null;
+            authorId: string;
         }[];
-    } & {
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        thumbnail: string | null;
-        category: string;
-        teacherId: string;
-        isPublished: boolean;
-    }) | null>;
-    update(id: string, userId: string, dto: UpdateCourseDto): Promise<{
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        thumbnail: string | null;
-        category: string;
-        teacherId: string;
-        isPublished: boolean;
-    }>;
-    delete(id: string, userId: string): Promise<{
-        level: import("@prisma/client").$Enums.CourseLevel;
-        description: string | null;
-        title: string;
-        id: string;
-        createdAt: Date;
-        updatedAt: Date;
-        thumbnail: string | null;
-        category: string;
-        teacherId: string;
-        isPublished: boolean;
-    }>;
-    enroll(id: string, userId: string): Promise<{
-        id: string;
-        userId: string;
-        courseId: string;
-        progress: number;
-        enrolledAt: Date;
-    }>;
-    getEnrollments(id: string): Promise<({
-        user: {
-            name: string;
-            id: string;
-            avatar: string | null;
+        _count: {
+            enrollments: number;
         };
     } & {
         id: string;
-        userId: string;
+        level: import("@prisma/client").$Enums.CourseLevel;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        title: string;
+        thumbnail: string | null;
+        category: string;
+        isPublished: boolean;
+        teacherId: string;
+    }) | null>;
+    update(id: string, userId: string, dto: UpdateCourseDto): Promise<{
+        id: string;
+        level: import("@prisma/client").$Enums.CourseLevel;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        title: string;
+        thumbnail: string | null;
+        category: string;
+        isPublished: boolean;
+        teacherId: string;
+    }>;
+    delete(id: string, userId: string): Promise<{
+        id: string;
+        level: import("@prisma/client").$Enums.CourseLevel;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string | null;
+        title: string;
+        thumbnail: string | null;
+        category: string;
+        isPublished: boolean;
+        teacherId: string;
+    }>;
+    enroll(id: string, userId: string): Promise<{
+        id: string;
         courseId: string;
+        userId: string;
         progress: number;
         enrolledAt: Date;
-    })[]>;
+    }>;
+    getEnrollments(id: string): Promise<{
+        data: ({
+            user: {
+                id: string;
+                name: string;
+                avatar: string | null;
+            };
+        } & {
+            id: string;
+            courseId: string;
+            userId: string;
+            progress: number;
+            enrolledAt: Date;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
+        };
+    }>;
 }
 export {};

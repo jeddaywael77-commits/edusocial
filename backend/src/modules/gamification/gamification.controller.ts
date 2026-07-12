@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Param, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { GamificationService } from './gamification.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -44,7 +53,10 @@ export class GamificationController {
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Award a badge to a user' })
-  async awardBadge(@CurrentUser('sub') userId: string, @Body() dto: AwardBadgeDto) {
+  async awardBadge(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: AwardBadgeDto,
+  ) {
     const targetUserId = dto.userId || userId;
     return this.gamificationService.awardBadge(targetUserId, dto.badgeId);
   }

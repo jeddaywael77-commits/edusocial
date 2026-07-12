@@ -1,0 +1,12 @@
+{
+  "name": "edusocial-load-test",
+  "version": "1.0.0",
+  "description": "Load testing for EduSocial API",
+  "scripts": {
+    "load:smoke": "npx autocannon -c 10 -d 30 http://localhost:3001/health",
+    "load:baseline": "npx autocannon -c 50 -d 60 -p 10 http://localhost:3001/health",
+    "load:stress": "npx autocannon -c 200 -d 120 -p 20 http://localhost:3001/health",
+    "load:spike": "npx autocannon -c 500 -d 30 -p 50 http://localhost:3001/health",
+    "load:soak": "npx autocannon -c 50 -d 600 http://localhost:3001/health"
+  }
+}

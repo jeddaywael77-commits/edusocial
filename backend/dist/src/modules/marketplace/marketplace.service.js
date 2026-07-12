@@ -44,7 +44,11 @@ let MarketplaceService = MarketplaceService_1 = class MarketplaceService {
     async findById(id) {
         return this.prisma.marketplaceItem.findUnique({
             where: { id },
-            include: { seller: { select: { id: true, name: true, avatar: true, isOnline: true } } },
+            include: {
+                seller: {
+                    select: { id: true, name: true, avatar: true, isOnline: true },
+                },
+            },
         });
     }
     async findBySeller(sellerId) {
@@ -54,13 +58,17 @@ let MarketplaceService = MarketplaceService_1 = class MarketplaceService {
         });
     }
     async update(id, userId, data) {
-        const item = await this.prisma.marketplaceItem.findUnique({ where: { id } });
+        const item = await this.prisma.marketplaceItem.findUnique({
+            where: { id },
+        });
         if (!item || item.sellerId !== userId)
             throw new Error('Not authorized');
         return this.prisma.marketplaceItem.update({ where: { id }, data });
     }
     async delete(id, userId) {
-        const item = await this.prisma.marketplaceItem.findUnique({ where: { id } });
+        const item = await this.prisma.marketplaceItem.findUnique({
+            where: { id },
+        });
         if (!item || item.sellerId !== userId)
             throw new Error('Not authorized');
         return this.prisma.marketplaceItem.delete({ where: { id } });

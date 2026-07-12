@@ -8,59 +8,59 @@ export declare class GamificationService {
             users: number;
         };
     } & {
-        description: string | null;
-        name: string;
         id: string;
+        name: string;
         createdAt: Date;
+        description: string | null;
         icon: string;
         color: string;
         xpRequired: number;
     })[]>;
     getUserBadges(userId: string): Promise<({
         badge: {
-            description: string | null;
-            name: string;
             id: string;
+            name: string;
             createdAt: Date;
+            description: string | null;
             icon: string;
             color: string;
             xpRequired: number;
         };
     } & {
         id: string;
+        earnedAt: Date;
         userId: string;
         badgeId: string;
-        earnedAt: Date;
     })[]>;
     awardBadge(userId: string, badgeId: string): Promise<{
         badge: {
-            description: string | null;
-            name: string;
             id: string;
+            name: string;
             createdAt: Date;
+            description: string | null;
             icon: string;
             color: string;
             xpRequired: number;
         };
     } & {
         id: string;
+        earnedAt: Date;
         userId: string;
         badgeId: string;
-        earnedAt: Date;
     }>;
     getUserStats(userId: string): Promise<{
         badgeCount: number;
         postCount: number;
-        level: number;
-        name: string;
         id: string;
+        name: string;
         xp: number;
+        level: number;
         coins: number;
     }>;
     addXp(userId: string, xp: number): Promise<{
-        level: number;
         id: string;
         xp: number;
+        level: number;
         coins: number;
     }>;
 }

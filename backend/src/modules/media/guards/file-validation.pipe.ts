@@ -1,8 +1,22 @@
 import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
 const ALLOWED_MIME_PREFIXES: Record<string, string[]> = {
-  image: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp', 'image/tiff'],
-  video: ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo'],
+  image: [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/bmp',
+    'image/tiff',
+  ],
+  video: [
+    'video/mp4',
+    'video/webm',
+    'video/ogg',
+    'video/quicktime',
+    'video/x-msvideo',
+  ],
   document: [
     'application/pdf',
     'application/msword',
@@ -41,21 +55,31 @@ export class FileValidationPipe implements PipeTransform {
     }
 
     if (BLOCKED_MIME_TYPES.includes(file.mimetype)) {
-      throw new BadRequestException(`File type "${file.mimetype}" is not allowed for security reasons`);
+      throw new BadRequestException(
+        `File type "${file.mimetype}" is not allowed for security reasons`,
+      );
     }
 
     const maxSize = this.options.maxSize || 50 * 1024 * 1024;
     if (file.size > maxSize) {
-      throw new BadRequestException(`File size exceeds maximum of ${Math.round(maxSize / 1024 / 1024)}MB`);
+      throw new BadRequestException(
+        `File size exceeds maximum of ${Math.round(maxSize / 1024 / 1024)}MB`,
+      );
     }
 
     if (this.options.allowedCategories?.length) {
       const isAllowed = this.options.allowedCategories.some((cat) => {
         const prefixes = ALLOWED_MIME_PREFIXES[cat] || [];
-        return prefixes.some((mime) => file.mimetype === mime || file.mimetype.startsWith(mime.split('/')[0]));
+        return prefixes.some(
+          (mime) =>
+            file.mimetype === mime ||
+            file.mimetype.startsWith(mime.split('/')[0]),
+        );
       });
       if (!isAllowed) {
-        throw new BadRequestException(`File type "${file.mimetype}" is not allowed for this category`);
+        throw new BadRequestException(
+          `File type "${file.mimetype}" is not allowed for this category`,
+        );
       }
     }
 
@@ -80,16 +104,22 @@ export class MultiFileValidationPipe implements PipeTransform {
 
     const maxFiles = this.options.maxFiles || 10;
     if (files.length > maxFiles) {
-      throw new BadRequestException(`Maximum ${maxFiles} files allowed per upload`);
+      throw new BadRequestException(
+        `Maximum ${maxFiles} files allowed per upload`,
+      );
     }
 
     const maxSize = this.options.maxSize || 50 * 1024 * 1024;
     for (const file of files) {
       if (BLOCKED_MIME_TYPES.includes(file.mimetype)) {
-        throw new BadRequestException(`File type "${file.mimetype}" is not allowed for security reasons`);
+        throw new BadRequestException(
+          `File type "${file.mimetype}" is not allowed for security reasons`,
+        );
       }
       if (file.size > maxSize) {
-        throw new BadRequestException(`File "${file.originalname}" exceeds maximum size of ${Math.round(maxSize / 1024 / 1024)}MB`);
+        throw new BadRequestException(
+          `File "${file.originalname}" exceeds maximum size of ${Math.round(maxSize / 1024 / 1024)}MB`,
+        );
       }
     }
 
@@ -99,7 +129,9 @@ export class MultiFileValidationPipe implements PipeTransform {
 
 export function getFileCategory(mimetype: string): string {
   for (const [category, mimes] of Object.entries(ALLOWED_MIME_PREFIXES)) {
-    if (mimes.some((m) => mimetype === m || mimetype.startsWith(m.split('/')[0]))) {
+    if (
+      mimes.some((m) => mimetype === m || mimetype.startsWith(m.split('/')[0]))
+    ) {
       return category;
     }
   }

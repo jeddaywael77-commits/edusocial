@@ -32,14 +32,27 @@ let CoursesService = CoursesService_1 = class CoursesService {
             include: { teacher: { select: { id: true, name: true, avatar: true } } },
         });
     }
-    async findAll() {
-        return this.prisma.course.findMany({
-            include: {
-                teacher: { select: { id: true, name: true, avatar: true } },
-                _count: { select: { lessons: true, assignments: true, enrollments: true } },
-            },
-            orderBy: { createdAt: 'desc' },
-        });
+    async findAll(page = 1, limit = 20) {
+        const skip = (page - 1) * limit;
+        const take = Math.min(limit, 50);
+        const [courses, total] = await Promise.all([
+            this.prisma.course.findMany({
+                include: {
+                    teacher: { select: { id: true, name: true, avatar: true } },
+                    _count: {
+                        select: { lessons: true, assignments: true, enrollments: true },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take,
+            }),
+            this.prisma.course.count(),
+        ]);
+        return {
+            data: courses,
+            meta: { total, page, limit: take, totalPages: Math.ceil(total / take) },
+        };
     }
     async findById(id) {
         return this.prisma.course.findUnique({
@@ -55,13 +68,13 @@ let CoursesService = CoursesService_1 = class CoursesService {
     async update(id, userId, data) {
         const course = await this.prisma.course.findUnique({ where: { id } });
         if (!course || course.teacherId !== userId)
-            throw new Error('Not authorized');
+            throw new common_1.ForbiddenException('Not authorized');
         return this.prisma.course.update({ where: { id }, data });
     }
     async delete(id, userId) {
         const course = await this.prisma.course.findUnique({ where: { id } });
         if (!course || course.teacherId !== userId)
-            throw new Error('Not authorized');
+            throw new common_1.ForbiddenException('Not authorized');
         return this.prisma.course.delete({ where: { id } });
     }
     async enroll(courseId, userId) {
@@ -69,11 +82,23 @@ let CoursesService = CoursesService_1 = class CoursesService {
             data: { courseId, userId },
         });
     }
-    async getEnrollments(courseId) {
-        return this.prisma.enrollment.findMany({
-            where: { courseId },
-            include: { user: { select: { id: true, name: true, avatar: true } } },
-        });
+    async getEnrollments(courseId, page = 1, limit = 50) {
+        const skip = (page - 1) * limit;
+        const take = Math.min(limit, 100);
+        const [enrollments, total] = await Promise.all([
+            this.prisma.enrollment.findMany({
+                where: { courseId },
+                include: { user: { select: { id: true, name: true, avatar: true } } },
+                skip,
+                take,
+                orderBy: { enrolledAt: 'desc' },
+            }),
+            this.prisma.enrollment.count({ where: { courseId } }),
+        ]);
+        return {
+            data: enrollments,
+            meta: { total, page, limit: take, totalPages: Math.ceil(total / take) },
+        };
     }
 };
 exports.CoursesService = CoursesService;

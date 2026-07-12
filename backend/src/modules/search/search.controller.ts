@@ -1,11 +1,23 @@
-import { Controller, Get, Query, Post, Param, Body, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Query,
+  Post,
+  Param,
+  Body,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { UserRole } from '../../common/enums';
 import { SearchService } from './search.service';
-import { GlobalSearchDto, AutocompleteDto, IndexEntityDto } from './dto/search.dto';
+import {
+  GlobalSearchDto,
+  AutocompleteDto,
+  IndexEntityDto,
+} from './dto/search.dto';
 import { SearchProcessor } from './processors/search.processor';
 
 @ApiTags('Search')
@@ -22,7 +34,7 @@ export class SearchController {
   @ApiOperation({ summary: 'Global search across all entity types' })
   async globalSearch(@Query() query: GlobalSearchDto) {
     return this.searchService.search(query.q || '', {
-      indexes: query.indexes as any,
+      indexes: query.indexes,
       limit: query.limit,
       offset: query.offset,
       filters: query.filters,
@@ -53,7 +65,9 @@ export class SearchController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Trigger re-indexing for an entity type (admin only)' })
+  @ApiOperation({
+    summary: 'Trigger re-indexing for an entity type (admin only)',
+  })
   async reindex(@Param('entityType') entityType: string) {
     await this.searchProcessor.indexEntityType(entityType as any);
     return { message: `Re-indexing triggered for ${entityType}` };

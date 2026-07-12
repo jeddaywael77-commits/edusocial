@@ -97,7 +97,14 @@ let AuthService = AuthService_1 = class AuthService {
     async login(dto) {
         const user = await this.prisma.user.findUnique({
             where: { email: dto.email },
-            select: { id: true, email: true, password: true, role: true, name: true, isActive: true },
+            select: {
+                id: true,
+                email: true,
+                password: true,
+                role: true,
+                name: true,
+                isActive: true,
+            },
         });
         if (!user || !user.isActive) {
             throw new common_1.UnauthorizedException('Invalid credentials');
@@ -116,13 +123,27 @@ let AuthService = AuthService_1 = class AuthService {
         this.logger.log(`User logged in: ${user.email}`);
         return { user: userWithoutPassword, tokens };
     }
-    async refreshTokens(userId) {
+    async refreshTokens(userId, refreshToken) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            select: { id: true, email: true, role: true, refreshToken: true, isActive: true },
+            select: {
+                id: true,
+                email: true,
+                role: true,
+                refreshToken: true,
+                isActive: true,
+            },
         });
         if (!user || !user.isActive || !user.refreshToken) {
             throw new common_1.UnauthorizedException('Access denied');
+        }
+        const rtMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+        if (!rtMatches) {
+            await this.prisma.user.update({
+                where: { id: userId },
+                data: { refreshToken: null },
+            });
+            throw new common_1.UnauthorizedException('Refresh token reused or invalid');
         }
         const tokens = await this.generateTokens(user.id, user.email, user.role);
         await this.updateRefreshToken(user.id, tokens.refreshToken);
@@ -174,11 +195,11 @@ let AuthService = AuthService_1 = class AuthService {
         const payload = { sub: userId, email, role };
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
-                secret: this.configService.get('jwt.secret') || 'fallback',
+                secret: this.configService.get('jwt.secret'),
                 expiresIn: this.configService.get('jwt.expiration', '15m'),
             }),
             this.jwtService.signAsync(payload, {
-                secret: this.configService.get('jwt.refreshSecret') || 'fallback-refresh',
+                secret: this.configService.get('jwt.refreshSecret'),
                 expiresIn: this.configService.get('jwt.refreshExpiration', '7d'),
             }),
         ]);

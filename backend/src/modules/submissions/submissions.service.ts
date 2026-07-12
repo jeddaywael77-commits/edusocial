@@ -6,7 +6,10 @@ export class SubmissionsService {
   private readonly logger = new Logger(SubmissionsService.name);
   constructor(private prisma: PrismaService) {}
 
-  async create(studentId: string, data: { assignmentId: string; content?: string; fileUrl?: string }) {
+  async create(
+    studentId: string,
+    data: { assignmentId: string; content?: string; fileUrl?: string },
+  ) {
     return this.prisma.submission.create({
       data: {
         assignmentId: data.assignmentId,
@@ -50,12 +53,24 @@ export class SubmissionsService {
     });
   }
 
-  async grade(id: string, userId: string, data: { score: number; feedback?: string }) {
-    const submission = await this.prisma.submission.findUnique({ where: { id }, include: { assignment: true } });
+  async grade(
+    id: string,
+    userId: string,
+    data: { score: number; feedback?: string },
+  ) {
+    const submission = await this.prisma.submission.findUnique({
+      where: { id },
+      include: { assignment: true },
+    });
     if (!submission) throw new Error('Submission not found');
     return this.prisma.submission.update({
       where: { id },
-      data: { score: data.score, feedback: data.feedback, status: 'GRADED', gradedAt: new Date() },
+      data: {
+        score: data.score,
+        feedback: data.feedback,
+        status: 'GRADED',
+        gradedAt: new Date(),
+      },
     });
   }
 }

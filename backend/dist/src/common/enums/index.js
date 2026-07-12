@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CalendarEventType = exports.NotificationType = exports.SubmissionStatus = exports.CourseLevel = exports.GroupType = exports.FriendRequestStatus = exports.ReactionType = exports.PostStatus = exports.PostVisibility = exports.PostType = exports.UserRole = void 0;
+exports.MediaCategory = exports.MediaStatus = exports.CalendarEventType = exports.NotificationType = exports.SubmissionStatus = exports.CourseLevel = exports.GroupType = exports.FriendRequestStatus = exports.ReactionType = exports.PostStatus = exports.PostVisibility = exports.PostType = exports.UserRole = void 0;
 var UserRole;
 (function (UserRole) {
     UserRole["STUDENT"] = "STUDENT";
@@ -87,4 +87,30 @@ var CalendarEventType;
     CalendarEventType["EVENT"] = "EVENT";
     CalendarEventType["LIVE_CLASS"] = "LIVE_CLASS";
 })(CalendarEventType || (exports.CalendarEventType = CalendarEventType = {}));
+var MediaStatus;
+(function (MediaStatus) {
+    MediaStatus["UPLOADING"] = "UPLOADING";
+    MediaStatus["PROCESSING"] = "PROCESSING";
+    MediaStatus["READY"] = "READY";
+    MediaStatus["FAILED"] = "FAILED";
+})(MediaStatus || (exports.MediaStatus = MediaStatus = {}));
+var MediaCategory;
+(function (MediaCategory) {
+    MediaCategory["AVATAR"] = "AVATAR";
+    MediaCategory["COVER_PHOTO"] = "COVER_PHOTO";
+    MediaCategory["STORY_IMAGE"] = "STORY_IMAGE";
+    MediaCategory["STORY_VIDEO"] = "STORY_VIDEO";
+    MediaCategory["POST_IMAGE"] = "POST_IMAGE";
+    MediaCategory["POST_VIDEO"] = "POST_VIDEO";
+    MediaCategory["POST_PDF"] = "POST_PDF";
+    MediaCategory["POST_DOCUMENT"] = "POST_DOCUMENT";
+    MediaCategory["ASSIGNMENT_FILE"] = "ASSIGNMENT_FILE";
+    MediaCategory["HOMEWORK_FILE"] = "HOMEWORK_FILE";
+    MediaCategory["COURSE_MATERIAL"] = "COURSE_MATERIAL";
+    MediaCategory["COURSE_THUMBNAIL"] = "COURSE_THUMBNAIL";
+    MediaCategory["MARKETPLACE_IMAGE"] = "MARKETPLACE_IMAGE";
+    MediaCategory["AI_GENERATED"] = "AI_GENERATED";
+    MediaCategory["MESSAGE_ATTACHMENT"] = "MESSAGE_ATTACHMENT";
+    MediaCategory["CHAT_FILE"] = "CHAT_FILE";
+})(MediaCategory || (exports.MediaCategory = MediaCategory = {}));
 //# sourceMappingURL=index.js.map

@@ -13,55 +13,63 @@ declare class SendMessageDto {
 export declare class ChatController {
     private readonly chatService;
     constructor(chatService: ChatService);
-    getConversations(userId: string): Promise<({
-        participants: ({
-            user: {
-                name: string;
+    getConversations(userId: string): Promise<{
+        data: ({
+            participants: ({
+                user: {
+                    id: string;
+                    name: string;
+                    avatar: string | null;
+                    isOnline: boolean;
+                };
+            } & {
                 id: string;
-                avatar: string | null;
-                isOnline: boolean;
-            };
+                userId: string;
+                conversationId: string;
+                joinedAt: Date;
+            })[];
+            messages: {
+                id: string;
+                createdAt: Date;
+                type: string;
+                content: string;
+                fileUrl: string | null;
+                senderId: string;
+                conversationId: string;
+                fileName: string | null;
+                isRead: boolean;
+            }[];
         } & {
             id: string;
-            userId: string;
-            joinedAt: Date;
-            conversationId: string;
-        })[];
-        messages: {
-            type: string;
-            id: string;
+            name: string | null;
+            avatar: string | null;
             createdAt: Date;
-            content: string;
-            senderId: string;
-            fileUrl: string | null;
-            fileName: string | null;
-            conversationId: string;
-            isRead: boolean;
-        }[];
-    } & {
-        name: string | null;
-        id: string;
-        avatar: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        isGroup: boolean;
-    })[]>;
+            updatedAt: Date;
+            isGroup: boolean;
+        })[];
+        meta: {
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number;
+        };
+    }>;
     createConversation(userId: string, dto: CreateConversationDto): Promise<{
         participants: ({
             user: {
-                name: string;
                 id: string;
+                name: string;
                 avatar: string | null;
             };
         } & {
             id: string;
             userId: string;
-            joinedAt: Date;
             conversationId: string;
+            joinedAt: Date;
         })[];
     } & {
-        name: string | null;
         id: string;
+        name: string | null;
         avatar: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -69,36 +77,36 @@ export declare class ChatController {
     }>;
     getMessages(id: string, page?: number, limit?: number): Promise<({
         sender: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        type: string;
         id: string;
         createdAt: Date;
+        type: string;
         content: string;
-        senderId: string;
         fileUrl: string | null;
-        fileName: string | null;
+        senderId: string;
         conversationId: string;
+        fileName: string | null;
         isRead: boolean;
     })[]>;
     sendMessage(userId: string, conversationId: string, dto: SendMessageDto): Promise<{
         sender: {
-            name: string;
             id: string;
+            name: string;
             avatar: string | null;
         };
     } & {
-        type: string;
         id: string;
         createdAt: Date;
+        type: string;
         content: string;
-        senderId: string;
         fileUrl: string | null;
-        fileName: string | null;
+        senderId: string;
         conversationId: string;
+        fileName: string | null;
         isRead: boolean;
     }>;
     markAsRead(conversationId: string, userId: string): Promise<import("@prisma/client").Prisma.BatchPayload>;
