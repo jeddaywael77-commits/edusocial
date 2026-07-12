@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/widgets/layout/header";
 import { Sidebar } from "@/widgets/layout/sidebar";
 import { RightSidebar } from "@/widgets/layout/right-sidebar";
 import { MobileNav } from "@/widgets/layout/mobile-nav";
-import { useAuthStore } from "@/stores/auth-store";
+import { useProfile } from "@/features/auth";
 
 export default function MainLayout({
   children,
@@ -14,18 +14,9 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated, isLoading, user } = useAuthStore();
+  const { data: user, isLoading } = useProfile();
 
-  useEffect(() => {
-    // Auto-login with mock data for demo
-    if (!isAuthenticated && !isLoading) {
-      useAuthStore.getState().login("ahmed@example.com", "password").then(() => {
-        // Login successful
-      });
-    }
-  }, [isAuthenticated, isLoading]);
-
-  if (isLoading && !isAuthenticated) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -36,6 +27,11 @@ export default function MainLayout({
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    router.push("/login");
+    return null;
   }
 
   return (

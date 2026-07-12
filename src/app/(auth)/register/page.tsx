@@ -7,16 +7,16 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, GraduationCap } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { useAuthStore } from "@/stores/auth-store";
+import { useRegister } from "@/features/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, isLoading } = useAuthStore();
+  const register = useRegister();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("student");
+  const [role, setRole] = useState("STUDENT");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
@@ -35,7 +35,7 @@ export default function RegisterPage() {
     }
 
     try {
-      await register({ name, email, password, role });
+      await register.mutateAsync({ name, email, password, role });
       router.push("/feed");
     } catch {
       setError("Registration failed. Please try again.");
@@ -105,26 +105,26 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setRole("student")}
+                  onClick={() => setRole("STUDENT")}
                   className={`p-3 rounded-xl border transition-all ${
-                    role === "student"
+                    role === "STUDENT"
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-border/80 text-muted-foreground"
                   }`}
                 >
-                  <span className="text-2xl">🎓</span>
+                  <span className="text-2xl">{"\u{1F393}"}</span>
                   <p className="text-sm font-medium mt-1">Student</p>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole("teacher")}
+                  onClick={() => setRole("TEACHER")}
                   className={`p-3 rounded-xl border transition-all ${
-                    role === "teacher"
+                    role === "TEACHER"
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-border/80 text-muted-foreground"
                   }`}
                 >
-                  <span className="text-2xl">👨‍🏫</span>
+                  <span className="text-2xl">{"\u{1F468}\u200D\u{1F3EB}"}</span>
                   <p className="text-sm font-medium mt-1">Teacher</p>
                 </button>
               </div>
@@ -177,8 +177,8 @@ export default function RegisterPage() {
               </motion.p>
             )}
 
-            <Button type="submit" className="w-full h-11" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" className="w-full h-11" disabled={register.isPending}>
+              {register.isPending ? (
                 <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>

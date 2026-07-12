@@ -4,14 +4,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Sparkles, GraduationCap } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, GraduationCap } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { useAuthStore } from "@/stores/auth-store";
+import { useLogin } from "@/features/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, isLoading } = useAuthStore();
+  const login = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +21,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     try {
-      await login(email, password);
+      await login.mutateAsync({ email, password });
       router.push("/feed");
     } catch {
       setError("Invalid email or password");
@@ -114,8 +114,8 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <Button type="submit" className="w-full h-11" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" className="w-full h-11" disabled={login.isPending}>
+              {login.isPending ? (
                 <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
