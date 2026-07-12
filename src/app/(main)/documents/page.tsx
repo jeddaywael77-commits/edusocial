@@ -21,16 +21,16 @@ import {
   FileCode,
   MoreVertical,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Badge } from "@/shared/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/shared/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 
 const mockDocuments = [
   { id: "d1", name: "Calculus III - Lecture Notes.pdf", type: "pdf", size: "2.4 MB", tags: ["math", "calculus"], uploadedAt: "2024-03-10", version: 3 },

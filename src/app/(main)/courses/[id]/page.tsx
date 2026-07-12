@@ -19,12 +19,12 @@ import {
   Lock,
   Award,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { PostCard } from "@/components/feed/post-card";
+import { Button } from "@/shared/ui/button";
+import { Badge } from "@/shared/ui/badge";
+import { Progress } from "@/shared/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Card } from "@/shared/ui/card";
+import { PostCard } from "@/widgets/feed/post-card";
 import { mockCourses, mockPosts } from "@/lib/mock-data";
 import { formatNumber } from "@/lib/utils";
 

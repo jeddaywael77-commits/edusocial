@@ -2,10 +2,10 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/layout/header";
-import { Sidebar } from "@/components/layout/sidebar";
-import { RightSidebar } from "@/components/layout/right-sidebar";
-import { MobileNav } from "@/components/layout/mobile-nav";
+import { Header } from "@/widgets/layout/header";
+import { Sidebar } from "@/widgets/layout/sidebar";
+import { RightSidebar } from "@/widgets/layout/right-sidebar";
+import { MobileNav } from "@/widgets/layout/mobile-nav";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function MainLayout({

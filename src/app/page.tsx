@@ -17,7 +17,7 @@ import {
   Shield,
   Globe,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 
 const features = [
   { icon: Users, title: "Social Learning", description: "Connect with classmates and teachers through a Facebook-like feed", color: "text-primary" },

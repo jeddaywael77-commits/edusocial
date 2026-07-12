@@ -17,8 +17,8 @@ import {
   GraduationCap,
   Calendar,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/shared/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { useNotificationStore } from "@/stores/notification-store";
 import { mockNotifications } from "@/lib/mock-data";
 import { formatDate, getInitials } from "@/lib/utils";

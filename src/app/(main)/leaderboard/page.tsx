@@ -3,9 +3,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Trophy, Medal, Crown, TrendingUp, Star, Flame, Target, Award } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { mockLeaderboard, mockUsers } from "@/lib/mock-data";
 import { formatNumber, getInitials } from "@/lib/utils";
 

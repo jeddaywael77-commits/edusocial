@@ -20,11 +20,11 @@ import {
   Lock,
   Smartphone,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Switch } from "@/shared/ui/switch";
 import { useAuthStore } from "@/stores/auth-store";
 import { getInitials } from "@/lib/utils";
 

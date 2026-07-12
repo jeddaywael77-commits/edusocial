@@ -18,9 +18,9 @@ import {
   ArrowLeft,
   MessageSquare,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { useAuthStore } from "@/stores/auth-store";
 import { mockConversations, mockUsers } from "@/lib/mock-data";
 import { formatDate, getInitials } from "@/lib/utils";

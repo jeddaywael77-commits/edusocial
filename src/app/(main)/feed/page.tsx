@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { CreatePost } from "@/components/feed/create-post";
-import { Stories } from "@/components/feed/stories";
-import { FeedList } from "@/components/feed/feed-list";
-import { QuickActions } from "@/components/feed/quick-actions";
+import { CreatePost } from "@/widgets/feed/create-post";
+import { Stories } from "@/widgets/feed/stories";
+import { FeedList } from "@/widgets/feed/feed-list";
+import { QuickActions } from "@/widgets/feed/quick-actions";
 
 export default function FeedPage() {
   return (

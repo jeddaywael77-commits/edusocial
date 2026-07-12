@@ -3,8 +3,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Award, Trophy, Star, Flame, Target, Zap, BookOpen, Users, Code, Brain, GraduationCap, Medal } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Badge as BadgeComponent } from "@/components/ui/badge";
+import { Card } from "@/shared/ui/card";
+import { Badge as BadgeComponent } from "@/shared/ui/badge";
 import { useAuthStore } from "@/stores/auth-store";
 
 const allBadges = [

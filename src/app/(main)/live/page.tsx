@@ -3,9 +3,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Video, Users, Clock, Calendar, Play, Radio, MonitorPlay } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/shared/ui/button";
+import { Badge } from "@/shared/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { mockUsers } from "@/lib/mock-data";
 import { getInitials } from "@/lib/utils";
 

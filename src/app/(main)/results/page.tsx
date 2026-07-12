@@ -3,10 +3,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { BarChart3, TrendingUp, Award, BookOpen, Clock, Target, CheckCircle2, XCircle } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/shared/ui/card";
+import { Badge } from "@/shared/ui/badge";
+import { Progress } from "@/shared/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { useAuthStore } from "@/stores/auth-store";
 
 const mockResults = [

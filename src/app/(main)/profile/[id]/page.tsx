@@ -20,13 +20,13 @@ import {
   Medal,
   Link as LinkIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { PostCard } from "@/components/feed/post-card";
-import { CreatePost } from "@/components/feed/create-post";
+import { Button } from "@/shared/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { Card } from "@/shared/ui/card";
+import { PostCard } from "@/widgets/feed/post-card";
+import { CreatePost } from "@/widgets/feed/create-post";
 import { useAuthStore } from "@/stores/auth-store";
 import { mockUsers, mockPosts } from "@/lib/mock-data";
 import { formatNumber, formatDate, getInitials } from "@/lib/utils";

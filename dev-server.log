@@ -1596,3 +1596,14 @@ https://nextjs.org/docs/messages/module-not-found
     at <unknown> (https://nextjs.org/docs/messages/module-not-found)
 ✓ Compiled in 116ms
  GET / 200 in 193ms (next.js: 60ms, application-code: 133ms)
+✓ Compiled in 119ms
+ GET / 200 in 134ms (next.js: 74ms, application-code: 60ms)
+ GET / 200 in 30ms (next.js: 5ms, application-code: 25ms)
+ GET / 200 in 107ms (next.js: 59ms, application-code: 48ms)
+ GET / 200 in 20ms (next.js: 4ms, application-code: 16ms)
+ GET / 200 in 106ms (next.js: 57ms, application-code: 48ms)
+ GET / 200 in 20ms (next.js: 4ms, application-code: 16ms)
+ GET / 200 in 124ms (next.js: 62ms, application-code: 62ms)
+ GET / 200 in 32ms (next.js: 5ms, application-code: 27ms)
+ GET / 200 in 104ms (next.js: 59ms, application-code: 45ms)
+ GET / 200 in 20ms (next.js: 4ms, application-code: 16ms)

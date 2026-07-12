@@ -16,12 +16,12 @@ import {
   Image,
   Hash,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PostCard } from "@/components/feed/post-card";
-import { CreatePost } from "@/components/feed/create-post";
+import { Button } from "@/shared/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { PostCard } from "@/widgets/feed/post-card";
+import { CreatePost } from "@/widgets/feed/create-post";
 import { mockGroups, mockPosts, mockUsers } from "@/lib/mock-data";
 import { formatNumber, getInitials } from "@/lib/utils";
 

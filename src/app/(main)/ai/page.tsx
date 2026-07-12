@@ -22,10 +22,10 @@ import {
   PenTool,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
+import { Card } from "@/shared/ui/card";
 import { useAuthStore } from "@/stores/auth-store";
 import { getInitials } from "@/lib/utils";
 
