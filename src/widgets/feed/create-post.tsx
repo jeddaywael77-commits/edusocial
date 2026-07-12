@@ -1,24 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Image,
-  FileText,
-  Video,
-  PenLine,
-  Sparkles,
-  X,
-  Upload,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Image, FileText, Video, PenLine, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Textarea } from "@/shared/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
-import { useAuthStore } from "@/stores/auth-store";
-import { useFeedStore } from "@/stores/feed-store";
-import { getInitials, generateId } from "@/lib/utils";
-import { Post } from "@/types";
+import { useProfile } from "@/features/auth";
+import { useCreatePost } from "@/features/posts";
+import { getInitials } from "@/shared/lib/utils";
 
 const postTypes = [
   { label: "Ask Question", icon: PenLine, color: "text-primary" },
@@ -29,33 +20,24 @@ const postTypes = [
 ];
 
 export function CreatePost() {
-  const { user } = useAuthStore();
-  const { addPost } = useFeedStore();
+  const { data: user } = useProfile();
+  const createPost = useCreatePost();
   const [isExpanded, setIsExpanded] = useState(false);
   const [content, setContent] = useState("");
   const [selectedType, setSelectedType] = useState<string>("text");
 
   const handlePost = () => {
-    if (!content.trim() || !user) return;
+    if (!content.trim()) return;
 
-    const newPost: Post = {
-      id: generateId(),
-      author: user,
-      content: content.trim(),
-      images: [],
-      type: "text",
-      likes: 0,
-      comments: [],
-      commentsCount: 0,
-      shares: 0,
-      isLiked: false,
-      isSaved: false,
-      createdAt: new Date().toISOString(),
-    };
-
-    addPost(newPost);
-    setContent("");
-    setIsExpanded(false);
+    createPost.mutate(
+      { content: content.trim() },
+      {
+        onSuccess: () => {
+          setContent("");
+          setIsExpanded(false);
+        },
+      }
+    );
   };
 
   return (
@@ -63,7 +45,7 @@ export function CreatePost() {
       <div className="rounded-2xl border border-border bg-card p-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-10 w-10 shrink-0">
-            <AvatarImage src={user?.avatar} />
+            <AvatarImage src={user?.avatar ?? undefined} />
             <AvatarFallback className="bg-primary/20 text-primary text-sm">
               {getInitials(user?.name || "U")}
             </AvatarFallback>
@@ -96,21 +78,19 @@ export function CreatePost() {
       <Dialog open={isExpanded} onOpenChange={setIsExpanded}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              Create Post
-            </DialogTitle>
+            <DialogTitle>Create Post</DialogTitle>
           </DialogHeader>
 
           <div className="flex items-center gap-3 mb-4">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={user?.avatar} />
+              <AvatarImage src={user?.avatar ?? undefined} />
               <AvatarFallback className="bg-primary/20 text-primary">
                 {getInitials(user?.name || "U")}
               </AvatarFallback>
             </Avatar>
             <div>
               <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+              <p className="text-xs text-muted-foreground capitalize">{user?.role?.toLowerCase()}</p>
             </div>
           </div>
 
@@ -139,10 +119,10 @@ export function CreatePost() {
 
           <Button
             onClick={handlePost}
-            disabled={!content.trim()}
+            disabled={!content.trim() || createPost.isPending}
             className="w-full"
           >
-            Post
+            {createPost.isPending ? "Posting..." : "Post"}
           </Button>
         </DialogContent>
       </Dialog>

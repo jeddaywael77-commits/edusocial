@@ -91,7 +91,7 @@ export default function GroupDetailPage() {
             <TabsContent value="posts" className="mt-4 space-y-4">
               {isJoined && <CreatePost />}
               {mockPosts.slice(0, 2).map((post) => (
-                <PostCard key={post.id} post={post} />
+                <PostCard key={post.id} post={post as unknown as import("@/shared/types").Post} />
               ))}
             </TabsContent>
 

@@ -178,7 +178,7 @@ export default function CourseDetailPage() {
 
         <TabsContent value="discussions" className="mt-4 space-y-4">
           {mockPosts.slice(0, 2).map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post as unknown as import("@/shared/types").Post} />
           ))}
         </TabsContent>
 

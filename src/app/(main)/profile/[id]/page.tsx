@@ -196,7 +196,7 @@ export default function ProfilePage() {
             <TabsContent value="posts" className="mt-4 space-y-4">
               {isOwnProfile && <CreatePost />}
               {mockPosts.slice(0, 3).map((post) => (
-                <PostCard key={post.id} post={{ ...post, author: profileUser }} />
+                <PostCard key={post.id} post={{ ...post, author: profileUser } as unknown as import("@/shared/types").Post} />
               ))}
             </TabsContent>
 

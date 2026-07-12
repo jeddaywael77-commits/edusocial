@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
-import { Textarea } from "@/shared/ui/textarea";
 import { Badge } from "@/shared/ui/badge";
 import {
   DropdownMenu,
@@ -26,48 +25,58 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { useFeedStore } from "@/stores/feed-store";
-import { useAuthStore } from "@/stores/auth-store";
-import { formatDate, formatNumber, getInitials } from "@/lib/utils";
-import { Post } from "@/types";
+import { useProfile } from "@/features/auth";
+import { useToggleReaction } from "@/features/reactions";
+import { useSavePost } from "@/features/posts";
+import { useCreateComment, useComments } from "@/features/comments";
+import { formatDate, formatNumber, getInitials } from "@/shared/lib/utils";
+import type { Post } from "@/shared/types";
 
 interface PostCardProps {
   post: Post;
 }
 
 export function PostCard({ post }: PostCardProps) {
-  const { toggleLike, toggleSave, addComment } = useFeedStore();
-  const { user } = useAuthStore();
+  const { data: currentUser } = useProfile();
+  const toggleReaction = useToggleReaction("POST", post.id);
+  const savePost = useSavePost();
+  const createComment = useCreateComment(post.id);
+  const { data: commentsData } = useComments(post.id, 3);
+  const comments = commentsData?.pages?.flatMap((p) => p.data) ?? [];
+
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const hasReacted = post.reactions && post.reactions.length > 0;
+  const isSaved = post.saves && post.saves.length > 0;
+  const reactionCount = post._count?.reactions ?? 0;
+  const commentCount = post._count?.comments ?? 0;
+  const shareCount = post._count?.shares ?? 0;
+
   const handleLike = () => {
-    toggleLike(post.id);
+    toggleReaction.mutate("LIKE" as never);
   };
 
   const handleSave = () => {
-    toggleSave(post.id);
+    savePost.mutate(post.id);
   };
 
   const handleComment = () => {
-    if (!commentText.trim() || !user) return;
-    addComment(post.id, {
-      id: Date.now().toString(),
-      author: user,
-      content: commentText.trim(),
-      likes: 0,
-      isLiked: false,
-      replies: [],
-      createdAt: new Date().toISOString(),
-    });
-    setCommentText("");
+    if (!commentText.trim()) return;
+    createComment.mutate(
+      { content: commentText.trim() },
+      {
+        onSuccess: () => setCommentText(""),
+      }
+    );
   };
 
   const shouldTruncate = post.content.length > 300;
-  const displayContent = shouldTruncate && !isExpanded
-    ? post.content.slice(0, 300) + "..."
-    : post.content;
+  const displayContent =
+    shouldTruncate && !isExpanded
+      ? post.content.slice(0, 300) + "..."
+      : post.content;
 
   return (
     <motion.div
@@ -77,10 +86,13 @@ export function PostCard({ post }: PostCardProps) {
     >
       <div className="p-4 pb-0">
         <div className="flex items-start justify-between mb-3">
-          <Link href={`/profile/${post.author.id}`} className="flex items-center gap-3 group">
+          <Link
+            href={`/profile/${post.author.id}`}
+            className="flex items-center gap-3 group"
+          >
             <div className="relative">
               <Avatar className="h-10 w-10">
-                <AvatarImage src={post.author.avatar} />
+                <AvatarImage src={post.author.avatar ?? undefined} />
                 <AvatarFallback className="bg-primary/20 text-primary text-sm">
                   {getInitials(post.author.name)}
                 </AvatarFallback>
@@ -94,8 +106,11 @@ export function PostCard({ post }: PostCardProps) {
                 <p className="text-sm font-semibold group-hover:text-primary transition-colors">
                   {post.author.name}
                 </p>
-                {post.author.role === "teacher" && (
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                {post.author.role === "TEACHER" && (
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] px-1.5 py-0"
+                  >
                     Teacher
                   </Badge>
                 )}
@@ -121,27 +136,19 @@ export function PostCard({ post }: PostCardProps) {
           </DropdownMenu>
         </div>
 
-        {post.type === "assignment" && post.assignment && (
+        {post.type === "ASSIGNMENT" && (
           <div className="mb-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <FileText className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">{post.assignment.title}</span>
-            </div>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                Due: {post.assignment.dueDate}
-              </div>
-              <div className="flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Max: {post.assignment.maxScore} pts
-              </div>
+              <span className="text-sm font-medium">Assignment</span>
             </div>
           </div>
         )}
 
         <div className="mb-3">
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">{displayContent}</p>
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">
+            {displayContent}
+          </p>
           {shouldTruncate && !isExpanded && (
             <button
               onClick={() => setIsExpanded(true)}
@@ -153,30 +160,28 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       </div>
 
-      {(post.likes > 0 || post.commentsCount > 0 || post.shares > 0) && (
+      {(reactionCount > 0 || commentCount > 0 || shareCount > 0) && (
         <div className="px-4 py-2 flex items-center justify-between text-xs text-muted-foreground border-t border-border">
           <div className="flex items-center gap-1">
-            {post.likes > 0 && (
+            {reactionCount > 0 && (
               <>
                 <div className="h-4 w-4 rounded-full bg-primary flex items-center justify-center">
                   <ThumbsUp className="h-2.5 w-2.5 text-white" />
                 </div>
-                <span>{formatNumber(post.likes)}</span>
+                <span>{formatNumber(reactionCount)}</span>
               </>
             )}
           </div>
           <div className="flex items-center gap-3">
-            {post.commentsCount > 0 && (
+            {commentCount > 0 && (
               <button
                 onClick={() => setShowComments(!showComments)}
                 className="hover:underline cursor-pointer"
               >
-                {post.commentsCount} comments
+                {commentCount} comments
               </button>
             )}
-            {post.shares > 0 && (
-              <span>{post.shares} shares</span>
-            )}
+            {shareCount > 0 && <span>{shareCount} shares</span>}
           </div>
         </div>
       )}
@@ -184,14 +189,17 @@ export function PostCard({ post }: PostCardProps) {
       <div className="px-4 py-1 flex items-center border-t border-border">
         <Button
           variant="ghost"
-          className={`flex-1 gap-2 ${post.isLiked ? "text-primary" : ""}`}
+          className={`flex-1 gap-2 ${hasReacted ? "text-primary" : ""}`}
           onClick={handleLike}
+          disabled={toggleReaction.isPending}
         >
           <motion.div
-            animate={post.isLiked ? { scale: [1, 1.3, 1] } : { scale: 1 }}
+            animate={hasReacted ? { scale: [1, 1.3, 1] } : { scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <Heart className={`h-4 w-4 ${post.isLiked ? "fill-primary" : ""}`} />
+            <Heart
+              className={`h-4 w-4 ${hasReacted ? "fill-primary" : ""}`}
+            />
           </motion.div>
           Like
         </Button>
@@ -210,10 +218,13 @@ export function PostCard({ post }: PostCardProps) {
         <Button
           variant="ghost"
           size="icon"
-          className={post.isSaved ? "text-warning" : ""}
+          className={isSaved ? "text-warning" : ""}
           onClick={handleSave}
+          disabled={savePost.isPending}
         >
-          <Bookmark className={`h-4 w-4 ${post.isSaved ? "fill-warning" : ""}`} />
+          <Bookmark
+            className={`h-4 w-4 ${isSaved ? "fill-warning" : ""}`}
+          />
         </Button>
       </div>
 
@@ -226,17 +237,19 @@ export function PostCard({ post }: PostCardProps) {
             className="border-t border-border overflow-hidden"
           >
             <div className="p-4 space-y-3">
-              {post.comments.map((comment) => (
+              {comments.map((comment) => (
                 <div key={comment.id} className="flex gap-2">
                   <Avatar className="h-8 w-8 shrink-0">
-                    <AvatarImage src={comment.author.avatar} />
+                    <AvatarImage src={comment.author.avatar ?? undefined} />
                     <AvatarFallback className="text-xs bg-muted">
                       {getInitials(comment.author.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <div className="bg-muted rounded-xl px-3 py-2">
-                      <p className="text-xs font-medium">{comment.author.name}</p>
+                      <p className="text-xs font-medium">
+                        {comment.author.name}
+                      </p>
                       <p className="text-sm">{comment.content}</p>
                     </div>
                     <div className="flex items-center gap-3 mt-1 px-1">
@@ -256,9 +269,9 @@ export function PostCard({ post }: PostCardProps) {
 
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8 shrink-0">
-                  <AvatarImage src={user?.avatar} />
+                  <AvatarImage src={currentUser?.avatar ?? undefined} />
                   <AvatarFallback className="text-xs bg-primary/20 text-primary">
-                    {getInitials(user?.name || "U")}
+                    {getInitials(currentUser?.name || "U")}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 flex items-center gap-2">
@@ -272,7 +285,7 @@ export function PostCard({ post }: PostCardProps) {
                   <Button
                     size="icon-sm"
                     onClick={handleComment}
-                    disabled={!commentText.trim()}
+                    disabled={!commentText.trim() || createComment.isPending}
                     className="shrink-0"
                   >
                     <Send className="h-3.5 w-3.5" />
