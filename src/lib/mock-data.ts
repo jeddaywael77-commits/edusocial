@@ -1,3 +1,8 @@
+/**
+ * @deprecated This file contains mock data used for development only.
+ * Will be completely removed in Phase 5 when all pages use real API data.
+ * Do NOT add new mock data here.
+ */
 import { User, Post, Story, Conversation, Message, Group, Course, Notification, CalendarEvent, LeaderboardEntry, TrendingTopic } from "@/types";
 
 const currentUser: User = {

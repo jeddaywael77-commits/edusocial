@@ -1,3 +1,7 @@
+/**
+ * @deprecated This store will be replaced by React Query hooks in Phase 4.
+ * Keep until @/features/chat/ hooks are fully implemented and tested.
+ */
 import { create } from "zustand";
 import { Conversation, Message } from "@/types";
 

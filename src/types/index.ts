@@ -1,3 +1,8 @@
+/**
+ * @deprecated Use @/shared/types instead. These types use lowercase role strings
+ * and will be replaced by backend-aligned types in Phase 3.
+ * Keep until all pages migrate to @/shared/types.
+ */
 export type UserRole = "student" | "teacher" | "admin";
 
 export interface User {

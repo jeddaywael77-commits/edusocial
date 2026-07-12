@@ -1,3 +1,6 @@
+/**
+ * @deprecated Use @/shared/lib/utils instead. This file will be removed in Phase 8.
+ */
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
