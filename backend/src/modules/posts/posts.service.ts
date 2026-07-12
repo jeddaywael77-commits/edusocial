@@ -11,12 +11,17 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { QueryPostsDto } from './dto/query-posts.dto';
 import { PostVisibility, PostStatus } from '../../common/enums';
+import { SocketGateway } from '../socket/socket.gateway';
+import { SocketEvents } from '../socket/socket.events';
 
 @Injectable()
 export class PostsService {
   private readonly logger = new Logger(PostsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private socketGateway: SocketGateway,
+  ) {}
 
   async create(authorId: string, dto: CreatePostDto) {
     const data: Prisma.PostCreateInput = {
@@ -41,6 +46,13 @@ export class PostsService {
     });
 
     this.logger.log(`Post created: ${post.id} by ${authorId}`);
+
+    if (post.groupId) {
+      this.socketGateway.broadcastToRoom(`group:${post.groupId}`, SocketEvents.FEED_NEW_POST, post);
+    } else {
+      this.socketGateway.broadcastToAll(SocketEvents.FEED_NEW_POST, post);
+    }
+
     return post;
   }
 

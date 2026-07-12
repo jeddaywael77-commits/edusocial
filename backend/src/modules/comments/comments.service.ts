@@ -8,12 +8,17 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { SocketGateway } from '../socket/socket.gateway';
+import { SocketEvents } from '../socket/socket.events';
 
 @Injectable()
 export class CommentsService {
   private readonly logger = new Logger(CommentsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private socketGateway: SocketGateway,
+  ) {}
 
   async create(postId: string, authorId: string, dto: CreateCommentDto) {
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
@@ -51,6 +56,14 @@ export class CommentsService {
     });
 
     this.logger.log(`Comment created: ${comment.id} on post ${postId}`);
+
+    if (post.authorId !== authorId) {
+      this.socketGateway.broadcastToUser(post.authorId, SocketEvents.FEED_NEW_COMMENT, {
+        comment,
+        postId,
+      });
+    }
+
     return comment;
   }
 

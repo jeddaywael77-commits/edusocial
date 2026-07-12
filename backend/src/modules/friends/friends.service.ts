@@ -1,19 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
+import { SocketGateway } from '../socket/socket.gateway';
+import { SocketEvents } from '../socket/socket.events';
 
 @Injectable()
 export class FriendsService {
   private readonly logger = new Logger(FriendsService.name);
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private socketGateway: SocketGateway,
+  ) {}
 
   async sendRequest(senderId: string, receiverId: string) {
-    return this.prisma.friendRequest.create({
+    const request = await this.prisma.friendRequest.create({
       data: { senderId, receiverId },
       include: {
         sender: { select: { id: true, name: true, avatar: true } },
         receiver: { select: { id: true, name: true, avatar: true } },
       },
     });
+
+    this.socketGateway.broadcastToUser(receiverId, SocketEvents.FRIEND_REQUEST_SENT, request);
+
+    return request;
   }
 
   async getRequests(userId: string) {
@@ -38,6 +47,8 @@ export class FriendsService {
       data: { userId: request.senderId, friendId: request.receiverId },
     });
 
+    this.socketGateway.broadcastToUser(request.senderId, SocketEvents.FRIEND_REQUEST_ACCEPTED, { requestId, userId });
+
     return { success: true };
   }
 
@@ -45,10 +56,14 @@ export class FriendsService {
     const request = await this.prisma.friendRequest.findUnique({ where: { id: requestId } });
     if (!request || request.receiverId !== userId) throw new Error('Not authorized');
 
-    return this.prisma.friendRequest.update({
+    const updated = await this.prisma.friendRequest.update({
       where: { id: requestId },
       data: { status: 'DECLINED' },
     });
+
+    this.socketGateway.broadcastToUser(request.senderId, SocketEvents.FRIEND_REQUEST_DECLINED, { requestId });
+
+    return updated;
   }
 
   async getFriends(userId: string) {
@@ -63,7 +78,7 @@ export class FriendsService {
   }
 
   async removeFriend(userId: string, friendId: string) {
-    return this.prisma.friendship.deleteMany({
+    const result = await this.prisma.friendship.deleteMany({
       where: {
         OR: [
           { userId, friendId },
@@ -71,5 +86,9 @@ export class FriendsService {
         ],
       },
     });
+
+    this.socketGateway.broadcastToUser(friendId, SocketEvents.FRIEND_REMOVED, { userId });
+
+    return result;
   }
 }

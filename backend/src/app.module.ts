@@ -25,6 +25,7 @@ import { CalendarModule } from './modules/calendar/calendar.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { GamificationModule } from './modules/gamification/gamification.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
+import { SocketModule } from './modules/socket/socket.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
     MarketplaceModule,
     GamificationModule,
     LeaderboardModule,
+    SocketModule,
   ],
 })
 export class AppModule {}

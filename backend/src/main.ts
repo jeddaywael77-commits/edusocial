@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { SocketService } from './modules/socket/socket.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -86,6 +88,10 @@ async function bootstrap() {
       persistAuthorization: true,
     },
   });
+
+  // WebSocket adapter with Redis
+  const socketService = app.get(SocketService);
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   const port = configService.get<number>('app.port') || 3001;
   await app.listen(port);

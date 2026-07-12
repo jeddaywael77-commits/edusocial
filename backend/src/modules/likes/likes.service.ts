@@ -7,12 +7,17 @@ import {
 import { PrismaService } from '../../database/prisma.service';
 import { ToggleReactionDto } from './dto/toggle-reaction.dto';
 import { ReactionType } from '../../common/enums';
+import { SocketGateway } from '../socket/socket.gateway';
+import { SocketEvents } from '../socket/socket.events';
 
 @Injectable()
 export class LikesService {
   private readonly logger = new Logger(LikesService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private socketGateway: SocketGateway,
+  ) {}
 
   async toggle(userId: string, dto: ToggleReactionDto) {
     if (!dto.postId && !dto.commentId) {
@@ -63,6 +68,15 @@ export class LikesService {
       data: { userId, postId, type },
     });
     this.logger.log(`Reaction added: ${type} on post ${postId}`);
+
+    if (post.authorId !== userId) {
+      this.socketGateway.broadcastToUser(post.authorId, SocketEvents.FEED_NEW_REACTION, {
+        postId,
+        type,
+        userId,
+      });
+    }
+
     return { action: 'added', type };
   }
 
