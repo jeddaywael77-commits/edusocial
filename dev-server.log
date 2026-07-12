@@ -1611,3 +1611,7 @@ https://nextjs.org/docs/messages/module-not-found
  GET / 200 in 144ms (next.js: 76ms, application-code: 67ms)
  GET / 200 in 51ms (next.js: 5ms, application-code: 46ms)
  GET / 200 in 20ms (next.js: 4ms, application-code: 16ms)
+✓ Compiled in 108ms
+✓ Compiled in 100ms
+✓ Compiled in 99ms
+✓ Compiled in 94ms
