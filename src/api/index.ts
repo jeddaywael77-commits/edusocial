@@ -166,3 +166,4 @@ export {
   useDeleteMarketplaceItem,
 } from "./marketplace";
 export { socketManager } from "./socket";
+export { mediaApi } from "./media";

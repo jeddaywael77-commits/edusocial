@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BullModule } from '@nestjs/bullmq';
 import config from './config';
 import { PrismaModule } from './database/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -26,6 +27,7 @@ import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { GamificationModule } from './modules/gamification/gamification.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { SocketModule } from './modules/socket/socket.module';
+import { MediaModule } from './modules/media/media.module';
 
 @Module({
   imports: [
@@ -45,6 +47,18 @@ import { SocketModule } from './modules/socket/socket.module';
 
     // Scheduled tasks
     ScheduleModule.forRoot(),
+
+    // BullMQ queues
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('redis.host') || 'localhost',
+          port: configService.get<number>('redis.port') || 6379,
+        },
+      }),
+      inject: [ConfigService],
+    }),
 
     // Database
     PrismaModule,
@@ -72,6 +86,7 @@ import { SocketModule } from './modules/socket/socket.module';
     GamificationModule,
     LeaderboardModule,
     SocketModule,
+    MediaModule,
   ],
 })
 export class AppModule {}

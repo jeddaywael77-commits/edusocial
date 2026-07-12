@@ -337,3 +337,41 @@ export interface GamificationStats {
   badgeCount: number;
   postCount: number;
 }
+
+export interface Media {
+  id: string;
+  ownerId: string;
+  category: string;
+  storageProvider: string;
+  bucket: string | null;
+  key: string;
+  url: string;
+  mimeType: string;
+  extension: string;
+  originalName: string | null;
+  size: number;
+  width: number | null;
+  height: number | null;
+  duration: number | null;
+  checksum: string | null;
+  thumbnailUrl: string | null;
+  webpUrl: string | null;
+  compressedUrl: string | null;
+  pageCount: number | null;
+  metadata: Record<string, any> | null;
+  status: string;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  owner?: UserPublic;
+}
+
+export interface MediaUploadProgress {
+  fileId: string;
+  file: File;
+  progress: number;
+  status: "pending" | "uploading" | "processing" | "complete" | "error";
+  media?: Media;
+  error?: string;
+  xhr?: XMLHttpRequest;
+}

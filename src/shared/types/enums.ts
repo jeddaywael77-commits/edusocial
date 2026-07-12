@@ -110,3 +110,33 @@ export const CalendarEventType = {
 
 export type CalendarEventType =
   (typeof CalendarEventType)[keyof typeof CalendarEventType];
+
+export const MediaStatus = {
+  UPLOADING: "UPLOADING",
+  PROCESSING: "PROCESSING",
+  READY: "READY",
+  FAILED: "FAILED",
+} as const;
+
+export type MediaStatus = (typeof MediaStatus)[keyof typeof MediaStatus];
+
+export const MediaCategory = {
+  AVATAR: "AVATAR",
+  COVER_PHOTO: "COVER_PHOTO",
+  STORY_IMAGE: "STORY_IMAGE",
+  STORY_VIDEO: "STORY_VIDEO",
+  POST_IMAGE: "POST_IMAGE",
+  POST_VIDEO: "POST_VIDEO",
+  POST_PDF: "POST_PDF",
+  POST_DOCUMENT: "POST_DOCUMENT",
+  ASSIGNMENT_FILE: "ASSIGNMENT_FILE",
+  HOMEWORK_FILE: "HOMEWORK_FILE",
+  COURSE_MATERIAL: "COURSE_MATERIAL",
+  COURSE_THUMBNAIL: "COURSE_THUMBNAIL",
+  MARKETPLACE_IMAGE: "MARKETPLACE_IMAGE",
+  AI_GENERATED: "AI_GENERATED",
+  MESSAGE_ATTACHMENT: "MESSAGE_ATTACHMENT",
+  CHAT_FILE: "CHAT_FILE",
+} as const;
+
+export type MediaCategory = (typeof MediaCategory)[keyof typeof MediaCategory];

@@ -92,6 +92,32 @@ enum CalendarEventType {
   LIVE_CLASS
 }
 
+enum MediaStatus {
+  UPLOADING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum MediaCategory {
+  AVATAR
+  COVER_PHOTO
+  STORY_IMAGE
+  STORY_VIDEO
+  POST_IMAGE
+  POST_VIDEO
+  POST_PDF
+  POST_DOCUMENT
+  ASSIGNMENT_FILE
+  HOMEWORK_FILE
+  COURSE_MATERIAL
+  COURSE_THUMBNAIL
+  MARKETPLACE_IMAGE
+  AI_GENERATED
+  MESSAGE_ATTACHMENT
+  CHAT_FILE
+}
+
 model User {
   id            String   @id @default(uuid())
   email         String   @unique
@@ -147,6 +173,7 @@ model User {
   following             Follower[]       @relation("FollowedUser")
   friendsA              Friendship[]     @relation("FriendA")
   friendsB              Friendship[]     @relation("FriendB")
+  media                 Media[]
 
   @@index([email])
   @@index([role])
@@ -701,4 +728,42 @@ model AuditLog {
   @@index([userId])
   @@index([entity])
   @@index([createdAt])
+}
+
+model Media {
+  id              String       @id @default(uuid())
+  ownerId         String
+  category        MediaCategory @default(POST_IMAGE)
+  storageProvider String       @default("local")
+  bucket          String?
+  key             String
+  url             String
+  mimeType        String
+  extension       String
+  originalName    String?
+  size            Int
+  width           Int?
+  height          Int?
+  duration        Int?
+  checksum        String?
+  thumbnailUrl    String?
+  webpUrl         String?
+  compressedUrl   String?
+  pageCount       Int?
+  metadata        Json?
+  status          MediaStatus  @default(UPLOADING)
+  isDeleted       Boolean      @default(false)
+  deletedAt       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([category])
+  @@index([status])
+  @@index([checksum])
+  @@index([mimeType])
+  @@index([createdAt])
+  @@index([isDeleted])
 }
