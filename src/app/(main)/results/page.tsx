@@ -2,12 +2,10 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { BarChart3, TrendingUp, Award, BookOpen, Clock, Target, CheckCircle2, XCircle } from "lucide-react";
+import { BarChart3, TrendingUp, Award, Target, CheckCircle2 } from "lucide-react";
 import { Card } from "@/shared/ui/card";
-import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import { useAuthStore } from "@/stores/auth-store";
+import { useProfile } from "@/features/auth";
 
 const mockResults = [
   { course: "Calculus III", score: 85, maxScore: 100, date: "2024-03-10", type: "Quiz" },
@@ -18,7 +16,7 @@ const mockResults = [
 ];
 
 export default function ResultsPage() {
-  const { user } = useAuthStore();
+  const { data: user } = useProfile();
   const avgScore = mockResults.reduce((acc, r) => acc + r.score, 0) / mockResults.length;
 
   return (
@@ -47,7 +45,7 @@ export default function ResultsPage() {
           </Card>
           <Card className="p-3 text-center">
             <TrendingUp className="h-5 w-5 text-secondary mx-auto mb-1" />
-            <p className="text-xl font-bold">↑5%</p>
+            <p className="text-xl font-bold">\u21915%</p>
             <p className="text-xs text-muted-foreground">Improvement</p>
           </Card>
         </div>
@@ -78,7 +76,7 @@ export default function ResultsPage() {
                 <Progress value={result.score} className="h-1.5 mt-1" />
                 <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                   <span>{result.type}</span>
-                  <span>•</span>
+                  <span>\u2022</span>
                   <span>{result.date}</span>
                 </div>
               </div>

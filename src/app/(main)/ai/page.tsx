@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Bot,
   Send,
@@ -9,25 +9,17 @@ import {
   BookOpen,
   FileText,
   Calculator,
-  Lightbulb,
   Code,
-  Image,
   Mic,
   RotateCcw,
-  Copy,
-  ThumbsUp,
-  ThumbsDown,
   Brain,
-  GraduationCap,
   PenTool,
-  Zap,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
-import { Card } from "@/shared/ui/card";
-import { useAuthStore } from "@/stores/auth-store";
-import { getInitials } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
+import { useProfile } from "@/features/auth";
+import { getInitials } from "@/shared/lib/utils";
 
 const suggestions = [
   { icon: BookOpen, label: "Explain Calculus III concepts", color: "text-primary" },
@@ -49,11 +41,11 @@ const mockAIResponses: Record<string, string> = {
   default: "I'd be happy to help you with that! Could you provide more details so I can give you a more specific answer?",
   calculus: "Calculus III covers multivariable calculus. Key topics include:\n\n1. **Partial Derivatives** - Rates of change with respect to multiple variables\n2. **Multiple Integrals** - Computing volumes and areas in higher dimensions\n3. **Vector Calculus** - Gradient, divergence, curl, and line integrals\n4. **Green's/Stokes'/Divergence Theorems** - Connecting different types of integrals\n\nWould you like me to explain any of these in more detail?",
   python: "Here's a basic Python example:\n\n```python\ndef fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\n# Generate first 10 numbers\nfor i in range(10):\n    print(fibonacci(i))\n```\n\nWhat specific Python concept would you like help with?",
-  flashcards: "Here are some flashcards for your review:\n\n**Card 1:** What is the derivative of sin(x)?\n→ cos(x)\n\n**Card 2:** What is the integral of 1/x?\n→ ln|x| + C\n\n**Card 3:** What is the chain rule?\n→ d/dx[f(g(x))] = f'(g(x)) · g'(x)\n\nWould you like me to generate more flashcards on a specific topic?",
+  flashcards: "Here are some flashcards for your review:\n\n**Card 1:** What is the derivative of sin(x)?\n\u2192 cos(x)\n\n**Card 2:** What is the integral of 1/x?\n\u2192 ln|x| + C\n\n**Card 3:** What is the chain rule?\n\u2192 d/dx[f(g(x))] = f'(g(x)) \u00b7 g'(x)\n\nWould you like me to generate more flashcards on a specific topic?",
 };
 
 export default function AIPage() {
-  const { user } = useAuthStore();
+  const { data: user } = useProfile();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);

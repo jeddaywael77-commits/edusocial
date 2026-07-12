@@ -2,30 +2,30 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Award, Trophy, Star, Flame, Target, Zap, BookOpen, Users, Code, Brain, GraduationCap, Medal } from "lucide-react";
+import { Award, Star, Target } from "lucide-react";
 import { Card } from "@/shared/ui/card";
-import { Badge as BadgeComponent } from "@/shared/ui/badge";
-import { useAuthStore } from "@/stores/auth-store";
+import { useProfile } from "@/features/auth";
 
 const allBadges = [
-  { id: "1", name: "Quick Learner", icon: "🎓", description: "Complete 10 lessons in a day", color: "#3B82F6", earned: true },
-  { id: "2", name: "Helpful", icon: "🤝", description: "Answer 20 questions", color: "#22C55E", earned: true },
-  { id: "3", name: "Streak Master", icon: "🔥", description: "30-day learning streak", color: "#F59E0B", earned: true },
-  { id: "4", name: "First Post", icon: "📝", description: "Create your first post", color: "#8B5CF6", earned: true },
-  { id: "5", name: "Math Wizard", icon: "🧮", description: "Complete all math courses", color: "#06B6D4", earned: false },
-  { id: "6", name: "Code Ninja", icon: "💻", description: "Solve 100 coding challenges", color: "#EF4444", earned: false },
-  { id: "7", name: "Social Butterfly", icon: "🦋", description: "Add 100 friends", color: "#EC4899", earned: false },
-  { id: "8", name: "AI Explorer", icon: "🤖", description: "Use AI Tutor 50 times", color: "#8B5CF6", earned: false },
-  { id: "9", name: "Bookworm", icon: "📚", description: "Read 20 documents", color: "#22C55E", earned: false },
-  { id: "10", name: "Group Leader", icon: "👑", description: "Create and manage a group", color: "#F59E0B", earned: false },
-  { id: "11", name: "Perfect Score", icon: "💯", description: "Get 100% on an exam", color: "#3B82F6", earned: false },
-  { id: "12", name: "Community Star", icon: "⭐", description: "Get 100 likes on your posts", color: "#06B6D4", earned: false },
+  { id: "1", name: "Quick Learner", icon: "\u{1F393}", description: "Complete 10 lessons in a day", color: "#3B82F6", xpRequired: 100 },
+  { id: "2", name: "Helpful", icon: "\u{1F91D}", description: "Answer 20 questions", color: "#22C55E", xpRequired: 200 },
+  { id: "3", name: "Streak Master", icon: "\u{1F525}", description: "30-day learning streak", color: "#F59E0B", xpRequired: 500 },
+  { id: "4", name: "First Post", icon: "\u{1F4DD}", description: "Create your first post", color: "#8B5CF6", xpRequired: 50 },
+  { id: "5", name: "Math Wizard", icon: "\u{1F9EE}", description: "Complete all math courses", color: "#06B6D4", xpRequired: 1000 },
+  { id: "6", name: "Code Ninja", icon: "\u{1F4BB}", description: "Solve 100 coding challenges", color: "#EF4444", xpRequired: 800 },
+  { id: "7", name: "Social Butterfly", icon: "\u{1F98B}", description: "Add 100 friends", color: "#EC4899", xpRequired: 300 },
+  { id: "8", name: "AI Explorer", icon: "\u{1F916}", description: "Use AI Tutor 50 times", color: "#8B5CF6", xpRequired: 400 },
+  { id: "9", name: "Bookworm", icon: "\u{1F4DA}", description: "Read 20 documents", color: "#22C55E", xpRequired: 250 },
+  { id: "10", name: "Group Leader", icon: "\u{1F451}", description: "Create and manage a group", color: "#F59E0B", xpRequired: 600 },
+  { id: "11", name: "Perfect Score", icon: "\u{1F4AF}", description: "Get 100% on an exam", color: "#3B82F6", xpRequired: 1500 },
+  { id: "12", name: "Community Star", icon: "\u2B50", description: "Get 100 likes on your posts", color: "#06B6D4", xpRequired: 700 },
 ];
 
 export default function BadgesPage() {
-  const { user } = useAuthStore();
-  const earnedBadges = allBadges.filter((b) => b.earned);
-  const availableBadges = allBadges.filter((b) => !b.earned);
+  const { data: user } = useProfile();
+  const userXp = user?.xp ?? 0;
+  const earnedBadges = allBadges.filter((b) => userXp >= b.xpRequired);
+  const availableBadges = allBadges.filter((b) => userXp < b.xpRequired);
 
   return (
     <div className="space-y-4">

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import {
   Settings,
   User,
@@ -14,9 +13,6 @@ import {
   Monitor,
   Camera,
   Save,
-  Eye,
-  EyeOff,
-  Mail,
   Lock,
   Smartphone,
 } from "lucide-react";
@@ -25,17 +21,27 @@ import { Input } from "@/shared/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Switch } from "@/shared/ui/switch";
-import { useAuthStore } from "@/stores/auth-store";
-import { getInitials } from "@/lib/utils";
+import { useProfile } from "@/features/auth";
+import { useUpdateProfile } from "@/features/users";
+import { getInitials } from "@/shared/lib/utils";
 
 export default function SettingsPage() {
-  const { user } = useAuthStore();
+  const { data: user } = useProfile();
+  const updateProfile = useUpdateProfile();
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
   const [bio, setBio] = useState(user?.bio || "");
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  const handleSave = () => {
+    if (!user) return;
+    updateProfile.mutate({
+      id: user.id,
+      data: { name, bio },
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -69,7 +75,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <Avatar className="h-20 w-20">
-                  <AvatarImage src={user?.avatar} />
+                  <AvatarImage src={user?.avatar ?? undefined} />
                   <AvatarFallback className="text-xl bg-primary/20 text-primary font-bold">
                     {getInitials(user?.name || "U")}
                   </AvatarFallback>
@@ -80,7 +86,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h3 className="font-semibold">{user?.name}</h3>
-                <p className="text-sm text-muted-foreground capitalize">{user?.role}</p>
+                <p className="text-sm text-muted-foreground capitalize">{user?.role?.toLowerCase()}</p>
               </div>
             </div>
 
@@ -95,11 +101,11 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">School</label>
-                <Input defaultValue={user?.school} />
+                <Input defaultValue={user?.school ?? ""} />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Department</label>
-                <Input defaultValue={user?.department} />
+                <Input defaultValue={user?.department ?? ""} />
               </div>
             </div>
 
@@ -112,9 +118,9 @@ export default function SettingsPage() {
               />
             </div>
 
-            <Button>
+            <Button onClick={handleSave} disabled={updateProfile.isPending}>
               <Save className="h-4 w-4 mr-2" />
-              Save Changes
+              {updateProfile.isPending ? "Saving..." : "Save Changes"}
             </Button>
           </TabsContent>
 
