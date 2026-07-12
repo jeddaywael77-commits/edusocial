@@ -7,7 +7,9 @@ import { MediaProcessor, ImageProcessor, DocumentProcessor } from './processors'
 import { LocalStorageProvider, MinioStorageProvider, S3StorageProvider, StorageFactory } from './storage';
 import { AuthModule } from '../auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as multer from 'multer';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { v4 as uuid } from 'uuid';
 
 @Module({
   imports: [
@@ -16,7 +18,13 @@ import * as multer from 'multer';
     MulterModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        storage: multer.memoryStorage(),
+        storage: diskStorage({
+          destination: configService.get<string>('app.uploadDir') || './uploads',
+          filename: (_req, file, cb) => {
+            const uniqueName = `${uuid()}${extname(file.originalname)}`;
+            cb(null, uniqueName);
+          },
+        }),
         limits: {
           fileSize: configService.get<number>('media.maxFileSize') || 50 * 1024 * 1024,
         },

@@ -1,10 +1,10 @@
 import { Module, Global } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SocketService } from './socket.service.js';
-import { SocketGateway } from './socket.gateway.js';
-import { WsJwtGuard } from './ws-jwt.guard.js';
-import { ChatModule } from '../chat/chat.module.js';
+import { SocketService } from './socket.service';
+import { SocketGateway } from './socket.gateway';
+import { WsJwtGuard } from './ws-jwt.guard';
+import { ChatModule } from '../chat/chat.module';
 
 @Global()
 @Module({
@@ -12,7 +12,7 @@ import { ChatModule } from '../chat/chat.module.js';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('jwt.secret') || 'fallback-secret',
+        secret: configService.get<string>('jwt.secret'),
         signOptions: {
           expiresIn: configService.get<string>('jwt.expiration', '15m') as any,
         },

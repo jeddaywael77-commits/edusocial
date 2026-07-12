@@ -2,16 +2,21 @@ import { Controller, Get, Post, Param, Body, UseGuards, HttpCode, HttpStatus } f
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { GamificationService } from './gamification.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '../../common/enums';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 class AwardBadgeDto {
   @ApiProperty() @IsString() badgeId: string;
+  @ApiProperty({ required: false }) @IsOptional() @IsString() userId?: string;
 }
 
 class AddXpDto {
   @ApiProperty() @IsNumber() xp: number;
+  @ApiProperty({ required: false }) @IsOptional() @IsString() userId?: string;
 }
 
 @ApiTags('Gamification')
@@ -34,12 +39,14 @@ export class GamificationController {
   }
 
   @Post('award-badge')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Award a badge to a user' })
   async awardBadge(@CurrentUser('sub') userId: string, @Body() dto: AwardBadgeDto) {
-    return this.gamificationService.awardBadge(userId, dto.badgeId);
+    const targetUserId = dto.userId || userId;
+    return this.gamificationService.awardBadge(targetUserId, dto.badgeId);
   }
 
   @Get('stats')
@@ -51,11 +58,13 @@ export class GamificationController {
   }
 
   @Post('add-xp')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @ApiBearerAuth('access-token')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Add XP to a user' })
   async addXp(@CurrentUser('sub') userId: string, @Body() dto: AddXpDto) {
-    return this.gamificationService.addXp(userId, dto.xp);
+    const targetUserId = dto.userId || userId;
+    return this.gamificationService.addXp(targetUserId, dto.xp);
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
+import Image from "next/image";
 import { Media } from "@/shared/types";
 import { FileUploader } from "./file-uploader";
 
@@ -24,10 +25,13 @@ export function ImageUploader({ category = "POST_IMAGE", onImageUploaded, classN
     <div className={className}>
       {preview && (
         <div className="mb-4 relative">
-          <img
+          <Image
             src={preview}
-            alt="Preview"
+            alt="Upload preview"
+            width={640}
+            height={256}
             className="max-h-64 w-full rounded-lg object-cover"
+            unoptimized
           />
           <button
             onClick={() => {
@@ -35,6 +39,7 @@ export function ImageUploader({ category = "POST_IMAGE", onImageUploaded, classN
               setUploadedImage(null);
             }}
             className="absolute top-2 right-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/80"
+            aria-label="Remove preview"
           >
             ✕
           </button>

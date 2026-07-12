@@ -49,8 +49,10 @@ export class AuthController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({ status: 200, description: 'Tokens refreshed' })
-  async refresh(@CurrentUser('sub') userId: string) {
-    return this.authService.refreshTokens(userId);
+  async refresh(@CurrentUser('sub') userId: string, @Req() req: any) {
+    const authHeader = req.headers.authorization;
+    const refreshToken = authHeader?.replace('Bearer ', '');
+    return this.authService.refreshTokens(userId, refreshToken);
   }
 
   @Post('logout')

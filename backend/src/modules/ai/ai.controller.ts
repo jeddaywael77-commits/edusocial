@@ -17,6 +17,9 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRole } from '../../common/enums';
 import { AiChatService } from './chat/ai-chat.service';
 import { AiFeaturesService } from './ai-features.service';
 import { AiAnalyticsService } from './analytics/ai-analytics.service';
@@ -59,9 +62,10 @@ export class AiController {
   }
 
   @Put('providers/:name')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Switch active AI provider' })
+  @ApiOperation({ summary: 'Switch active AI provider (admin only)' })
   async switchProvider(@Param('name') name: string) {
     this.providerFactory.setActiveProvider(name);
     return { active: name };
@@ -124,27 +128,56 @@ export class AiController {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
 
-    const stream = this.chatService.sendMessageStream(
-      conversationId,
-      req.user.id,
-      dto.content,
-      {
-        systemPrompt: dto.systemPrompt,
-        useRAG: dto.useRAG,
-        ragCollection: dto.ragCollection,
-        temperature: dto.temperature,
-        maxTokens: dto.maxTokens,
-      },
-    );
+    let closed = false;
+    const timeout = setTimeout(() => {
+      if (!closed) {
+        res.write('data: {"error":"Stream timeout after 120s"}\n\n');
+        res.end();
+        closed = true;
+      }
+    }, 120_000);
 
-    for await (const chunk of stream) {
-      res.write(`data: ${JSON.stringify(chunk)}\n\n`);
-      if (chunk.finishReason) break;
+    req.on('close', () => {
+      closed = true;
+      clearTimeout(timeout);
+    });
+
+    try {
+      const stream = this.chatService.sendMessageStream(
+        conversationId,
+        req.user.id,
+        dto.content,
+        {
+          systemPrompt: dto.systemPrompt,
+          useRAG: dto.useRAG,
+          ragCollection: dto.ragCollection,
+          temperature: dto.temperature,
+          maxTokens: dto.maxTokens,
+        },
+      );
+
+      for await (const chunk of stream) {
+        if (closed) break;
+        if (!res.writableEnded) {
+          res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+        }
+        if (chunk.finishReason) break;
+      }
+
+      if (!closed) {
+        res.write('data: [DONE]\n\n');
+        res.end();
+      }
+    } catch (error) {
+      if (!closed) {
+        res.write(`data: {"error":"Streaming error"}\n\n`);
+        res.end();
+      }
+    } finally {
+      clearTimeout(timeout);
     }
-
-    res.write('data: [DONE]\n\n');
-    res.end();
   }
 
   @Delete('chat/conversations/:id')
@@ -241,9 +274,10 @@ export class AiController {
   }
 
   @Get('analytics/global')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get global AI usage stats (admin)' })
+  @ApiOperation({ summary: 'Get global AI usage stats (admin only)' })
   async getGlobalStats(@Query('days') days?: string) {
     return this.analyticsService.getGlobalStats(days ? parseInt(days) : 7);
   }

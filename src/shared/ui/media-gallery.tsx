@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Media } from "@/shared/types";
 import { mediaApi } from "@/api/media";
 
@@ -91,12 +92,15 @@ export function MediaGallery({
             }`}
           >
             {item.mimeType.startsWith("image/") ? (
-              <div className="aspect-square">
-                <img
+              <div className="aspect-square relative">
+                <Image
                   src={item.thumbnailUrl || item.url}
                   alt={item.originalName || "Media"}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
+                  className="object-cover"
                   loading="lazy"
+                  unoptimized
                 />
               </div>
             ) : (

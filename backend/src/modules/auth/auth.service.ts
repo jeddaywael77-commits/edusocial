@@ -94,7 +94,7 @@ export class AuthService {
     return { user: userWithoutPassword, tokens };
   }
 
-  async refreshTokens(userId: string) {
+  async refreshTokens(userId: string, refreshToken: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, email: true, role: true, refreshToken: true, isActive: true },
@@ -102,6 +102,16 @@ export class AuthService {
 
     if (!user || !user.isActive || !user.refreshToken) {
       throw new UnauthorizedException('Access denied');
+    }
+
+    const rtMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+    if (!rtMatches) {
+      // Possible token reuse attack — invalidate all tokens
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { refreshToken: null },
+      });
+      throw new UnauthorizedException('Refresh token reused or invalid');
     }
 
     const tokens = await this.generateTokens(user.id, user.email, user.role);
@@ -165,11 +175,11 @@ export class AuthService {
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload as any, {
-        secret: this.configService.get<string>('jwt.secret') || 'fallback',
+        secret: this.configService.get<string>('jwt.secret'),
         expiresIn: this.configService.get<string>('jwt.expiration', '15m') as any,
       }),
       this.jwtService.signAsync(payload as any, {
-        secret: this.configService.get<string>('jwt.refreshSecret') || 'fallback-refresh',
+        secret: this.configService.get<string>('jwt.refreshSecret'),
         expiresIn: this.configService.get<string>('jwt.refreshExpiration', '7d') as any,
       }),
     ]);

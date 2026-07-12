@@ -265,6 +265,7 @@ model Post {
   @@index([status])
   @@index([hashtags])
   @@index([isDeleted])
+  @@index([status, isDeleted, createdAt])
 }
 
 model Quiz {
@@ -307,6 +308,7 @@ model Comment {
   @@index([authorId])
   @@index([parentId])
   @@index([isDeleted])
+  @@index([postId, parentId, isDeleted])
 }
 
 model Reaction {
@@ -349,6 +351,7 @@ model PostSave {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
+  @@index([postId])
 }
 
 model PostShare {
@@ -378,6 +381,8 @@ model PostReport {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, postId])
+  @@index([postId])
+  @@index([userId])
 }
 
 model CommentReport {
@@ -393,6 +398,8 @@ model CommentReport {
   comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId])
+  @@index([commentId])
+  @@index([userId])
 }
 
 model Story {
@@ -420,6 +427,8 @@ model StoryViewer {
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([storyId, userId])
+  @@index([storyId])
+  @@index([userId])
 }
 
 model Conversation {
@@ -446,6 +455,8 @@ model ConversationParticipant {
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, userId])
+  @@index([conversationId])
+  @@index([userId])
 }
 
 model Message {
@@ -465,6 +476,7 @@ model Message {
   @@index([conversationId])
   @@index([senderId])
   @@index([createdAt])
+  @@index([conversationId, createdAt])
 }
 
 model Group {
@@ -536,6 +548,7 @@ model Enrollment {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([courseId, userId])
+  @@index([userId])
 }
 
 model Lesson {
@@ -555,6 +568,7 @@ model Lesson {
   author User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([courseId])
+  @@index([authorId])
 }
 
 model Assignment {
@@ -647,6 +661,7 @@ model Notification {
   @@index([userId])
   @@index([isRead])
   @@index([createdAt])
+  @@index([userId, isRead, createdAt])
 }
 
 model CalendarEvent {
@@ -711,6 +726,8 @@ model UserBadge {
   badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
 
   @@unique([userId, badgeId])
+  @@index([userId])
+  @@index([badgeId])
 }
 
 model AuditLog {

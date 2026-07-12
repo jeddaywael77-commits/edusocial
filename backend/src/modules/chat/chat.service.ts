@@ -20,15 +20,25 @@ export class ChatService {
     return conversation;
   }
 
-  async getConversations(userId: string) {
-    return this.prisma.conversation.findMany({
-      where: { participants: { some: { userId } } },
-      include: {
-        participants: { include: { user: { select: { id: true, name: true, avatar: true, isOnline: true } } } },
-        messages: { orderBy: { createdAt: 'desc' }, take: 1 },
-      },
-      orderBy: { updatedAt: 'desc' },
-    });
+  async getConversations(userId: string, page = 1, limit = 20) {
+    const skip = (page - 1) * limit;
+    const take = Math.min(limit, 50);
+    const [conversations, total] = await Promise.all([
+      this.prisma.conversation.findMany({
+        where: { participants: { some: { userId } } },
+        include: {
+          participants: { include: { user: { select: { id: true, name: true, avatar: true, isOnline: true } } } },
+          messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+        },
+        orderBy: { updatedAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.conversation.count({
+        where: { participants: { some: { userId } } },
+      }),
+    ]);
+    return { data: conversations, meta: { total, page, limit: take, totalPages: Math.ceil(total / take) } };
   }
 
   async getMessages(conversationId: string, page = 1, limit = 50) {

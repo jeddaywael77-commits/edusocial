@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BullModule } from '@nestjs/bullmq';
+import { APP_GUARD } from '@nestjs/core';
 import config from './config';
 import { PrismaModule } from './database/prisma.module';
+import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { PostsModule } from './modules/posts/posts.module';
@@ -65,6 +67,9 @@ import { AiModule } from './modules/ai/ai.module';
     // Database
     PrismaModule,
 
+    // Health checks
+    HealthModule,
+
     // Feature modules
     AuthModule,
     UsersModule,
@@ -91,6 +96,12 @@ import { AiModule } from './modules/ai/ai.module';
     MediaModule,
     SearchModule,
     AiModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

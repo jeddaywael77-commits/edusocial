@@ -49,6 +49,8 @@ export class PostsService {
 
     if (post.groupId) {
       this.socketGateway.broadcastToRoom(`group:${post.groupId}`, SocketEvents.FEED_NEW_POST, post);
+    } else if (post.courseId) {
+      this.socketGateway.broadcastToRoom(`course:${post.courseId}`, SocketEvents.FEED_NEW_POST, post);
     } else {
       this.socketGateway.broadcastToAll(SocketEvents.FEED_NEW_POST, post);
     }

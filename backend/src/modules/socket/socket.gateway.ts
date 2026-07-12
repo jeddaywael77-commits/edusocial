@@ -10,15 +10,15 @@ import {
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
-import { SocketService } from './socket.service.js';
-import { WsJwtGuard } from './ws-jwt.guard.js';
-import { WsCurrentUser } from './ws-current-user.decorator.js';
-import { SocketEvents } from './socket.events.js';
-import { ChatService } from '../chat/chat.service.js';
+import { SocketService } from './socket.service';
+import { WsJwtGuard } from './ws-jwt.guard';
+import { WsCurrentUser } from './ws-current-user.decorator';
+import { SocketEvents } from './socket.events';
+import { ChatService } from '../chat/chat.service';
 
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
     credentials: true,
   },
   transports: ['websocket', 'polling'],

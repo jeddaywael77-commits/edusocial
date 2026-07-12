@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../database/prisma.service.js';
-import { StorageFactory } from '../storage/storage.factory.js';
+import { PrismaService } from '../../../database/prisma.service';
+import { StorageFactory } from '../storage/storage.factory';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const sharp = require('sharp');
 

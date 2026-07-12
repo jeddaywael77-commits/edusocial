@@ -115,6 +115,11 @@ export function SearchBar({
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
           autoFocus={autoFocus}
+          role="combobox"
+          aria-expanded={isOpen && !!debouncedQuery}
+          aria-controls="search-results-listbox"
+          aria-autocomplete="list"
+          aria-label="Search"
           className={cn(
             "w-full h-10 pl-10 pr-10 rounded-xl",
             "bg-card border border-border",
@@ -134,6 +139,7 @@ export function SearchBar({
               inputRef.current?.focus();
             }}
             className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Clear search"
           >
             <X className="h-4 w-4" />
           </button>
@@ -141,7 +147,12 @@ export function SearchBar({
       </form>
 
       {isOpen && debouncedQuery && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden max-h-96 overflow-y-auto">
+        <div
+          id="search-results-listbox"
+          role="listbox"
+          aria-label="Search results"
+          className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden max-h-96 overflow-y-auto"
+        >
           {isLoading ? (
             <div className="p-4 text-center text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
@@ -157,6 +168,8 @@ export function SearchBar({
                   {hits.map((hit) => (
                     <button
                       key={hit.id}
+                      role="option"
+                      aria-selected={false}
                       onClick={() => handleSelect(hit)}
                       className="w-full px-3 py-2 flex items-center gap-3 hover:bg-muted transition-colors text-left"
                     >

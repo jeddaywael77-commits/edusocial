@@ -1,8 +1,8 @@
 import { Processor } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { PrismaService } from '../../../database/prisma.service.js';
-import { MediaStatus } from '../../../common/enums/index.js';
+import { PrismaService } from '../../../database/prisma.service';
+import { MediaStatus } from '../../../common/enums';
 import { ImageProcessor } from './image.processor';
 import { DocumentProcessor } from './document.processor';
 
