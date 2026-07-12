@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Send,
   Smile,
@@ -13,41 +13,43 @@ import {
   MoreVertical,
   Check,
   CheckCheck,
-  Image,
-  FileText,
   ArrowLeft,
   MessageSquare,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
-import { useAuthStore } from "@/stores/auth-store";
-import { mockConversations, mockUsers } from "@/lib/mock-data";
-import { formatDate, getInitials } from "@/lib/utils";
+import { useProfile } from "@/features/auth";
+import { useConversations, useMessages, useSendMessage } from "@/features/chat";
+import { formatDate, getInitials } from "@/shared/lib/utils";
 
 export default function MessagesPage() {
-  const { user } = useAuthStore();
-  const [activeConversation, setActiveConversation] = useState(mockConversations[0]);
+  const { data: currentUser } = useProfile();
+  const { data: conversations = [], isLoading } = useConversations();
+  const [activeConversation, setActiveConversation] = useState<string | null>(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showMobileChat, setShowMobileChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const messages = [
-    { id: "1", senderId: activeConversation.participants[0].id, content: "Hey! How are you?", isRead: true, createdAt: new Date(Date.now() - 3600000).toISOString() },
-    { id: "2", senderId: user?.id || "1", content: "I'm good! Just studying for the exam.", isRead: true, createdAt: new Date(Date.now() - 1800000).toISOString() },
-    { id: "3", senderId: activeConversation.participants[0].id, content: "Do you want to study together? I've got the notes from today's lecture.", isRead: true, createdAt: new Date(Date.now() - 900000).toISOString() },
-    { id: "4", senderId: user?.id || "1", content: "That would be great! Let me know when you're free.", isRead: true, createdAt: new Date(Date.now() - 600000).toISOString() },
-    { id: "5", senderId: activeConversation.participants[0].id, content: activeConversation.lastMessage?.content || "See you in class tomorrow!", isRead: false, createdAt: new Date(Date.now() - 300000).toISOString() },
-  ];
+  const { data: messagesData } = useMessages(activeConversation || "");
+  const messages = messagesData?.data || [];
+  const sendMessage = useSendMessage(activeConversation || "");
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const activeConv = conversations.find((c) => c.id === activeConversation);
+
   const handleSend = () => {
-    if (!messageText.trim()) return;
+    if (!messageText.trim() || !activeConversation) return;
+    sendMessage.mutate({ content: messageText.trim() });
     setMessageText("");
+  };
+
+  const getOtherParticipant = (conv: typeof conversations[0]) => {
+    return conv.participants?.find((p) => p.userId !== currentUser?.id);
   };
 
   return (
@@ -71,66 +73,82 @@ export default function MessagesPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {mockConversations
-              .filter((c) => {
-                if (!searchQuery) return true;
-                const name = c.type === "group" ? c.name : c.participants[0]?.name;
-                return name?.toLowerCase().includes(searchQuery.toLowerCase());
-              })
-              .map((conversation) => {
-                const otherUser = conversation.participants[0];
-                const isActive = activeConversation?.id === conversation.id;
-                return (
-                  <button
-                    key={conversation.id}
-                    onClick={() => {
-                      setActiveConversation(conversation);
-                      setShowMobileChat(true);
-                    }}
-                    className={`w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors cursor-pointer ${
-                      isActive ? "bg-primary/5 border-r-2 border-primary" : ""
-                    }`}
-                  >
-                    <div className="relative shrink-0">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={otherUser?.avatar} />
-                        <AvatarFallback className="bg-primary/20 text-primary">
-                          {getInitials(conversation.type === "group" ? conversation.name || "G" : otherUser?.name || "U")}
-                        </AvatarFallback>
-                      </Avatar>
-                      {conversation.type === "private" && otherUser?.isOnline && (
-                        <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-success border-2 border-card" />
-                      )}
+            {isLoading ? (
+              <div className="space-y-1 p-2">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 animate-pulse">
+                    <div className="h-12 w-12 rounded-full bg-muted shrink-0" />
+                    <div className="flex-1 space-y-1">
+                      <div className="h-4 w-32 bg-muted rounded" />
+                      <div className="h-3 w-48 bg-muted rounded" />
                     </div>
-                    <div className="flex-1 min-w-0 text-left">
-                      <div className="flex items-center justify-between">
-                        <p className={`text-sm font-medium truncate ${conversation.unreadCount > 0 ? "text-foreground" : "text-muted-foreground"}`}>
-                          {conversation.type === "group" ? conversation.name : otherUser?.name}
-                        </p>
-                        <span className="text-[10px] text-muted-foreground shrink-0">
-                          {conversation.lastMessage ? formatDate(conversation.lastMessage.createdAt) : ""}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-xs text-muted-foreground truncate">
-                          {conversation.lastMessage?.content || "No messages yet"}
-                        </p>
-                        {conversation.unreadCount > 0 && (
-                          <span className="h-5 min-w-5 rounded-full bg-primary text-[10px] font-medium text-white flex items-center justify-center px-1 shrink-0 ml-2">
-                            {conversation.unreadCount}
-                          </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              conversations
+                .filter((c) => {
+                  if (!searchQuery) return true;
+                  const other = getOtherParticipant(c);
+                  const name = c.isGroup ? c.name : other?.user?.name;
+                  return name?.toLowerCase().includes(searchQuery.toLowerCase());
+                })
+                .map((conversation) => {
+                  const other = getOtherParticipant(conversation);
+                  const isActive = activeConversation === conversation.id;
+                  return (
+                    <button
+                      key={conversation.id}
+                      onClick={() => {
+                        setActiveConversation(conversation.id);
+                        setShowMobileChat(true);
+                      }}
+                      className={`w-full flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors cursor-pointer ${
+                        isActive ? "bg-primary/5 border-r-2 border-primary" : ""
+                      }`}
+                    >
+                      <div className="relative shrink-0">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={other?.user?.avatar ?? undefined} />
+                          <AvatarFallback className="bg-primary/20 text-primary">
+                            {getInitials(conversation.isGroup ? conversation.name || "G" : other?.user?.name || "U")}
+                          </AvatarFallback>
+                        </Avatar>
+                        {other?.user?.isOnline && (
+                          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-success border-2 border-card" />
                         )}
                       </div>
-                    </div>
-                  </button>
-                );
-              })}
+                      <div className="flex-1 min-w-0 text-left">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium truncate">
+                            {conversation.isGroup ? conversation.name : other?.user?.name}
+                          </p>
+                          <span className="text-[10px] text-muted-foreground shrink-0">
+                            {conversation.lastMessage ? formatDate(conversation.lastMessage.createdAt) : ""}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-muted-foreground truncate">
+                            {conversation.lastMessage?.content || "No messages yet"}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })
+            )}
+            {!isLoading && conversations.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No conversations yet</p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Chat Area */}
         <div className={`flex-1 flex flex-col ${showMobileChat ? "flex" : "hidden sm:flex"}`}>
-          {activeConversation ? (
+          {activeConversation && activeConv ? (
             <>
               <div className="p-3 border-b border-border flex items-center gap-3">
                 <Button
@@ -142,21 +160,19 @@ export default function MessagesPage() {
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={activeConversation.participants[0]?.avatar} />
+                  <AvatarImage src={getOtherParticipant(activeConv)?.user?.avatar ?? undefined} />
                   <AvatarFallback className="bg-primary/20 text-primary text-sm">
-                    {getInitials(activeConversation.participants[0]?.name || "U")}
+                    {getInitials(getOtherParticipant(activeConv)?.user?.name || "U")}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <p className="text-sm font-medium">
-                    {activeConversation.type === "group"
-                      ? activeConversation.name
-                      : activeConversation.participants[0]?.name}
+                    {activeConv.isGroup
+                      ? activeConv.name
+                      : getOtherParticipant(activeConv)?.user?.name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {activeConversation.type === "private" && activeConversation.participants[0]?.isOnline
-                      ? "Online"
-                      : `${activeConversation.participants.length} members`}
+                    {getOtherParticipant(activeConv)?.user?.isOnline ? "Online" : `${activeConv.participants?.length} members`}
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
@@ -168,7 +184,7 @@ export default function MessagesPage() {
 
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.map((msg) => {
-                  const isOwn = msg.senderId === user?.id;
+                  const isOwn = msg.senderId === currentUser?.id;
                   return (
                     <motion.div
                       key={msg.id}
@@ -219,7 +235,7 @@ export default function MessagesPage() {
                     <Smile className="h-4 w-4" />
                   </Button>
                   {messageText.trim() ? (
-                    <Button size="icon-sm" onClick={handleSend}>
+                    <Button size="icon-sm" onClick={handleSend} disabled={sendMessage.isPending}>
                       <Send className="h-4 w-4" />
                     </Button>
                   ) : (

@@ -1,56 +1,63 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   BookOpen,
   FileText,
   Video,
-  MessageSquare,
   Bot,
   CheckCircle2,
   Clock,
   Users,
   Star,
-  ChevronRight,
   Play,
-  Download,
   Lock,
-  Award,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
 import { Progress } from "@/shared/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Card } from "@/shared/ui/card";
-import { PostCard } from "@/widgets/feed/post-card";
-import { mockCourses, mockPosts } from "@/lib/mock-data";
-import { formatNumber } from "@/lib/utils";
+import { useCourse } from "@/features/courses";
+import { useCourseLessons } from "@/features/lessons";
+import { useEnrollCourse } from "@/features/courses";
+import { formatNumber } from "@/shared/lib/utils";
 
 export default function CourseDetailPage() {
   const params = useParams();
   const courseId = params.id as string;
-  const course = mockCourses.find((c) => c.id === courseId) || mockCourses[0];
-  const [isEnrolled, setIsEnrolled] = useState(course.isEnrolled);
+  const { data: course, isLoading } = useCourse(courseId);
+  const { data: lessons = [] } = useCourseLessons(courseId);
+  const enrollCourse = useEnrollCourse();
 
-  const lessons = Array.from({ length: 8 }, (_, i) => ({
-    id: `l-${i}`,
-    title: [
-      "Introduction to the Course",
-      "Fundamental Concepts",
-      "Core Principles",
-      "Advanced Topics",
-      "Practice & Exercises",
-      "Problem Solving",
-      "Real-world Applications",
-      "Review & Summary",
-    ][i],
-    duration: `${15 + Math.floor(Math.random() * 30)} min`,
-    isCompleted: i < (course.progress || 0) / 100 * 8,
-    isLocked: !isEnrolled && i > 0,
-    type: i % 3 === 0 ? "video" : i % 3 === 1 ? "pdf" : "lesson",
-  }));
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse">
+          <div className="h-48 bg-muted" />
+          <div className="p-4 space-y-3">
+            <div className="h-6 w-48 bg-muted rounded" />
+            <div className="h-4 w-32 bg-muted rounded" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!course) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
+        <p>Course not found</p>
+      </div>
+    );
+  }
+
+  const handleEnroll = () => {
+    enrollCourse.mutate(courseId);
+  };
 
   return (
     <div className="space-y-4">
@@ -59,7 +66,7 @@ export default function CourseDetailPage() {
           <div className="text-center text-white">
             <BookOpen className="h-12 w-12 mx-auto mb-2 opacity-80" />
             <h1 className="text-2xl font-bold">{course.title}</h1>
-            <p className="text-sm opacity-80 mt-1">by {course.teacher.name}</p>
+            <p className="text-sm opacity-80 mt-1">by {course.teacher?.name}</p>
           </div>
         </div>
 
@@ -67,119 +74,82 @@ export default function CourseDetailPage() {
           <div className="flex flex-wrap items-center gap-3 mb-3">
             <Badge variant="accent">{course.category}</Badge>
             <Badge variant="outline" className="capitalize">{course.level}</Badge>
-            <div className="flex items-center gap-1 text-sm">
-              <Star className="h-4 w-4 text-warning fill-warning" />
-              <span className="font-medium">{course.rating}</span>
-            </div>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
-              {formatNumber(course.studentsCount)} students
+              {formatNumber(course._count?.enrollments ?? 0)} students
             </div>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              {course.lessonsCount} lessons
+              {course._count?.lessons ?? 0} lessons
             </div>
           </div>
 
-          {isEnrolled && course.progress !== undefined && (
-            <div className="mt-3">
-              <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-muted-foreground">Your Progress</span>
-                <span className="text-primary font-medium">{course.progress}%</span>
-              </div>
-              <Progress value={course.progress} className="h-2" />
-            </div>
+          {course.description && (
+            <p className="text-sm text-muted-foreground mt-2">{course.description}</p>
           )}
 
-          {!isEnrolled && (
-            <Button className="mt-3" onClick={() => setIsEnrolled(true)}>
-              Enroll in Course
-            </Button>
-          )}
+          <Button className="mt-3" onClick={handleEnroll} disabled={enrollCourse.isPending}>
+            {enrollCourse.isPending ? "Enrolling..." : "Enroll in Course"}
+          </Button>
         </div>
       </div>
 
       <Tabs defaultValue="lessons">
         <TabsList>
-          <TabsTrigger value="lessons">Lessons</TabsTrigger>
-          <TabsTrigger value="assignments">Assignments</TabsTrigger>
+          <TabsTrigger value="lessons">Lessons ({lessons.length})</TabsTrigger>
           <TabsTrigger value="discussions">Discussions</TabsTrigger>
           <TabsTrigger value="ai">AI Summary</TabsTrigger>
         </TabsList>
 
         <TabsContent value="lessons" className="mt-4">
-          <div className="space-y-2">
-            {lessons.map((lesson, i) => (
-              <motion.div
-                key={lesson.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                  lesson.isCompleted
-                    ? "bg-success/5 border border-success/20"
-                    : lesson.isLocked
-                    ? "bg-muted/30 opacity-60"
-                    : "bg-muted/30 hover:bg-muted/50 cursor-pointer"
-                }`}
-              >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                  lesson.isCompleted
-                    ? "bg-success/20 text-success"
-                    : lesson.isLocked
-                    ? "bg-muted text-muted-foreground"
-                    : "bg-primary/10 text-primary"
-                }`}>
-                  {lesson.isCompleted ? (
-                    <CheckCircle2 className="h-4 w-4" />
-                  ) : lesson.isLocked ? (
-                    <Lock className="h-4 w-4" />
-                  ) : (
-                    <Play className="h-4 w-4" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{lesson.title}</p>
-                  <p className="text-xs text-muted-foreground">{lesson.duration}</p>
-                </div>
-                <Badge variant="outline" className="text-[10px] capitalize">{lesson.type}</Badge>
-              </motion.div>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="assignments" className="mt-4">
-          <div className="space-y-3">
-            {[
-              { title: "Problem Set #1", dueDate: "2024-03-15", maxScore: 100, status: "submitted" },
-              { title: "Problem Set #2", dueDate: "2024-03-22", maxScore: 100, status: "pending" },
-              { title: "Midterm Project", dueDate: "2024-04-01", maxScore: 200, status: "not_started" },
-            ].map((assignment, i) => (
-              <div key={i} className="p-4 rounded-xl bg-muted/30 border border-border">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium text-sm">{assignment.title}</p>
-                      <p className="text-xs text-muted-foreground">Due: {assignment.dueDate} • {assignment.maxScore} pts</p>
-                    </div>
+          {lessons.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>No lessons yet</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {lessons.map((lesson, i) => (
+                <motion.div
+                  key={lesson.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className={`flex items-center gap-3 p-3 rounded-xl transition-colors ${
+                    lesson.isPublished
+                      ? "bg-muted/30 hover:bg-muted/50 cursor-pointer"
+                      : "bg-muted/30 opacity-60"
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                    lesson.isPublished
+                      ? "bg-primary/10 text-primary"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    {lesson.isPublished ? (
+                      <Play className="h-4 w-4" />
+                    ) : (
+                      <Lock className="h-4 w-4" />
+                    )}
                   </div>
-                  <Badge variant={
-                    assignment.status === "submitted" ? "success" :
-                    assignment.status === "pending" ? "warning" : "outline"
-                  }>
-                    {assignment.status}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{lesson.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {lesson.duration ? `${lesson.duration} min` : "Duration TBD"}
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="text-[10px]">Lesson {i + 1}</Badge>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
-        <TabsContent value="discussions" className="mt-4 space-y-4">
-          {mockPosts.slice(0, 2).map((post) => (
-            <PostCard key={post.id} post={post as unknown as import("@/shared/types").Post} />
-          ))}
+        <TabsContent value="discussions" className="mt-4">
+          <div className="text-center py-12 text-muted-foreground">
+            <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <p>No discussions yet</p>
+          </div>
         </TabsContent>
 
         <TabsContent value="ai" className="mt-4">

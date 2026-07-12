@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import { motion } from "framer-motion";
 import {
   MapPin,
   Calendar,
@@ -14,32 +13,71 @@ import {
   MessageSquare,
   UserPlus,
   UserMinus,
-  MoreHorizontal,
-  Star,
   TrendingUp,
   Medal,
-  Link as LinkIcon,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
 import { Card } from "@/shared/ui/card";
-import { PostCard } from "@/widgets/feed/post-card";
 import { CreatePost } from "@/widgets/feed/create-post";
-import { useAuthStore } from "@/stores/auth-store";
-import { mockUsers, mockPosts } from "@/lib/mock-data";
-import { formatNumber, formatDate, getInitials } from "@/lib/utils";
+import { useProfile } from "@/features/auth";
+import { useUser } from "@/features/users";
+import { useFollow, useUnfollow, useFollowers, useFollowing } from "@/features/followers";
+import { useSendFriendRequest } from "@/features/friends";
+import { formatNumber, formatDate, getInitials } from "@/shared/lib/utils";
+import { UserRole } from "@/shared/types/enums";
 
 export default function ProfilePage() {
   const params = useParams();
-  const { user: currentUser } = useAuthStore();
-  const [isFriend, setIsFriend] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-
+  const { data: currentUser } = useProfile();
   const userId = params.id as string;
-  const profileUser = userId === currentUser?.id ? currentUser : mockUsers.find((u) => u.id === userId) || mockUsers[0];
+  const { data: profileUser, isLoading } = useUser(userId);
+  const followMutation = useFollow();
+  const unfollowMutation = useUnfollow();
+  const sendFriendRequest = useSendFriendRequest();
+  const { data: followers = [] } = useFollowers(userId);
+  const { data: following = [] } = useFollowing(userId);
+
   const isOwnProfile = userId === currentUser?.id;
+
+  const followersCount = Array.isArray(followers) ? followers.length : 0;
+  const followingCount = Array.isArray(following) ? following.length : 0;
+  const friendsCount = (profileUser?._count?.friendsA ?? 0) + (profileUser?._count?.friendsB ?? 0);
+  const postsCount = profileUser?._count?.posts ?? 0;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-border bg-card overflow-hidden animate-pulse">
+          <div className="h-56 bg-muted" />
+          <div className="relative px-4 sm:px-6 pb-4 -mt-16 space-y-3">
+            <div className="h-32 w-32 rounded-full bg-muted border-4 border-card" />
+            <div className="h-6 w-48 bg-muted rounded" />
+            <div className="h-4 w-32 bg-muted rounded" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profileUser) {
+    return (
+      <div className="text-center py-12 text-muted-foreground">
+        <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+        <p>User not found</p>
+      </div>
+    );
+  }
+
+  const handleFollow = () => {
+    followMutation.mutate(userId);
+  };
+
+  const handleUnfollow = () => {
+    unfollowMutation.mutate(userId);
+  };
 
   return (
     <div className="space-y-4">
@@ -57,7 +95,7 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 sm:-mt-16">
             <div className="relative">
               <Avatar className="h-24 w-24 sm:h-32 sm:w-32 ring-4 ring-card">
-                <AvatarImage src={profileUser.avatar} />
+                <AvatarImage src={profileUser.avatar ?? undefined} />
                 <AvatarFallback className="text-3xl bg-primary/20 text-primary font-bold">
                   {getInitials(profileUser.name)}
                 </AvatarFallback>
@@ -70,11 +108,11 @@ export default function ProfilePage() {
             <div className="flex-1 sm:pb-2">
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-bold">{profileUser.name}</h1>
-                {profileUser.role === "teacher" && (
+                {profileUser.role === UserRole.TEACHER && (
                   <Badge variant="secondary" className="text-xs">Teacher</Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">{profileUser.bio}</p>
+              {profileUser.bio && <p className="text-sm text-muted-foreground">{profileUser.bio}</p>}
             </div>
 
             <div className="flex items-center gap-2 sm:pb-2">
@@ -86,11 +124,21 @@ export default function ProfilePage() {
               ) : (
                 <>
                   <Button
-                    variant={isFriend ? "outline" : "default"}
-                    onClick={() => setIsFriend(!isFriend)}
+                    variant="outline"
+                    onClick={handleFollow}
+                    disabled={followMutation.isPending || unfollowMutation.isPending}
                   >
-                    {isFriend ? <UserMinus className="h-4 w-4 mr-1" /> : <UserPlus className="h-4 w-4 mr-1" />}
-                    {isFriend ? "Remove Friend" : "Add Friend"}
+                    {followers.some((f: any) => f.followerId === currentUser?.id) ? (
+                      <>
+                        <UserMinus className="h-4 w-4 mr-1" />
+                        Unfollow
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="h-4 w-4 mr-1" />
+                        Follow
+                      </>
+                    )}
                   </Button>
                   <Button variant="outline">
                     <MessageSquare className="h-4 w-4" />
@@ -107,10 +155,12 @@ export default function ProfilePage() {
                 {profileUser.school}
               </div>
             )}
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              {profileUser.department || "Not specified"}
-            </div>
+            {profileUser.department && (
+              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                {profileUser.department}
+              </div>
+            )}
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
               Joined {formatDate(profileUser.createdAt)}
@@ -119,15 +169,15 @@ export default function ProfilePage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
             <div className="text-center p-3 rounded-xl bg-muted/50">
-              <p className="text-xl font-bold text-primary">{formatNumber(profileUser.postsCount)}</p>
+              <p className="text-xl font-bold text-primary">{formatNumber(postsCount)}</p>
               <p className="text-xs text-muted-foreground">Posts</p>
             </div>
             <div className="text-center p-3 rounded-xl bg-muted/50">
-              <p className="text-xl font-bold text-secondary">{formatNumber(profileUser.followersCount)}</p>
+              <p className="text-xl font-bold text-secondary">{formatNumber(followersCount)}</p>
               <p className="text-xs text-muted-foreground">Followers</p>
             </div>
             <div className="text-center p-3 rounded-xl bg-muted/50">
-              <p className="text-xl font-bold text-accent">{formatNumber(profileUser.followingCount)}</p>
+              <p className="text-xl font-bold text-accent">{formatNumber(followingCount)}</p>
               <p className="text-xs text-muted-foreground">Following</p>
             </div>
             <div className="text-center p-3 rounded-xl bg-muted/50">
@@ -148,7 +198,7 @@ export default function ProfilePage() {
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Role</span>
-                <span className="capitalize">{profileUser.role}</span>
+                <span className="capitalize">{profileUser.role?.toLowerCase()}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Level</span>
@@ -160,26 +210,8 @@ export default function ProfilePage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Coins</span>
-                <span>🪙 {formatNumber(profileUser.coins)}</span>
+                <span>{formatNumber(profileUser.coins)}</span>
               </div>
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Medal className="h-4 w-4 text-warning" />
-              Badges ({profileUser.badges.length})
-            </h3>
-            <div className="grid grid-cols-3 gap-2">
-              {profileUser.badges.map((badge) => (
-                <div
-                  key={badge.id}
-                  className="flex flex-col items-center gap-1 p-2 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <span className="text-2xl">{badge.icon}</span>
-                  <span className="text-[10px] text-center text-muted-foreground">{badge.name}</span>
-                </div>
-              ))}
             </div>
           </Card>
         </div>
@@ -195,9 +227,10 @@ export default function ProfilePage() {
 
             <TabsContent value="posts" className="mt-4 space-y-4">
               {isOwnProfile && <CreatePost />}
-              {mockPosts.slice(0, 3).map((post) => (
-                <PostCard key={post.id} post={{ ...post, author: profileUser } as unknown as import("@/shared/types").Post} />
-              ))}
+              <div className="text-center py-8 text-muted-foreground">
+                <Trophy className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>Posts will appear here</p>
+              </div>
             </TabsContent>
 
             <TabsContent value="about" className="mt-4">
@@ -215,19 +248,10 @@ export default function ProfilePage() {
 
             <TabsContent value="friends" className="mt-4">
               <Card className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Friends ({profileUser.friendsCount})</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {mockUsers.slice(0, 6).map((u) => (
-                    <div key={u.id} className="flex items-center gap-2 p-2 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="text-xs bg-primary/20 text-primary">{getInitials(u.name)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium truncate">{u.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{u.role}</p>
-                      </div>
-                    </div>
-                  ))}
+                <h3 className="text-lg font-semibold mb-4">Friends ({friendsCount})</h3>
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>Friends list will appear here</p>
                 </div>
               </Card>
             </TabsContent>

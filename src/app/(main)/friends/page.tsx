@@ -7,7 +7,6 @@ import {
   UserPlus,
   UserCheck,
   Search,
-  UserMinus,
   MessageSquare,
   MoreHorizontal,
   Users,
@@ -17,31 +16,37 @@ import { Input } from "@/shared/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
-import { mockUsers } from "@/lib/mock-data";
-import { getInitials } from "@/lib/utils";
+import {
+  useFriends,
+  useFriendRequests,
+  useAcceptFriendRequest,
+  useDeclineFriendRequest,
+  useSendFriendRequest,
+} from "@/features/friends";
+import { getInitials } from "@/shared/lib/utils";
 
 export default function FriendsPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [friendRequests, setFriendRequests] = useState(
-    mockUsers.slice(0, 3).map((u) => ({ ...u, requestStatus: "pending" as const }))
-  );
-  const [friends, setFriends] = useState(mockUsers.slice(0, 8));
-  const [suggestions, setSuggestions] = useState(mockUsers.slice(8, 16));
+  const { data: friends = [], isLoading: friendsLoading } = useFriends();
+  const { data: friendRequests = [], isLoading: requestsLoading } = useFriendRequests();
+  const acceptRequest = useAcceptFriendRequest();
+  const declineRequest = useDeclineFriendRequest();
+  const sendRequest = useSendFriendRequest();
 
-  const handleAcceptRequest = (userId: string) => {
-    const user = friendRequests.find((r) => r.id === userId);
-    if (user) {
-      setFriends((prev) => [user, ...prev]);
-      setFriendRequests((prev) => prev.filter((r) => r.id !== userId));
-    }
+  const pendingRequests = Array.isArray(friendRequests)
+    ? friendRequests.filter((r: any) => r.status === "PENDING")
+    : [];
+
+  const handleAcceptRequest = (requestId: string) => {
+    acceptRequest.mutate(requestId);
   };
 
-  const handleDeclineRequest = (userId: string) => {
-    setFriendRequests((prev) => prev.filter((r) => r.id !== userId));
+  const handleDeclineRequest = (requestId: string) => {
+    declineRequest.mutate(requestId);
   };
 
   const handleAddFriend = (userId: string) => {
-    setSuggestions((prev) => prev.filter((s) => s.id !== userId));
+    sendRequest.mutate(userId);
   };
 
   return (
@@ -71,120 +76,134 @@ export default function FriendsPage() {
             </TabsTrigger>
             <TabsTrigger value="requests">
               Requests
-              {friendRequests.length > 0 && (
-                <Badge variant="destructive" className="ml-1 text-[10px]">{friendRequests.length}</Badge>
+              {pendingRequests.length > 0 && (
+                <Badge variant="destructive" className="ml-1 text-[10px]">{pendingRequests.length}</Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {friends
-                .filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map((friend, i) => (
-                <motion.div
-                  key={friend.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
-                >
-                  <Link href={`/profile/${friend.id}`} className="flex items-center gap-3">
-                    <div className="relative">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={friend.avatar} />
-                        <AvatarFallback className="bg-primary/20 text-primary">{getInitials(friend.name)}</AvatarFallback>
-                      </Avatar>
-                      {friend.isOnline && (
-                        <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-success border-2 border-card" />
-                      )}
+            {friendsLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 animate-pulse">
+                    <div className="h-12 w-12 rounded-full bg-muted" />
+                    <div className="flex-1 space-y-1">
+                      <div className="h-4 w-32 bg-muted rounded" />
+                      <div className="h-3 w-20 bg-muted rounded" />
                     </div>
-                    <div>
-                      <p className="font-medium">{friend.name}</p>
-                      <p className="text-xs text-muted-foreground">{friend.friendsCount} friends</p>
-                    </div>
-                  </Link>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon-sm">
-                      <MessageSquare className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon-sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
                   </div>
-                </motion.div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {friends
+                  .filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map((friend, i) => (
+                  <motion.div
+                    key={friend.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
+                  >
+                    <Link href={`/profile/${friend.id}`} className="flex items-center gap-3">
+                      <div className="relative">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={friend.avatar ?? undefined} />
+                          <AvatarFallback className="bg-primary/20 text-primary">{getInitials(friend.name)}</AvatarFallback>
+                        </Avatar>
+                        {friend.isOnline && (
+                          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-success border-2 border-card" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-medium">{friend.name}</p>
+                        <p className="text-xs text-muted-foreground">{friend._count?.followers ?? 0} followers</p>
+                      </div>
+                    </Link>
+                    <div className="flex items-center gap-1">
+                      <Button variant="ghost" size="icon-sm">
+                        <MessageSquare className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon-sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))}
+                {friends.length === 0 && (
+                  <div className="col-span-2 text-center py-12 text-muted-foreground">
+                    <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No friends yet</p>
+                  </div>
+                )}
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="requests" className="mt-4">
-            {friendRequests.length === 0 ? (
+            {requestsLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 animate-pulse">
+                    <div className="h-12 w-12 rounded-full bg-muted" />
+                    <div className="flex-1 space-y-1">
+                      <div className="h-4 w-32 bg-muted rounded" />
+                      <div className="h-3 w-20 bg-muted rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : pendingRequests.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <UserCheck className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No pending friend requests</p>
               </div>
             ) : (
               <div className="space-y-2">
-                {friendRequests.map((request, i) => (
-                  <motion.div
-                    key={request.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="flex items-center justify-between p-3 rounded-xl bg-muted/30"
-                  >
-                    <Link href={`/profile/${request.id}`} className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={request.avatar} />
-                        <AvatarFallback className="bg-primary/20 text-primary">{getInitials(request.name)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{request.name}</p>
-                        <p className="text-xs text-muted-foreground">Wants to be your friend</p>
+                {pendingRequests.map((request: any, i: number) => {
+                  const sender = request.sender || request;
+                  return (
+                    <motion.div
+                      key={request.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="flex items-center justify-between p-3 rounded-xl bg-muted/30"
+                    >
+                      <Link href={`/profile/${sender.id}`} className="flex items-center gap-3">
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={sender.avatar ?? undefined} />
+                          <AvatarFallback className="bg-primary/20 text-primary">{getInitials(sender.name || "User")}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{sender.name}</p>
+                          <p className="text-xs text-muted-foreground">Wants to be your friend</p>
+                        </div>
+                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleAcceptRequest(request.id)}
+                          disabled={acceptRequest.isPending}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeclineRequest(request.id)}
+                          disabled={declineRequest.isPending}
+                        >
+                          Decline
+                        </Button>
                       </div>
-                    </Link>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" onClick={() => handleAcceptRequest(request.id)}>
-                        Accept
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleDeclineRequest(request.id)}>
-                        Decline
-                      </Button>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
-          </TabsContent>
-
-          <TabsContent value="suggestions" className="mt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {suggestions.map((suggestion, i) => (
-                <motion.div
-                  key={suggestion.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                  className="flex items-center justify-between p-3 rounded-xl bg-muted/30"
-                >
-                  <Link href={`/profile/${suggestion.id}`} className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={suggestion.avatar} />
-                      <AvatarFallback className="bg-primary/20 text-primary">{getInitials(suggestion.name)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{suggestion.name}</p>
-                      <p className="text-xs text-muted-foreground">{suggestion.friendsCount} mutual friends</p>
-                    </div>
-                  </Link>
-                  <Button size="sm" onClick={() => handleAddFriend(suggestion.id)}>
-                    <UserPlus className="h-4 w-4 mr-1" />
-                    Add
-                  </Button>
-                </motion.div>
-              ))}
-            </div>
           </TabsContent>
         </Tabs>
       </div>
