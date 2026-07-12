@@ -113,4 +113,10 @@ export const QUERY_KEYS = {
     bySeller: (sellerId: string) =>
       ["marketplace", "seller", sellerId] as const,
   },
+  search: {
+    all: ["search"] as const,
+    global: (q: string) => ["search", "global", q] as const,
+    autocomplete: (q: string) => ["search", "autocomplete", q] as const,
+    stats: ["search", "stats"] as const,
+  },
 } as const;

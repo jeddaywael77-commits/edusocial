@@ -28,6 +28,7 @@ import { GamificationModule } from './modules/gamification/gamification.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { SocketModule } from './modules/socket/socket.module';
 import { MediaModule } from './modules/media/media.module';
+import { SearchModule } from './modules/search/search.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { MediaModule } from './modules/media/media.module';
     LeaderboardModule,
     SocketModule,
     MediaModule,
+    SearchModule,
   ],
 })
 export class AppModule {}

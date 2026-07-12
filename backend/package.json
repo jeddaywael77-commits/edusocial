@@ -44,6 +44,7 @@
     "dotenv": "^17.4.2",
     "file-type": "^22.0.1",
     "ioredis": "^5.11.1",
+    "meilisearch": "^0.59.0",
     "minio": "^8.0.7",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

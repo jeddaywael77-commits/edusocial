@@ -167,3 +167,9 @@ export {
 } from "./marketplace";
 export { socketManager } from "./socket";
 export { mediaApi } from "./media";
+export {
+  searchApi,
+  useGlobalSearch,
+  useAutocomplete,
+  useSearchStats,
+} from "./search";
