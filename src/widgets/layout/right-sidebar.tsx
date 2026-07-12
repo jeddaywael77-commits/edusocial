@@ -16,10 +16,27 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import { Badge } from "@/shared/ui/badge";
-import { mockTrending, mockLeaderboard, mockUsers, mockCalendarEvents } from "@/lib/mock-data";
-import { formatNumber, getInitials, formatDate } from "@/lib/utils";
+import { useLeaderboardXp } from "@/features/leaderboard";
+import { useOnlineUsers } from "@/features/users";
+import { useCalendarEvents } from "@/features/calendar";
+import { formatNumber, getInitials, formatDate } from "@/shared/lib/utils";
+
+const mockTrending = [
+  { id: "1", title: "Calculus III", category: "Math", postsCount: 128 },
+  { id: "2", title: "Machine Learning", category: "CS", postsCount: 95 },
+  { id: "3", title: "Quantum Physics", category: "Physics", postsCount: 72 },
+  { id: "4", title: "Web Development", category: "CS", postsCount: 64 },
+];
 
 export function RightSidebar() {
+  const { data: leaderboard } = useLeaderboardXp(5);
+  const { data: onlineUsers } = useOnlineUsers();
+  const { data: events } = useCalendarEvents();
+
+  const onlineList = onlineUsers?.filter((u) => u.isOnline).slice(0, 8) ?? [];
+  const onlineCount = onlineUsers?.filter((u) => u.isOnline).length ?? 0;
+  const upcomingEvents = events?.slice(0, 3) ?? [];
+
   return (
     <aside className="hidden xl:block w-80 shrink-0">
       <div className="sticky top-16 space-y-4 max-h-[calc(100vh-4rem)] overflow-y-auto pb-4 pl-2">
@@ -31,7 +48,7 @@ export function RightSidebar() {
             </div>
           </div>
           <div className="space-y-2">
-            {mockTrending.slice(0, 4).map((topic, i) => (
+            {mockTrending.map((topic, i) => (
               <motion.div
                 key={topic.id}
                 initial={{ opacity: 0, x: 10 }}
@@ -57,14 +74,14 @@ export function RightSidebar() {
               <Users className="h-4 w-4 text-success" />
               <span className="text-sm font-medium">Online</span>
             </div>
-            <span className="text-xs text-muted-foreground">{mockUsers.filter((u) => u.isOnline).length} online</span>
+            <span className="text-xs text-muted-foreground">{onlineCount} online</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            {mockUsers.filter((u) => u.isOnline).slice(0, 8).map((u) => (
+            {onlineList.map((u) => (
               <Link key={u.id} href={`/profile/${u.id}`}>
                 <div className="relative group">
                   <Avatar className="h-9 w-9 ring-2 ring-transparent group-hover:ring-primary/50 transition-all">
-                    <AvatarImage src={u.avatar} />
+                    <AvatarImage src={u.avatar ?? undefined} />
                     <AvatarFallback className="text-xs bg-muted">
                       {getInitials(u.name)}
                     </AvatarFallback>
@@ -103,12 +120,12 @@ export function RightSidebar() {
             </div>
           </div>
           <div className="space-y-2">
-            {mockCalendarEvents.slice(0, 3).map((event) => (
+            {upcomingEvents.map((event) => (
               <div key={event.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted cursor-pointer transition-colors">
-                <div className="w-1 h-10 rounded-full" style={{ backgroundColor: event.color }} />
+                <div className="w-1 h-10 rounded-full" style={{ backgroundColor: event.color ?? "#3B82F6" }} />
                 <div>
                   <p className="text-sm font-medium line-clamp-1">{event.title}</p>
-                  <p className="text-xs text-muted-foreground">{event.date} at {event.time}</p>
+                  <p className="text-xs text-muted-foreground">{event.date} at {event.startTime}</p>
                 </div>
               </div>
             ))}
@@ -128,9 +145,9 @@ export function RightSidebar() {
             </Link>
           </div>
           <div className="space-y-2">
-            {mockLeaderboard.slice(0, 5).map((entry, i) => (
+            {leaderboard?.map((entry, i) => (
               <div
-                key={entry.user.id}
+                key={entry.id}
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted transition-colors"
               >
                 <span className={`text-sm font-bold w-5 text-center ${
@@ -139,13 +156,13 @@ export function RightSidebar() {
                   {i + 1}
                 </span>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={entry.user.avatar} />
+                  <AvatarImage src={entry.avatar ?? undefined} />
                   <AvatarFallback className="text-xs bg-muted">
-                    {getInitials(entry.user.name)}
+                    {getInitials(entry.name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{entry.user.name}</p>
+                  <p className="text-sm font-medium truncate">{entry.name}</p>
                 </div>
                 <span className="text-xs text-muted-foreground font-mono">
                   {formatNumber(entry.xp)} XP

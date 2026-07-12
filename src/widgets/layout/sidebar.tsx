@@ -19,8 +19,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
-import { useAuthStore } from "@/stores/auth-store";
-import { getInitials, formatNumber } from "@/lib/utils";
+import { useProfile } from "@/features/auth";
+import { useGamificationStats } from "@/features/gamification";
+import { getInitials, formatNumber } from "@/shared/lib/utils";
 
 const menuItems = [
   { label: "My Profile", href: "/profile/1", icon: User },
@@ -36,7 +37,8 @@ const menuItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user } = useAuthStore();
+  const { data: user } = useProfile();
+  const { data: stats } = useGamificationStats();
 
   return (
     <aside className="hidden lg:block w-72 shrink-0">
@@ -44,7 +46,7 @@ export function Sidebar() {
         <div className="rounded-2xl border border-border bg-card p-4">
           <Link href={`/profile/${user?.id}`} className="flex items-center gap-3 mb-4 group">
             <Avatar className="h-12 w-12 ring-2 ring-primary/20">
-              <AvatarImage src={user?.avatar} />
+              <AvatarImage src={user?.avatar ?? undefined} />
               <AvatarFallback className="bg-primary/20 text-primary font-semibold">
                 {getInitials(user?.name || "U")}
               </AvatarFallback>
@@ -53,21 +55,21 @@ export function Sidebar() {
               <p className="font-semibold group-hover:text-primary transition-colors">
                 {user?.name}
               </p>
-              <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+              <p className="text-xs text-muted-foreground capitalize">{user?.role?.toLowerCase()}</p>
             </div>
           </Link>
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="text-center p-2 rounded-xl bg-muted/50">
-              <p className="text-sm font-bold text-primary">{user?.friendsCount || 0}</p>
+              <p className="text-sm font-bold text-primary">{(user?._count?.friendsA ?? 0) + (user?._count?.friendsB ?? 0)}</p>
               <p className="text-[10px] text-muted-foreground">Friends</p>
             </div>
             <div className="text-center p-2 rounded-xl bg-muted/50">
-              <p className="text-sm font-bold text-secondary">{user?.followersCount || 0}</p>
+              <p className="text-sm font-bold text-secondary">{user?._count?.followers ?? 0}</p>
               <p className="text-[10px] text-muted-foreground">Followers</p>
             </div>
             <div className="text-center p-2 rounded-xl bg-muted/50">
-              <p className="text-sm font-bold text-accent">{user?.postsCount || 0}</p>
+              <p className="text-sm font-bold text-accent">{user?._count?.posts ?? 0}</p>
               <p className="text-[10px] text-muted-foreground">Posts</p>
             </div>
           </div>
@@ -127,12 +129,12 @@ export function Sidebar() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Coins</span>
               <Badge variant="warning" className="text-xs">
-                🪙 {formatNumber(user?.coins || 0)}
+                {formatNumber(user?.coins || 0)}
               </Badge>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">Badges</span>
-              <span className="text-xs">{user?.badges?.length || 0} earned</span>
+              <span className="text-xs">{stats?.badgeCount ?? 0} earned</span>
             </div>
           </div>
         </div>

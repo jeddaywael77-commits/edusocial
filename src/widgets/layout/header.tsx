@@ -30,9 +30,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/ui/dropdown-menu";
-import { useAuthStore } from "@/stores/auth-store";
-import { useNotificationStore } from "@/stores/notification-store";
-import { getInitials } from "@/lib/utils";
+import { useProfile, useLogout } from "@/features/auth";
+import { useUnreadCount } from "@/features/notifications";
+import { getInitials } from "@/shared/lib/utils";
 
 const navItems = [
   { label: "Feed", href: "/feed", icon: Home },
@@ -44,8 +44,10 @@ const navItems = [
 
 export function Header() {
   const pathname = usePathname();
-  const { user, logout } = useAuthStore();
-  const { unreadCount } = useNotificationStore();
+  const { data: user } = useProfile();
+  const logout = useLogout();
+  const { data: unreadData } = useUnreadCount();
+  const unreadCount = unreadData?.count ?? 0;
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -130,7 +132,7 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="gap-2 pl-1">
                 <Avatar className="h-7 w-7">
-                  <AvatarImage src={user?.avatar} />
+                  <AvatarImage src={user?.avatar ?? undefined} />
                   <AvatarFallback className="text-xs bg-primary/20 text-primary">
                     {getInitials(user?.name || "U")}
                   </AvatarFallback>
@@ -156,7 +158,7 @@ export function Header() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout} className="text-destructive">
+              <DropdownMenuItem onClick={() => logout.mutate()} className="text-destructive">
                 <LogOut className="h-4 w-4" />
                 Log Out
               </DropdownMenuItem>
