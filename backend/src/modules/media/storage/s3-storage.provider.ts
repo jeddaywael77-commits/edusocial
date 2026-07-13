@@ -22,6 +22,11 @@ export class S3StorageProvider implements IStorageProvider, OnModuleInit {
   constructor(private configService: ConfigService) {}
 
   onModuleInit() {
+    const storageType = this.configService.get<string>('media.storageType') || 'local';
+    if (storageType !== 's3' && storageType !== 'minio') {
+      this.logger.log('S3 client skipped (storage type: ' + storageType + ')');
+      return;
+    }
     this.client = new S3Client({
       region: this.configService.get<string>('media.s3Region') || 'us-east-1',
       credentials: {

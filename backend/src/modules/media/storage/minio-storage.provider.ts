@@ -23,6 +23,11 @@ export class MinioStorageProvider
   constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
+    const storageType = this.configService.get<string>('media.storageType') || 'local';
+    if (storageType !== 'minio') {
+      this.logger.log('MinIO client skipped (storage type: ' + storageType + ')');
+      return;
+    }
     this.client = new Minio.Client({
       endPoint:
         this.configService.get<string>('media.minioEndpoint') || 'localhost',

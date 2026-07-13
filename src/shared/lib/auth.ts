@@ -7,9 +7,20 @@ export function getAccessToken(): string | null {
   return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
 }
 
+function setCookie(name: string, value: string, maxAge = 86400): void {
+  if (typeof window === "undefined") return;
+  document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
+}
+
+function deleteCookie(name: string): void {
+  if (typeof window === "undefined") return;
+  document.cookie = `${name}=; path=/; max-age=0`;
+}
+
 export function setAccessToken(token: string): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, token);
+  setCookie("access_token", token);
 }
 
 export function getRefreshToken(): string | null {
@@ -26,6 +37,7 @@ export function clearAuth(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
   localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+  deleteCookie("access_token");
 }
 
 export function setTokenPair(accessToken: string, refreshToken: string): void {

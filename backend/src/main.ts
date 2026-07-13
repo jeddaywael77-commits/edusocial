@@ -129,19 +129,21 @@ async function bootstrap() {
     );
   }
 
-  // WebSocket adapter with Redis
-  const socketService = app.get(SocketService);
+  // WebSocket adapter
   const ioAdapter = new (await import('@nestjs/platform-socket.io')).IoAdapter(
     app,
   );
-  socketService.createRedisAdapter();
-  ioAdapter.createIOServer = ((originalCreateIOServer: any) => {
-    return (...args: any[]) => {
-      const server = originalCreateIOServer.apply(ioAdapter, args);
-      server.adapter(socketService.createRedisAdapter());
-      return server;
-    };
-  })(ioAdapter.createIOServer.bind(ioAdapter));
+  if (nodeEnv === 'production') {
+    const socketService = app.get(SocketService);
+    socketService.createRedisAdapter();
+    ioAdapter.createIOServer = ((originalCreateIOServer: any) => {
+      return (...args: any[]) => {
+        const server = originalCreateIOServer.apply(ioAdapter, args);
+        server.adapter(socketService.createRedisAdapter());
+        return server;
+      };
+    })(ioAdapter.createIOServer.bind(ioAdapter));
+  }
   app.useWebSocketAdapter(ioAdapter);
 
   const port = configService.get<number>('app.port') || 3001;

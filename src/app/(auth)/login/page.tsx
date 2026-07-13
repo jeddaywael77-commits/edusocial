@@ -23,8 +23,9 @@ export default function LoginPage() {
     try {
       await login.mutateAsync({ email, password });
       router.push("/feed");
-    } catch {
-      setError("Invalid email or password");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "Invalid email or password";
+      setError(Array.isArray(msg) ? msg.join(", ") : msg);
     }
   };
 

@@ -1,18 +1,22 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import { CreatePost } from "@/widgets/feed/create-post";
 import { Stories } from "@/widgets/feed/stories";
 import { FeedList } from "@/widgets/feed/feed-list";
-import { QuickActions } from "@/widgets/feed/quick-actions";
 
 export default function FeedPage() {
   return (
-    <div className="space-y-4">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-4"
+    >
       <Stories />
-      <QuickActions />
       <CreatePost />
       <FeedList />
-    </div>
+    </motion.div>
   );
 }

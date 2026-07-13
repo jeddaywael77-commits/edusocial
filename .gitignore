@@ -1,6 +1,6 @@
 # Build output
 backend/dist/
-frontend/.next/
+.next/
 out/
 
 # Dependencies
@@ -28,7 +28,7 @@ Thumbs.db
 .idea/
 
 # Prisma
-prisma/dev.db
+backend/prisma/dev.db
 
 # Temporary
 tmp/

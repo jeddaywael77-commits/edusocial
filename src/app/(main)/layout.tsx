@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { Header } from "@/widgets/layout/header";
 import { Sidebar } from "@/widgets/layout/sidebar";
 import { RightSidebar } from "@/widgets/layout/right-sidebar";
@@ -37,11 +38,17 @@ export default function MainLayout({
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="max-w-[1920px] mx-auto px-4">
+      <div className="max-w-[1400px] mx-auto px-4">
         <div className="flex gap-6 py-4">
           <Sidebar />
-          <main className="flex-1 min-w-0 max-w-2xl mx-auto lg:mx-0">
-            {children}
+          <main className="flex-1 min-w-0">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {children}
+            </motion.div>
           </main>
           <RightSidebar />
         </div>

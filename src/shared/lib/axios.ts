@@ -55,7 +55,17 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Unwrap the TransformInterceptor envelope: { success, data, timestamp } -> data
+    if (response.data && typeof response.data === "object" && "success" in response.data && "data" in response.data) {
+      response.data = response.data.data;
+    }
+    // Unwrap offset-paginated responses: { data: [...], meta } -> [...]
+    if (response.data && typeof response.data === "object" && !Array.isArray(response.data) && Array.isArray(response.data.data) && response.data.meta) {
+      response.data = response.data.data;
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
@@ -103,7 +113,7 @@ apiClient.interceptors.response.use(
           }
         );
 
-        const { accessToken, refreshToken: newRefreshToken } = data.tokens ?? data;
+        const { accessToken, refreshToken: newRefreshToken } = data.data ?? data;
         setTokenPair(accessToken, newRefreshToken ?? refreshToken);
         processQueue(null, accessToken);
 

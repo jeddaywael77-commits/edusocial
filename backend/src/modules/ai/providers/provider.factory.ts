@@ -14,9 +14,9 @@ export class ProviderFactory {
 
   constructor(private readonly config: ConfigService) {
     this.initializeProviders();
-    this.activeProvider = this.getProvider(
-      this.config.get<string>('ai.provider') || 'openai',
-    );
+    const preferred =
+      this.config.get<string>('ai.provider') || 'ollama';
+    this.activeProvider = this.providers.get(preferred) || this.providers.values().next().value!;
     this.logger.log(`Active AI provider: ${this.activeProvider.name}`);
   }
 

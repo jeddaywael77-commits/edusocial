@@ -1,4 +1,4 @@
-import { Processor } from '@nestjs/bullmq';
+import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { PrismaService } from '../../../database/prisma.service';
@@ -15,16 +15,18 @@ export interface MediaProcessJob {
 @Processor('media-processing', {
   concurrency: 2,
 })
-export class MediaProcessor {
+export class MediaProcessor extends WorkerHost {
   private readonly logger = new Logger(MediaProcessor.name);
 
   constructor(
     private prisma: PrismaService,
     private imageProcessor: ImageProcessor,
     private documentProcessor: DocumentProcessor,
-  ) {}
+  ) {
+    super();
+  }
 
-  async process(job: Job<MediaProcessJob>) {
+  async process(job: Job<MediaProcessJob>): Promise<void> {
     const { mediaId, mimeType } = job.data;
     this.logger.log(`Processing media: ${mediaId} (${mimeType})`);
 

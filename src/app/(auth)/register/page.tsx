@@ -37,8 +37,9 @@ export default function RegisterPage() {
     try {
       await register.mutateAsync({ name, email, password, role });
       router.push("/feed");
-    } catch {
-      setError("Registration failed. Please try again.");
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || "Registration failed. Please try again.";
+      setError(Array.isArray(msg) ? msg.join(", ") : msg);
     }
   };
 
