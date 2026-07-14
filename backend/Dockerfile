@@ -52,4 +52,4 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD wget -qO- http://localhost:3001/health/live || exit 1
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "echo \"DATABASE_URL=$DATABASE_URL\" && ./node_modules/.bin/prisma migrate deploy --schema prisma/schema.prisma && node dist/main"]
