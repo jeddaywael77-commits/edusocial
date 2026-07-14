@@ -21,6 +21,9 @@ import {
   Zap,
   Award,
   Coins,
+  Newspaper,
+  CalendarDays,
+  Globe,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
@@ -34,6 +37,9 @@ const menuItems = [
   { label: "My Groups", href: "/groups", icon: Users },
   { label: "Documents", href: "/documents", icon: FileText },
   { label: "Calendar", href: "/calendar", icon: Calendar },
+  { label: "News", href: "/news", icon: Newspaper },
+  { label: "Events", href: "/events", icon: CalendarDays },
+  { label: "Study Tunisia", href: "/study-tunisia", icon: Globe },
   { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { label: "Badges", href: "/badges", icon: Medal },
   { label: "Results", href: "/results", icon: BarChart3 },

@@ -176,6 +176,14 @@ model User {
   friendsB              Friendship[]     @relation("FriendB")
   media                 Media[]
   auditLogs             AuditLog[]
+  newsArticles          NewsArticle[]
+  newsComments          NewsComment[]
+  newsLikes             NewsLike[]
+  createdEvents         Event[]
+  eventAttendances      EventAttendee[]
+  studyGuides           StudyGuide[]
+  studyQuestions        StudyQuestion[]
+  studyAnswers          StudyAnswer[]
 
   @@index([email])
   @@index([role])
@@ -787,4 +795,243 @@ model Media {
   @@index([mimeType])
   @@index([createdAt])
   @@index([isDeleted])
+}
+
+// ─── News ────────────────────────────────────────────────────────────────────
+
+model NewsArticle {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.Text
+  summary     String?  @db.Text
+  coverImage  String?
+  category    String   @default("general")
+  isPublished Boolean  @default(false)
+  viewCount   Int      @default(0)
+  authorId    String
+  isDeleted   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author   User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments NewsComment[]
+  likes    NewsLike[]
+
+  @@index([authorId])
+  @@index([category])
+  @@index([createdAt])
+  @@index([isPublished])
+  @@index([isDeleted])
+}
+
+model NewsComment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  authorId  String
+  articleId String
+  createdAt DateTime @default(now())
+
+  author  User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  article NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId])
+  @@index([authorId])
+}
+
+model NewsLike {
+  id        String   @id @default(uuid())
+  userId    String
+  articleId String
+  createdAt DateTime @default(now())
+
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  article NewsArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([articleId])
+}
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+
+model Event {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?  @db.Text
+  coverImage    String?
+  date          DateTime
+  startTime     DateTime
+  endTime       DateTime?
+  location      String?
+  maxAttendees  Int?
+  isPublic      Boolean  @default(true)
+  type          String   @default("social")
+  creatorId     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  creator   User             @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  attendees EventAttendee[]
+
+  @@index([creatorId])
+  @@index([date])
+  @@index([isPublic])
+}
+
+model EventAttendee {
+  id       String   @id @default(uuid())
+  eventId  String
+  userId   String
+  status   String   @default("going")
+  joinedAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+}
+
+// ─── Study in Tunisia ────────────────────────────────────────────────────────
+
+model Institution {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  logo        String?
+  coverImage  String?
+  type        String   @default("university")
+  city        String
+  address     String?
+  website     String?
+  email       String?
+  phone       String?
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  programs      StudyProgram[]
+  guides        StudyGuide[]
+  admissions    AdmissionInfo[]
+  scholarships  Scholarship[]
+
+  @@index([type])
+  @@index([city])
+}
+
+model StudyProgram {
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  description   String?  @db.Text
+  field         String
+  level         String   @default("bachelor")
+  duration      String?
+  language      String   @default("français")
+  tuitionFees   String?
+  institutionId String
+  isPublished   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId])
+  @@index([field])
+  @@index([level])
+}
+
+model StudyGuide {
+  id            String   @id @default(uuid())
+  title         String
+  slug          String   @unique
+  content       String   @db.Text
+  summary       String?  @db.Text
+  coverImage    String?
+  category      String   @default("general")
+  isPublished   Boolean  @default(false)
+  authorId      String
+  institutionId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  institution Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+
+  @@index([authorId])
+  @@index([category])
+  @@index([institutionId])
+}
+
+model AdmissionInfo {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?  @db.Text
+  institutionId String
+  deadline      DateTime
+  requirements  String?  @db.Text
+  isOpen        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId])
+  @@index([deadline])
+}
+
+model Scholarship {
+  id            String   @id @default(uuid())
+  title         String
+  description   String?  @db.Text
+  institutionId String?
+  amount        String?
+  deadline      DateTime
+  requirements  String?  @db.Text
+  isAvailable   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  institution Institution? @relation(fields: [institutionId], references: [id], onDelete: SetNull)
+
+  @@index([institutionId])
+  @@index([deadline])
+}
+
+model StudyQuestion {
+  id          String   @id @default(uuid())
+  title       String
+  content     String   @db.Text
+  authorId    String
+  tags        String[]
+  viewCount   Int      @default(0)
+  answerCount Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author  User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  answers StudyAnswer[]
+
+  @@index([authorId])
+  @@index([tags])
+  @@index([createdAt])
+}
+
+model StudyAnswer {
+  id         String   @id @default(uuid())
+  content    String   @db.Text
+  authorId   String
+  questionId String
+  isAccepted Boolean  @default(false)
+  upvotes    Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  author   User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  question StudyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([authorId])
 }

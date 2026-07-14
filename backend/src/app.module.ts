@@ -36,6 +36,9 @@ import { AiModule } from './modules/ai/ai.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { GroupMembersModule } from './modules/group-members/group-members.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { NewsModule } from './modules/news/news.module';
+import { EventsModule } from './modules/events/events.module';
+import { StudyTunisiaModule } from './modules/study-tunisia/study-tunisia.module';
 
 @Module({
   imports: [
@@ -106,6 +109,9 @@ import { UploadModule } from './modules/upload/upload.module';
     AdminModule,
     GroupMembersModule,
     UploadModule,
+    NewsModule,
+    EventsModule,
+    StudyTunisiaModule,
   ],
   providers: [
     {

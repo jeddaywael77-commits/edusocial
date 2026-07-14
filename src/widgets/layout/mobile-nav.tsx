@@ -3,13 +3,14 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, Bot, Users, MessageSquare } from "lucide-react";
+import { Home, BookOpen, Bot, MessageSquare, Newspaper, CalendarDays } from "lucide-react";
 
 const items = [
   { label: "Feed", href: "/feed", icon: Home },
   { label: "Courses", href: "/courses", icon: BookOpen },
   { label: "AI", href: "/ai", icon: Bot },
-  { label: "Groups", href: "/groups", icon: Users },
+  { label: "News", href: "/news", icon: Newspaper },
+  { label: "Events", href: "/events", icon: CalendarDays },
   { label: "Chat", href: "/messages", icon: MessageSquare },
 ];
 

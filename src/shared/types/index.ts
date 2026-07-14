@@ -375,3 +375,174 @@ export interface MediaUploadProgress {
   error?: string;
   xhr?: XMLHttpRequest;
 }
+
+// ─── News ────────────────────────────────────────────────────────────────────
+
+export interface NewsArticle {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  summary: string | null;
+  coverImage: string | null;
+  category: string;
+  isPublished: boolean;
+  viewCount: number;
+  authorId: string;
+  createdAt: string;
+  updatedAt: string;
+  author?: UserPublic;
+  _count?: { comments: number; likes: number };
+  isLiked?: boolean;
+}
+
+export interface NewsComment {
+  id: string;
+  content: string;
+  authorId: string;
+  articleId: string;
+  createdAt: string;
+  author?: UserPublic;
+}
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string | null;
+  coverImage: string | null;
+  date: string;
+  startTime: string;
+  endTime: string | null;
+  location: string | null;
+  maxAttendees: number | null;
+  isPublic: boolean;
+  type: string;
+  creatorId: string;
+  createdAt: string;
+  updatedAt: string;
+  creator?: UserPublic;
+  _count?: { attendees: number };
+  isAttending?: boolean;
+  attendanceStatus?: string | null;
+}
+
+export interface EventAttendee {
+  id: string;
+  eventId: string;
+  userId: string;
+  status: string;
+  joinedAt: string;
+  user?: UserPublic;
+}
+
+// ─── Study in Tunisia ────────────────────────────────────────────────────────
+
+export interface Institution {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  logo: string | null;
+  coverImage: string | null;
+  type: string;
+  city: string;
+  address: string | null;
+  website: string | null;
+  email: string | null;
+  phone: string | null;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  programs?: StudyProgram[];
+  admissions?: AdmissionInfo[];
+  scholarships?: Scholarship[];
+  _count?: { programs: number; admissions: number; scholarships: number };
+}
+
+export interface StudyProgram {
+  id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  field: string;
+  level: string;
+  duration: string | null;
+  language: string;
+  tuitionFees: string | null;
+  institutionId: string;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  institution?: Institution;
+}
+
+export interface StudyGuide {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  summary: string | null;
+  coverImage: string | null;
+  category: string;
+  isPublished: boolean;
+  authorId: string;
+  createdAt: string;
+  updatedAt: string;
+  author?: UserPublic;
+}
+
+export interface AdmissionInfo {
+  id: string;
+  title: string;
+  description: string | null;
+  institutionId: string;
+  deadline: string;
+  requirements: string | null;
+  isOpen: boolean;
+  createdAt: string;
+  updatedAt: string;
+  institution?: Institution;
+}
+
+export interface Scholarship {
+  id: string;
+  title: string;
+  description: string | null;
+  institutionId: string | null;
+  amount: string | null;
+  deadline: string;
+  requirements: string | null;
+  isAvailable: boolean;
+  createdAt: string;
+  updatedAt: string;
+  institution?: Institution;
+}
+
+export interface StudyQuestion {
+  id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  tags: string[];
+  viewCount: number;
+  answerCount: number;
+  createdAt: string;
+  updatedAt: string;
+  author?: UserPublic;
+  answers?: StudyAnswer[];
+  _count?: { answers: number };
+}
+
+export interface StudyAnswer {
+  id: string;
+  content: string;
+  authorId: string;
+  questionId: string;
+  isAccepted: boolean;
+  upvotes: number;
+  createdAt: string;
+  updatedAt: string;
+  author?: UserPublic;
+}

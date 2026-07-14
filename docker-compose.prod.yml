@@ -1,0 +1,220 @@
+services:
+  # ─── Database ───────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-edusocial}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  # ─── Cache ──────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD:-changeme}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  # ─── Search ─────────────────────────────────────────────────────────────────
+  meilisearch:
+    image: getmeili/meilisearch:v1.12
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: production
+      MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-masterKey}
+    volumes:
+      - meilisearch_data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  # ─── Vector DB ──────────────────────────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:v1.14
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  # ─── Object Storage ─────────────────────────────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-changeme}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - internal
+
+  # ─── Backend (NestJS API) ───────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-edusocial}?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-changeme}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET in .env}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-15m}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-7d}
+      CORS_ORIGIN: https://${DOMAIN:-facebookedu.com}
+      MEILISEARCH_HOST: meilisearch
+      MEILISEARCH_PORT: 7700
+      MEILISEARCH_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-masterKey}
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-llama-3-70b-8192}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      STORAGE_TYPE: local
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health/live"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+    networks:
+      - internal
+
+  # ─── Frontend (Next.js) ─────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://${DOMAIN:-facebookedu.com}/api/v1
+        NEXT_PUBLIC_APP_NAME: EduSocial
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    networks:
+      - internal
+
+  # ─── Reverse Proxy ──────────────────────────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./backend/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_certs:/etc/nginx/ssl:ro
+      - uploads_data:/app/uploads:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - internal
+
+  # ─── Monitoring ─────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./backend/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - internal
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-changeme}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./backend/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./backend/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    networks:
+      - internal
+
+# ─── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  internal:
+    driver: bridge
+
+# ─── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+  redis_data:
+  meilisearch_data:
+  qdrant_data:
+  minio_data:
+  uploads_data:
+  nginx_certs:
+  prometheus_data:
+  grafana_data:
