@@ -32,7 +32,6 @@ ENV PORT=3001
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
 
-# Copy built artifacts
 COPY --from=builder --chown=nestjs:nodejs /app/backend/dist ./dist
 COPY --from=prod-deps --chown=nestjs:nodejs /app/backend/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/backend/package.json ./package.json
@@ -40,7 +39,6 @@ COPY --from=builder --chown=nestjs:nodejs /app/backend/prisma ./prisma
 COPY --from=builder --chown=nestjs:nodejs /app/backend/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nestjs:nodejs /app/backend/node_modules/@prisma ./node_modules/@prisma
 
-# Create uploads directory
 RUN mkdir -p /app/backend/uploads && chown nestjs:nodejs /app/backend/uploads
 
 USER nestjs
@@ -50,4 +48,4 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD wget -qO- http://localhost:3001/health/live || exit 1
 
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]

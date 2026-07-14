@@ -4,7 +4,7 @@ node_modules
 .gitignore
 .env*
 !.env.example
-Dockerfile
+Dockerfile.frontend
 docker-compose*.yml
 README.md
 .vscode
